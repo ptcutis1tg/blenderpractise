@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>LearnFlow</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-background": "#0f172a",
+          "tertiary": "#c2410c",
+          "secondary-fixed-dim": "#68dba9",
+          "background": "#f8fafc",
+          "tertiary-fixed": "#ffdbcc",
+          "surface-bright": "#ffffff",
+          "surface-dim": "#f1f5f9",
+          "on-secondary": "#ffffff",
+          "inverse-primary": "#818cf8",
+          "outline": "#94a3b8",
+          "primary-fixed-dim": "#c3c0ff",
+          "on-tertiary-fixed-variant": "#7b2f00",
+          "error": "#ba1a1a",
+          "error-container": "#ffdad6",
+          "surface": "#f8fafc",
+          "surface-container-high": "#e2e8f0",
+          "on-tertiary-container": "#ffd2be",
+          "tertiary-fixed-dim": "#ffb695",
+          "surface-container-highest": "#cbd5e1",
+          "on-secondary-fixed-variant": "#005137",
+          "secondary": "#059669",
+          "on-primary-fixed": "#0f0069",
+          "surface-container": "#ffffff",
+          "on-error": "#ffffff",
+          "secondary-fixed": "#85f8c4",
+          "primary-container": "#4f46e5",
+          "surface-container-low": "#f8fafc",
+          "on-tertiary": "#ffffff",
+          "on-secondary-fixed": "#002114",
+          "surface-tint": "#4f46e5",
+          "inverse-on-surface": "#f1f5f9",
+          "surface-container-lowest": "#ffffff",
+          "secondary-container": "#ecfdf5",
+          "primary-fixed": "#e2dfff",
+          "inverse-surface": "#1e293b",
+          "on-secondary-container": "#047857",
+          "on-primary-fixed-variant": "#3323cc",
+          "tertiary-container": "#fff7ed",
+          "surface-variant": "#f1f5f9",
+          "on-primary-container": "#ffffff",
+          "on-error-container": "#93000a",
+          "primary": "#4f46e5",
+          "on-surface-variant": "#64748b",
+          "on-surface": "#0f172a",
+          "on-tertiary-fixed": "#351000",
+          "outline-variant": "#e2e8f0",
+          "on-primary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "margin": "1.5rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "gutter": "1.5rem",
+          "margin-desktop": "2rem",
+          "space-md": "1rem",
+          "gutter-desktop": "1.5rem",
+          "space-xl": "2rem"
+        },
+        "fontFamily": {
+          "headline-xl": ["Plus Jakarta Sans", "sans-serif"],
+          "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+          "body-sm": ["Plus Jakarta Sans", "sans-serif"],
+          "body-md": ["Plus Jakarta Sans", "sans-serif"],
+          "headline-md": ["Space Grotesk", "sans-serif"],
+          "headline-sm": ["Space Grotesk", "sans-serif"],
+          "title-lg": ["Space Grotesk", "sans-serif"],
+          "title-md": ["Space Grotesk", "sans-serif"],
+          "label-md": ["Plus Jakarta Sans", "sans-serif"],
+          "label-lg": ["Plus Jakarta Sans", "sans-serif"],
+          "headline-lg": ["Space Grotesk", "sans-serif"],
+          "label-sm": ["Plus Jakarta Sans", "sans-serif"]
+        },
+        "fontSize": {
+          "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+          "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+          "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}]
+        }
+      }
+    }
+  };
+</script></head><body class="bg-[#F8FAFC] font-body-md text-body-md text-[#0F172A]"><aside class="fixed left-0 top-0 h-full w-60 bg-white border-r border-[#E2E8F0] z-50 flex flex-col pt-6 pb-6 shadow-[1px_0_12px_rgba(0,0,0,0.02)]"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-[#0F172A] tracking-tight">LearnFlow</span></div><nav class="flex-1 px-space-md space-y-space-xs" data-active-classes="bg-[#EEF2FF] text-[#4F46E5] font-semibold rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-[#EEF2FF] text-[#4F46E5] font-semibold rounded-lg shadow-sm" data-path="home" href="#"><span class="material-symbols-outlined text-[20px] text-[#4F46E5]">home</span><span>Home</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all" data-path="search" href="#"><span class="material-symbols-outlined text-[20px]">search</span><span>Search</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all" data-path="my-courses" href="#"><span class="material-symbols-outlined text-[20px]">school</span><span>My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav><div class="px-space-md mt-auto"><div class="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-space-md space-y-space-sm shadow-sm"><div class="flex items-center gap-space-sm font-label-md text-label-md text-[#1E293B]"><span>🔥</span><span class="font-semibold">12 Days Streak</span></div><div class="flex items-center gap-space-sm font-label-sm text-label-sm text-[#64748B]"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span><span>Ollama: Connected</span></div></div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-[#E2E8F0] shadow-sm z-40 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-[#0F172A] tracking-tight">LearnFlow</span></div><div class="flex items-center gap-space-md"><div class="w-9 h-9 rounded-full bg-[#EEF2FF] border border-[#C7D2FE] flex items-center justify-center text-[#4F46E5] font-semibold"><span class="material-symbols-outlined text-[#4F46E5] text-[20px]">person</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] min-h-screen w-full px-margin"><div class="flex flex-col w-full pb-12">
+<section class="py-space-lg flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="min-w-0">
+<p class="font-label-sm text-label-sm uppercase tracking-wider text-[#4F46E5] font-bold mb-space-xs">Workspace • Active Session</p>
+<h1 class="font-headline-md text-headline-md text-[#0F172A] truncate">Welcome back, Alex! What are you learning today?</h1>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<button class="bg-white hover:bg-slate-50 border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A] px-space-md py-space-sm rounded-lg flex items-center gap-space-sm font-label-md text-label-md transition-all shadow-sm" id="quick-search-btn" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#64748B]">search</span>
+<span>⌘K / Ctrl+K Search anything...</span>
+</button>
+<button class="bg-white hover:bg-slate-50 border border-[#CBD5E1] text-[#1E293B] font-semibold px-space-md py-space-sm rounded-lg font-label-lg text-label-lg transition-all shadow-sm" type="button">
+        Manage &amp; Edit
+      </button>
+<div class="relative">
+<button class="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-space-md py-space-sm rounded-lg font-label-lg text-label-lg flex items-center gap-space-xs shadow-md hover:shadow-indigo-500/25 transition-all" id="new-roadmap-btn" type="button">
+<span>+ New Roadmap</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-space-xs w-48 bg-white border border-[#E2E8F0] rounded-xl shadow-xl py-space-xs z-30" id="new-roadmap-menu">
+<button class="w-full text-left px-space-md py-space-sm font-label-md text-label-md text-[#1E293B] hover:bg-slate-50 flex items-center gap-space-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#4F46E5]">edit_note</span>
+<span>Manual</span>
+</button>
+<button class="w-full text-left px-space-md py-space-sm font-label-md text-label-md text-[#1E293B] hover:bg-slate-50 flex items-center gap-space-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#059669]">auto_awesome</span>
+<span>AI Generate</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<section class="relative bg-white border border-[#E2E8F0] rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-[#EEF2FF] via-transparent to-[#ECFDF5]/50 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg">
+<div class="flex-1 min-w-0">
+<div class="inline-flex items-center gap-space-xs bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-[#4F46E5] animate-pulse"></span>
+<span class="font-bold">RESUME LEARNING</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-[#0F172A] mt-space-sm font-bold">Python for Data Analysis &amp; Automation</h2>
+<p class="font-body-md text-body-md text-[#64748B] mt-space-xs">Section 3: Pandas DataFrames • Lesson 3.2: Filtering &amp; Grouping</p>
+<div class="mt-space-lg max-w-2xl">
+<div class="flex items-center justify-between font-label-md text-label-md mb-space-xs">
+<span class="text-[#64748B] font-medium">17 of 25 lessons finished</span>
+<span class="text-[#4F46E5] font-bold">68%</span>
+</div>
+<div class="w-full h-2.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-700" style="width: 68%;"></div>
+</div>
+</div>
+<div class="mt-space-lg">
+<button class="bg-[#4F46E5] hover:bg-[#4338CA] text-white px-space-lg py-space-sm rounded-lg font-label-lg text-label-lg shadow-md hover:shadow-indigo-500/25 transition-all inline-flex items-center gap-space-sm font-medium" type="button">
+<span>Continue Lesson →</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-space-lg shrink-0 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-space-md">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-24 h-24 -rotate-90" viewbox="0 0 100 100">
+<circle class="text-[#E2E8F0]" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-[#4F46E5]" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="80.38" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<span class="absolute font-title-md text-title-md text-[#0F172A] font-bold">68%</span>
+</div>
+<img class="w-32 h-24 rounded-lg object-cover hidden sm:block border border-[#CBD5E1]" data-alt="Minimalist dark slate 3D geometric data visualization with glowing indigo and emerald nodes representing Python Pandas DataFrames and analytical pipelines, soft studio lighting, obsidian background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb14yzfuagoNnx5_qa2EEdPaREIQq_C-xgC5y8CZH2uso2XqCiYtMkVOvqV3862jM667_Zms6tahk4qQM3xgi0Ii0flTFqJrpLc3LIWvq5h9trWhlk8jjBvbf-iMAraXyb-gnsD-Qqp_fxhiVFUzX4mjFWFwywpmf7Sjifh8ixQCKj1aG3pZ1Pxr6EpCAL2auHl1uu8dCo2pEPGurpbSAn4C8dBeQA_nFx-ktV8PU"/>
+</div>
+</div>
+</section>
+<section class="mt-space-xl pb-space-xl">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<h2 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">My Roadmaps / Courses</h2>
+<div class="bg-white border border-[#E2E8F0] p-1 rounded-lg inline-flex items-center gap-space-xs self-start sm:self-auto shadow-sm" id="course-filters">
+<button class="filter-tab bg-[#4F46E5] text-white px-space-md py-space-xs rounded-md font-label-md text-label-md transition-all font-medium" data-filter="all" type="button">All</button>
+<button class="filter-tab text-[#64748B] hover:text-[#0F172A] px-space-md py-space-xs rounded-md font-label-md text-label-md transition-all font-medium" data-filter="in-progress" type="button">In Progress</button>
+<button class="filter-tab text-[#64748B] hover:text-[#0F172A] px-space-md py-space-xs rounded-md font-label-md text-label-md transition-all font-medium" data-filter="completed" type="button">Completed</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter mt-space-lg" id="courses-grid">
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="in-progress">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">Programming</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">Python for Data Analysis &amp; Automation</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Master NumPy, Pandas DataFrames, and automated reporting workflows for real-world datasets.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Progress</span>
+<span class="text-[#4F46E5] font-bold">68%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-500" style="width: 68%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>17/25 lessons • 5 quizzes passed</span>
+<span>Last studied: 2 hours ago</span>
+</div>
+</div>
+</article>
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="in-progress">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">AI</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">LLM Engineering &amp; RAG Systems</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Build production retrieval-augmented generation pipelines with vector databases and local models.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Progress</span>
+<span class="text-[#4F46E5] font-bold">45%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-500" style="width: 45%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>9/20 lessons • 3 quizzes passed</span>
+<span>Last studied: Yesterday</span>
+</div>
+</div>
+</article>
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="in-progress">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">Finance</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">Quantitative Finance &amp; Algorithmic Trading</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Explore time-series forecasting, backtesting engines, and portfolio risk optimization.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Progress</span>
+<span class="text-[#4F46E5] font-bold">32%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-500" style="width: 32%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>8/25 lessons • 2 quizzes passed</span>
+<span>Last studied: 3 days ago</span>
+</div>
+</div>
+</article>
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="completed">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">Programming</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">TypeScript &amp; Modern React Architecture</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Design type-safe component systems, custom hooks, and high-performance state management.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Completed</span>
+<span class="text-[#059669] font-bold">100%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#059669] rounded-full transition-all duration-500" style="width: 100%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>18/18 lessons • 6 quizzes passed</span>
+<span>Last studied: 1 week ago</span>
+</div>
+</div>
+</article>
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="in-progress">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">AI</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">Deep Learning &amp; Neural Networks</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Understand backpropagation, transformers, and PyTorch model training from scratch.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Progress</span>
+<span class="text-[#4F46E5] font-bold">80%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-500" style="width: 80%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>16/20 lessons • 4 quizzes passed</span>
+<span>Last studied: 5 hours ago</span>
+</div>
+</div>
+</article>
+<article class="course-card bg-white hover:border-[#CBD5E1] border border-[#E2E8F0] rounded-xl p-space-lg transition-all duration-200 flex flex-col justify-between shadow-sm hover:shadow-md" data-status="in-progress">
+<div>
+<div class="flex items-center justify-between gap-space-sm">
+<span class="bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] px-space-sm py-space-xs rounded-full font-label-sm text-label-sm font-semibold">Finance</span>
+<button aria-label="Course options" class="text-[#94A3B8] hover:text-[#0F172A] p-space-xs rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h3 class="font-title-md text-title-md text-[#0F172A] font-bold mt-space-md">Corporate Valuation &amp; Financial Modeling</h3>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-space-xs line-clamp-2">Build dynamic 3-statement models, DCF valuations, and sensitivity tables for equity research.</p>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-space-xs">
+<span class="text-[#64748B] font-medium">Progress</span>
+<span class="text-[#4F46E5] font-bold">90%</span>
+</div>
+<div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+<div class="h-full bg-[#4F46E5] rounded-full transition-all duration-500" style="width: 90%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-[#64748B] mt-space-md">
+<span>18/20 lessons • 5 quizzes passed</span>
+<span>Last studied: 4 days ago</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</div>
+<script>
+  (function () {
+    const newRoadmapBtn = document.getElementById('new-roadmap-btn');
+    const newRoadmapMenu = document.getElementById('new-roadmap-menu');
+
+    if (newRoadmapBtn && newRoadmapMenu) {
+      newRoadmapBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        newRoadmapMenu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', function () {
+        if (!newRoadmapMenu.classList.contains('hidden')) {
+          newRoadmapMenu.classList.add('hidden');
+        }
+      });
+    }
+
+    const filterButtons = document.querySelectorAll('.filter-tab');
+    const courseCards = document.querySelectorAll('.course-card');
+
+    filterButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const filter = btn.getAttribute('data-filter');
+
+        filterButtons.forEach(function (b) {
+          b.classList.remove('bg-[#4F46E5]', 'text-white');
+          b.classList.add('text-[#64748B]');
+        });
+        btn.classList.add('bg-[#4F46E5]', 'text-white');
+        btn.classList.remove('text-[#64748B]');
+
+        courseCards.forEach(function (card) {
+          const status = card.getAttribute('data-status');
+          if (filter === 'all' || status === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  })();
+</script></main></div></body></html>

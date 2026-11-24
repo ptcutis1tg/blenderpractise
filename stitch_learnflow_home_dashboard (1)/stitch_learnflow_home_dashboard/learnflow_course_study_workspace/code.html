@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>LearnFlow</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-background":"#0F172A","on-primary-container":"#ffffff","surface-tint":"#4F46E5","on-tertiary-fixed":"#351000","tertiary":"#D97706","secondary-fixed-dim":"#6EE7B7","surface-container-lowest":"#FFFFFF","on-tertiary-container":"#FFFFFF","on-secondary":"#FFFFFF","on-secondary-container":"#065F46","outline":"#94A3B8","on-secondary-fixed-variant":"#047857","surface-variant":"#F1F5F9","on-primary-fixed":"#1E1B4B","background":"#F8FAFC","secondary-container":"#D1FAE5","surface-dim":"#E2E8F0","primary":"#4F46E5","primary-fixed-dim":"#818CF8","surface":"#F8FAFC","surface-container-low":"#FFFFFF","tertiary-fixed-dim":"#FCD34D","secondary-fixed":"#A7F3D0","on-tertiary-fixed-variant":"#92400E","on-primary":"#FFFFFF","secondary":"#059669","error":"#DC2626","surface-container-highest":"#E2E8F0","on-primary-fixed-variant":"#3730A3","on-error-container":"#7F1D1D","inverse-surface":"#1E293B","error-container":"#FEE2E2","inverse-on-surface":"#F8FAFC","on-secondary-fixed":"#064E3B","surface-bright":"#FFFFFF","primary-fixed":"#EEF2FF","surface-container-high":"#F1F5F9","on-tertiary":"#FFFFFF","on-surface-variant":"#64748B","on-error":"#FFFFFF","on-surface":"#0F172A","inverse-primary":"#C7D2FE","primary-container":"#4F46E5","surface-container":"#FFFFFF","tertiary-fixed":"#FEF3C7","tertiary-container":"#F59E0B","outline-variant":"#E2E8F0"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gutter":"1.5rem","space-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","margin":"2rem","space-xl":"2rem","space-xs":"0.25rem"},"fontFamily":{"headline-lg-mobile":["Space Grotesk"],"label-md":["Plus Jakarta Sans"],"headline-sm":["Space Grotesk"],"title-lg":["Space Grotesk"],"headline-md":["Space Grotesk"],"body-md":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"headline-lg":["Space Grotesk"],"label-lg":["Plus Jakarta Sans"],"display-lg":["Space Grotesk"],"title-md":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"]},"fontSize":{"headline-lg-mobile":["26px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"title-lg":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","fontWeight":"500"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-60 bg-white border-r border-[#E2E8F0] z-50 flex flex-col pt-6 pb-6"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-[#0F172A] tracking-tight font-bold">LearnFlow</span></div><nav class="flex-1 px-space-md space-y-space-xs"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] transition-all" data-path="home" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Home</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] transition-all" data-path="search" href="#"><span class="material-symbols-outlined text-[20px]">search</span><span>Search</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg bg-indigo-50 text-indigo-600 font-semibold shadow-sm transition-all" data-path="my-courses" href="#"><span class="material-symbols-outlined text-[20px] text-indigo-600">school</span><span>My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav><div class="px-space-md mt-auto"><div class="bg-slate-50 border border-[#E2E8F0] rounded-xl p-space-md space-y-space-sm"><div class="flex items-center gap-space-sm font-label-md text-label-md text-[#0F172A] font-semibold"><span>🔥</span><span>12 Days Streak</span></div><div class="flex items-center gap-space-sm font-label-sm text-label-sm text-[#64748B]"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"></span><span>Ollama: Connected</span></div></div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-[#E2E8F0] shadow-sm z-40 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-[#0F172A] tracking-tight font-bold">LearnFlow</span></div><div class="flex items-center gap-space-md"><div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] min-h-screen w-full px-margin"><div class="flex flex-col w-full pb-16">
+<!-- Top Ambient Glow -->
+<div class="relative w-full">
+<div class="absolute -top-12 left-1/4 w-96 h-40 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="absolute top-10 right-1/4 w-72 h-40 bg-emerald-500/5 rounded-full blur-[90px] pointer-events-none"></div>
+</div>
+<!-- Breadcrumbs & Meta Topline -->
+<div class="flex items-center justify-between py-space-sm mb-space-md">
+<nav class="flex items-center gap-space-xs font-label-md text-label-md text-[#64748B]">
+<a class="flex items-center gap-1 hover:text-[#0F172A] transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">home</span>
+<span>Home</span>
+</a>
+<span class="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+<a class="hover:text-[#0F172A] transition-colors" href="#">Data Science Track</a>
+<span class="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+<span class="text-indigo-600 font-semibold">Python for Data Analysis &amp; Automation</span>
+</nav>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-[#64748B]">
+<span class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-emerald-700 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+        Roadmap Synced
+      </span>
+<span class="text-slate-400">Last activity: 2 hours ago</span>
+</div>
+</div>
+<!-- Workspace Header & Action Row -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg mb-space-xl">
+<div class="space-y-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-label-sm text-label-sm font-semibold tracking-wide uppercase border border-indigo-100">
+<span class="material-symbols-outlined text-[13px]">terminal</span>
+          Programming
+        </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-label-sm text-label-sm font-medium border border-slate-200">
+<span class="material-symbols-outlined text-[13px]">query_stats</span>
+          Data Science
+        </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-label-sm text-label-sm font-medium border border-slate-200">
+          Level: Intermediate
+        </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-[#0F172A] font-bold tracking-tight">
+        Python for Data Analysis &amp; Automation
+      </h1>
+<p class="font-body-md text-body-md text-[#64748B] leading-relaxed">
+        Master numerical computing, vectorized tabular processing with Pandas, automated pipeline scripts, and publication-ready visual diagnostics.
+      </p>
+</div>
+<!-- Right-aligned action buttons -->
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="inline-flex items-center gap-space-xs px-3.5 py-2 rounded-lg bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-label-lg text-label-lg font-medium transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-slate-600">edit_note</span>
+<span>Edit Roadmap</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-3.5 py-2 rounded-lg bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-label-lg text-label-lg font-medium transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-slate-600">ios_share</span>
+<span>Share</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-3.5 py-2 rounded-lg bg-white border border-[#E2E8F0] hover:bg-slate-50 text-[#0F172A] font-label-lg text-label-lg font-medium transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-slate-600">download</span>
+<span>Export Syllabus</span>
+</button>
+</div>
+</div>
+<!-- Overall Progress Banner -->
+<div class="relative overflow-hidden rounded-xl bg-white border border-[#E2E8F0] p-space-lg shadow-sm mb-space-xl">
+<div class="absolute right-0 top-0 w-80 h-full bg-gradient-to-l from-indigo-50/60 via-transparent to-transparent pointer-events-none"></div>
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-lg relative z-10">
+<!-- Main Metric and Progress Bar -->
+<div class="flex-1 space-y-space-md">
+<div class="flex items-baseline justify-between">
+<div class="flex items-center gap-space-md">
+<span class="font-display-lg text-display-lg font-bold text-[#0F172A] tracking-tight">68%</span>
+<div>
+<div class="font-title-md text-title-md text-[#0F172A] font-semibold">Curriculum Completion</div>
+<div class="font-body-sm text-body-sm text-[#64748B]">Ahead of your targeted weekly milestones</div>
+</div>
+</div>
+<span class="font-label-md text-label-md text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">17 of 25 Units Finished</span>
+</div>
+<!-- Custom Glowing Horizontal Progress Track -->
+<div class="relative w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+<div class="h-full rounded-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 relative transition-all duration-700 shadow-sm" style="width: 68%;">
+<div class="absolute right-0 top-0 bottom-0 w-2.5 bg-white/80 rounded-full"></div>
+</div>
+</div>
+<!-- Stats Metric Chips -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-[#E2E8F0] text-[#0F172A] font-label-md text-label-md font-medium">
+<span class="material-symbols-outlined text-[16px] text-emerald-600 font-semibold" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>17/25 Lessons Finished</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-[#E2E8F0] text-[#0F172A] font-label-md text-label-md font-medium">
+<span class="material-symbols-outlined text-[16px] text-indigo-600">psychology</span>
+<span>5/8 Quizzes Passed</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-[#E2E8F0] text-[#0F172A] font-label-md text-label-md font-medium">
+<span class="material-symbols-outlined text-[16px] text-amber-600">schedule</span>
+<span>4.5h remaining</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-[#E2E8F0] text-[#64748B] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-slate-500">calendar_clock</span>
+<span>Est. Finish: <strong class="text-[#0F172A] ml-1 font-semibold">4 days</strong></span>
+</div>
+</div>
+</div>
+<!-- Quick Action CTA -->
+<div class="xl:border-l border-[#E2E8F0] xl:pl-space-xl flex flex-col justify-center gap-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-slate-500 font-semibold">Current Target</span>
+<div class="font-title-md text-title-md text-[#0F172A] font-semibold">Lesson 2.2: DataFrame Indexing</div>
+<a class="inline-flex items-center justify-center gap-space-sm px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-label-lg text-label-lg font-bold shadow-md shadow-indigo-600/20 transition-all hover:scale-[1.01]" href="#lesson-2-2">
+<span>Resume Study: Lesson 2.2</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Section Layout Container -->
+<div class="space-y-space-xl">
+<!-- ========================================== -->
+<!-- SECTION 1: Module 1 (Completed - 100%)    -->
+<!-- ========================================== -->
+<section class="rounded-xl bg-white border border-[#E2E8F0] overflow-hidden transition-all duration-200 shadow-sm">
+<!-- Section Header -->
+<div class="p-space-lg flex items-center justify-between cursor-pointer bg-slate-50/70 hover:bg-slate-100/60 border-b border-[#E2E8F0] transition-colors" onclick="toggleSection('module-1-body', 'mod-1-icon')">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h2 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold truncate">Module 1: Python Fundamentals</h2>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#065F46] font-label-sm text-label-sm font-semibold border border-emerald-200">
+<span class="material-symbols-outlined text-[13px]">done_all</span>
+                100% Complete • 8 Lessons
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-0.5">Foundational syntax, variable scopes, functional programming principles, and script architecture.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-md text-label-md text-emerald-700 font-semibold hidden md:inline-block">Mastered</span>
+<div class="w-8 h-8 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center text-slate-500 hover:text-[#0F172A]">
+<span class="material-symbols-outlined text-[20px] transition-transform duration-200" id="mod-1-icon">expand_less</span>
+</div>
+</div>
+</div>
+<!-- Collapsible Body -->
+<div class="p-space-lg space-y-space-md bg-white" id="module-1-body">
+<!-- Lessons Grid / List -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+<!-- Lesson 1.1 -->
+<div class="p-space-md rounded-lg bg-slate-50 border border-[#E2E8F0] flex items-center justify-between group hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-emerald-600 text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="truncate">
+<div class="font-label-lg text-label-lg text-[#0F172A] font-medium truncate">Lesson 1.1: Syntax &amp; Variables</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Completed Oct 12</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-[#64748B] font-label-sm text-label-sm shrink-0">12m</span>
+</div>
+<!-- Lesson 1.2 -->
+<div class="p-space-md rounded-lg bg-slate-50 border border-[#E2E8F0] flex items-center justify-between group hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-emerald-600 text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="truncate">
+<div class="font-label-lg text-label-lg text-[#0F172A] font-medium truncate">Lesson 1.2: Control Flow &amp; Loops</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Completed Oct 14</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-[#64748B] font-label-sm text-label-sm shrink-0">18m</span>
+</div>
+<!-- Lesson 1.3 -->
+<div class="p-space-md rounded-lg bg-slate-50 border border-[#E2E8F0] flex items-center justify-between group hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-emerald-600 text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="truncate">
+<div class="font-label-lg text-label-lg text-[#0F172A] font-medium truncate">Lesson 1.3: Functions &amp; Modules</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Completed Oct 15</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-[#64748B] font-label-sm text-label-sm shrink-0">25m</span>
+</div>
+</div>
+<!-- Completed Practice Block -->
+<div class="rounded-xl bg-emerald-50/50 border border-emerald-100 p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+<span class="material-symbols-outlined text-[22px]">military_tech</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-[#0F172A] font-semibold">Module 1 Mastery Exam</span>
+<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">Quiz Score: 10/10 • Passed</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#64748B]">Comprehensive knowledge verification covering base expressions, lambdas, and exception handling.</p>
+</div>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-emerald-200 text-[#0F172A] font-label-md text-label-md font-medium transition-colors self-start sm:self-auto shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-emerald-700">visibility</span>
+<span>Review Answers</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 2: Module 2 (In Progress - 60%)    -->
+<!-- ========================================== -->
+<section class="rounded-xl bg-white border border-[#E2E8F0] shadow-sm overflow-hidden">
+<!-- Section Header -->
+<div class="p-space-lg bg-slate-50/70 border-b border-[#E2E8F0] flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="w-7 h-7 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              02
+            </div>
+<h2 class="font-headline-sm text-headline-sm text-[#0F172A] font-bold">Module 2: Working with Pandas &amp; NumPy</h2>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-label-sm text-label-sm font-semibold border border-indigo-200">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+              In Progress
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-[#64748B]">
+            High-performance numerical vectorization, indexing schemas, missing data treatment, and multi-tier group summaries.
+          </p>
+</div>
+<div class="flex items-center gap-space-lg shrink-0">
+<div class="w-48 space-y-1">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-[#64748B] font-medium">Module Progress</span>
+<span class="text-indigo-600 font-bold">60%</span>
+</div>
+<div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-indigo-600 rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-slate-500">expand_less</span>
+</div>
+</div>
+<div class="p-space-lg space-y-space-lg bg-white">
+<!-- Lessons Vertical Stack -->
+<div class="space-y-space-xs">
+<!-- Lesson 2.1 (Checked) -->
+<div class="flex items-center justify-between p-space-md rounded-lg bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="min-w-0">
+<div class="font-title-md text-title-md text-[#0F172A] font-medium truncate">Lesson 2.1: NumPy Arrays &amp; Vectorization</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Completed yesterday • Vector operations &amp; broadcasting rules</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-[#64748B] font-label-sm text-label-sm">15m</span>
+<button class="text-slate-400 hover:text-[#0F172A]">
+<span class="material-symbols-outlined text-[20px]">replay</span>
+</button>
+</div>
+</div>
+<!-- Lesson 2.2 (Active / Highlighted) -->
+<div class="relative flex flex-col md:flex-row md:items-center justify-between p-space-md rounded-lg bg-[#EEF2FF] border-2 border-[#6366F1] shadow-sm gap-space-md" id="lesson-2-2">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="relative w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+<span class="absolute inset-0 rounded-full bg-indigo-500 animate-ping opacity-25"></span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-[#0F172A] font-bold truncate">Lesson 2.2: DataFrame Indexing &amp; Selection</span>
+<span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white font-label-sm text-label-sm font-bold uppercase tracking-wider">Active</span>
+</div>
+<p class="font-body-sm text-body-sm text-[#64748B] mt-0.5">Mastering .loc, .iloc, boolean masking, and multi-index slicing idioms.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-end md:self-auto">
+<span class="px-2.5 py-1 rounded bg-white border border-indigo-200 text-indigo-700 font-label-sm text-label-sm font-semibold">20m read</span>
+<a class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-label-md text-label-md font-bold transition-all shadow-sm" href="#">
+<span>Continue</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Lesson 2.3 (Unchecked) -->
+<div class="flex items-center justify-between p-space-md rounded-lg bg-slate-50/60 border border-slate-200/60 hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+<span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+</div>
+<div class="min-w-0">
+<div class="font-title-md text-title-md text-[#0F172A] font-medium truncate">Lesson 2.3: Handling Missing Values</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Imputation strategies, dropna heuristics, and indicator columns</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm">18m</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400">lock_open</span>
+</div>
+</div>
+<!-- Lesson 2.4 (Unchecked) -->
+<div class="flex items-center justify-between p-space-md rounded-lg bg-slate-50/60 border border-slate-200/60 hover:bg-slate-100 transition-colors">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+<span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+</div>
+<div class="min-w-0">
+<div class="font-title-md text-title-md text-[#0F172A] font-medium truncate">Lesson 2.4: GroupBy &amp; Aggregations</div>
+<div class="font-label-sm text-label-sm text-[#64748B]">Split-apply-combine logic, named aggregates, and rolling transforms</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm">22m</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400">lock_open</span>
+</div>
+</div>
+</div>
+<!-- Dedicated Practice Exercises Block -->
+<div class="rounded-xl bg-slate-50 border border-indigo-200/80 p-space-lg relative overflow-hidden">
+<div class="absolute -right-10 -bottom-10 w-44 h-44 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="text-xl">🎯</span>
+<h3 class="font-title-lg text-title-lg text-[#0F172A] font-bold">Module 2 Practice &amp; Review (3 Exercises)</h3>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">smart_toy</span>
+                AI Evaluated
+              </span>
+</div>
+<span class="font-label-sm text-label-sm text-[#64748B]">Recommended after Lesson 2.2</span>
+</div>
+<!-- Practice Grid Bento -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Exercise 1: MCQ Quiz -->
+<div class="p-space-md rounded-lg bg-white border border-[#E2E8F0] shadow-sm flex flex-col justify-between group hover:border-indigo-300 transition-colors">
+<div class="space-y-space-xs mb-space-md">
+<div class="flex items-center justify-between">
+<span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+<span class="material-symbols-outlined text-[18px]">quiz</span>
+</span>
+<span class="font-label-sm text-label-sm text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Ready</span>
+</div>
+<div class="font-title-md text-title-md text-[#0F172A] font-bold">DataFrame Filtering Quiz</div>
+<p class="font-body-sm text-body-sm text-[#64748B]">
+                  Test your boolean masking &amp; conditional assignment under time constraints • 5 questions
+                </p>
+</div>
+<button class="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1 shadow-sm">
+<span>Start Quiz</span>
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</div>
+<!-- Exercise 2: Flashcards -->
+<div class="p-space-md rounded-lg bg-white border border-[#E2E8F0] shadow-sm flex flex-col justify-between group hover:border-amber-300 transition-colors">
+<div class="space-y-space-xs mb-space-md">
+<div class="flex items-center justify-between">
+<span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100">
+<span class="material-symbols-outlined text-[18px]">style</span>
+</span>
+<span class="font-label-sm text-label-sm text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full">Spaced Repetition</span>
+</div>
+<div class="font-title-md text-title-md text-[#0F172A] font-bold">Pandas Idioms Flashcards</div>
+<p class="font-body-sm text-body-sm text-[#64748B]">
+                  10 cards available for review focusing on Series vector operations vs standard Python maps.
+                </p>
+</div>
+<button class="w-full py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1 border border-slate-200">
+<span>Review Cards</span>
+<span class="material-symbols-outlined text-[16px]">view_carousel</span>
+</button>
+</div>
+<!-- Exercise 3: Code Sandbox Challenge -->
+<div class="p-space-md rounded-lg bg-white border border-[#E2E8F0] shadow-sm flex flex-col justify-between group hover:border-emerald-300 transition-colors">
+<div class="space-y-space-xs mb-space-md">
+<div class="flex items-center justify-between">
+<span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</span>
+<span class="font-label-sm text-label-sm text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded-full">Notebook Ready</span>
+</div>
+<div class="font-title-md text-title-md text-[#0F172A] font-bold">Data Cleansing Sandbox</div>
+<p class="font-body-sm text-body-sm text-[#64748B]">
+                  Challenge: Clean a messy real-world customer dataset containing ISO timestamps and missing values.
+                </p>
+</div>
+<button class="w-full py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1 border border-slate-200">
+<span>Launch Challenge</span>
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 3: Module 3 (Locked - 0%)          -->
+<!-- ========================================== -->
+<section class="rounded-xl bg-[#F1F5F9] border border-slate-200 overflow-hidden">
+<!-- Section Header -->
+<div class="p-space-lg flex items-center justify-between bg-slate-100/60">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center text-[#94A3B8] shrink-0">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h2 class="font-headline-sm text-headline-sm text-slate-600 font-semibold truncate">Module 3: Data Visualization with Seaborn &amp; Matplotlib</h2>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-200 text-[#94A3B8] font-label-sm text-label-sm font-medium">
+                Next Up • 0% Complete (6 Lessons)
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-[#94A3B8] mt-0.5">Statistical plotting distributions, figure aesthetics, regression surfaces, and subplots grids.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="px-3 py-1 rounded-full bg-slate-200 text-slate-600 font-label-sm text-label-sm font-semibold">
+            Unlocks after Module 2
+          </span>
+<span class="material-symbols-outlined text-[20px] text-slate-400">expand_more</span>
+</div>
+</div>
+<!-- Preview Locked Items Teaser -->
+<div class="px-space-lg py-space-md flex flex-wrap gap-space-sm bg-slate-100/40 border-t border-slate-200">
+<span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm font-medium">Lesson 3.1: Figure Canvas Hierarchy</span>
+<span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm font-medium">Lesson 3.2: Distribution Plots &amp; KDEs</span>
+<span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm font-medium">Lesson 3.3: Categorical Stripplots</span>
+<span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-500 font-label-sm text-label-sm font-medium">+ 3 more topics</span>
+</div>
+</section>
+</div>
+<!-- Ambient Footer Quick Summary -->
+<div class="mt-space-xl p-space-md rounded-xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-between font-label-sm text-label-sm text-[#64748B]">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-indigo-600 text-[18px]">auto_stories</span>
+<span>Syllabus Version 4.2 • Updated yesterday with pandas 2.2 idioms</span>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="hover:text-[#0F172A] transition-colors" href="#">Download Offline Materials (.zip)</a>
+<span class="text-slate-300">•</span>
+<a class="hover:text-[#0F172A] transition-colors" href="#">Reset Module Progress</a>
+</div>
+</div>
+</div>
+<script>
+  function toggleSection(bodyId, iconId) {
+    const body = document.getElementById(bodyId);
+    const icon = document.getElementById(iconId);
+    if (!body || !icon) return;
+    
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      icon.textContent = 'expand_less';
+    } else {
+      body.classList.add('hidden');
+      icon.textContent = 'expand_more';
+    }
+  }
+</script></main></div></body></html>

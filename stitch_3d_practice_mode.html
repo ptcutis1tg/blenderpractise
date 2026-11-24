@@ -1,0 +1,577 @@
+<!-- BlenderFlow - 3D Practice Mode (50:50 Dual View) -->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>BlenderFlow - 3D Practice Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#262a35",
+            "secondary-fixed-dim": "#4edea3",
+            "on-surface-variant": "#c7c4d8",
+            "surface-container-lowest": "#0a0e18",
+            "on-surface": "#dfe2f1",
+            "secondary": "#4edea3",
+            "outline": "#918fa1",
+            "background": "#0f131d",
+            "surface-container-highest": "#313540",
+            "primary-container": "#4f46e5",
+            "surface-container-low": "#171b26",
+            "surface": "#0f131d",
+            "surface-container": "#1c1f2a",
+            "primary": "#c3c0ff",
+            "tertiary": "#ffb695"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+            display: ["Space Grotesk", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#0f131d] font-sans text-[#dfe2f1] select-none antialiased">
+  <!-- Left Sidebar (Fixed 220px) -->
+  <aside class="fixed left-0 top-0 h-full w-[220px] bg-[#171b26] z-50 flex flex-col justify-between border-r border-[#262a35]">
+    <div class="flex flex-col">
+      <div class="h-11 px-4 flex items-center justify-between bg-[#0a0e18]/50 border-b border-[#262a35]">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-[#ea7600] flex items-center justify-center shadow-md">
+            <span class="material-symbols-outlined text-white text-[15px]">view_in_ar</span>
+          </div>
+          <span class="font-display font-bold text-base text-[#dfe2f1] tracking-tight">BlenderFlow</span>
+        </div>
+      </div>
+      <nav class="flex flex-col gap-1 px-2 mt-3">
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#c7c4d8] hover:bg-[#262a35] hover:text-white transition-colors" href="#">
+          <span class="material-symbols-outlined text-[18px]">home</span><span>Home</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#c7c4d8] hover:bg-[#262a35] hover:text-white transition-colors" href="#">
+          <span class="material-symbols-outlined text-[18px]">search</span><span>Search</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-[#4f46e5] text-white font-semibold shadow-md" href="#">
+          <span class="material-symbols-outlined text-[18px]">route</span><span>My Roadmaps</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#c7c4d8] hover:bg-[#262a35] hover:text-white transition-colors" href="#">
+          <span class="material-symbols-outlined text-[18px]">keyboard</span><span>Hotkeys</span>
+        </a>
+        <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#c7c4d8] hover:bg-[#262a35] hover:text-white transition-colors" href="#">
+          <span class="material-symbols-outlined text-[18px]">settings</span><span>Settings</span>
+        </a>
+      </nav>
+    </div>
+    <div class="p-3 flex flex-col gap-1.5 bg-[#0a0e18]/80 border-t border-[#262a35]">
+      <div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#1c1f2a] text-xs">
+        <span class="text-[#918fa1] uppercase tracking-wider font-semibold">Streak</span>
+        <span class="text-[#ffb695] font-bold flex items-center gap-1">🔥 12d</span>
+      </div>
+      <div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#1c1f2a] text-xs">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#4edea3] shadow-[0_0_8px_rgba(78,222,163,0.5)]"></span>
+          <span class="text-[#dfe2f1] font-medium">Blender 4.2 Bridge</span>
+        </div>
+        <span class="material-symbols-outlined text-[14px] text-[#4edea3]">cable</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="pl-[220px]">
+    <!-- Top Header -->
+    <header class="fixed top-0 left-[220px] right-0 h-11 bg-[#1c1f2a]/90 backdrop-blur-xl z-40 flex items-center justify-between px-5 border-b border-[#262a35]">
+      <div class="flex items-center gap-2 text-xs text-[#c7c4d8]">
+        <span class="material-symbols-outlined text-[17px] text-[#4f46e5]">deployed_code</span>
+        <span class="text-[#918fa1]">/</span>
+        <span class="text-[#dfe2f1] font-medium">Hard-Surface & Low-Poly Modeling</span>
+        <span class="text-[#918fa1]">/</span>
+        <span class="text-[#c3c0ff] bg-[#4f46e5]/20 px-2 py-0.5 rounded font-mono">Module 2</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="flex items-center gap-1 px-2.5 py-1 rounded bg-[#262a35] text-[#dfe2f1] hover:bg-[#313540] text-xs font-medium transition-colors" type="button">
+          <span class="material-symbols-outlined text-[14px]">play_arrow</span>Run Sync
+        </button>
+        <button class="flex items-center gap-1 px-3 py-1 rounded bg-[#4f46e5] text-white hover:bg-[#4338ca] text-xs font-semibold shadow-md transition-colors" type="button">
+          <span class="material-symbols-outlined text-[14px]">check_circle</span>Submit
+        </button>
+        <div class="flex items-center pl-2 ml-2 border-l border-[#262a35] text-[#918fa1]">
+          <button class="h-6 w-6 flex items-center justify-center hover:bg-[#262a35] hover:text-white rounded text-xs transition-colors">—</button>
+          <button class="h-6 w-6 flex items-center justify-center hover:bg-[#262a35] hover:text-white rounded text-xs transition-colors">□</button>
+          <button class="h-6 w-6 flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 rounded text-xs transition-colors">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="w-full pt-11 bg-[#0f131d] min-h-screen">
+      <!-- Sub-Header Bar (Integrated practice controller) -->
+      <div class="h-11 bg-[#171b26] px-5 flex items-center justify-between border-b border-[#262a35]">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-white font-semibold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px] text-[#4f46e5]">view_in_ar</span>
+            Module 2
+          </span>
+          <span class="text-[#918fa1]">/</span>
+          <span class="text-[#c7c4d8]">Challenge: Low-poly Chair Modeling</span>
+        </div>
+        <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#313540]/60 border border-[#4edea3]/20">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4edea3] opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#4edea3]"></span>
+          </span>
+          <span class="text-xs text-[#4edea3] font-bold tracking-wide uppercase">⚡ Split Practice Mode</span>
+          <span class="text-[#918fa1] text-xs">•</span>
+          <span class="text-[#c7c4d8] text-xs">Side-by-side with Blender 4.2</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#262a35] hover:bg-[#313540] text-white text-xs font-medium transition-all shadow-sm" id="btn-auto-snap" onclick="toggleAutoSnap()" type="button">
+            <span class="material-symbols-outlined text-[15px] text-[#4f46e5]">vertical_split</span>
+            <span>Auto-Snap Windows (50/50)</span>
+          </button>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1c1f2a] text-[#c7c4d8] hover:text-red-400 text-xs transition-colors" type="button">
+            <kbd class="px-1 py-0.2 rounded bg-[#0a0e18] text-[10px] font-mono text-[#918fa1]">Esc</kbd>
+            <span>Exit</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main 50:50 Dual View Workspace Canvas -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 p-4 w-full bg-[#0f131d]">
+        <!-- LEFT PANEL: 3D Model Inspector (Mẫu Tham Chiếu 360°) -->
+        <section class="flex flex-col bg-[#171b26] border border-[#262a35] rounded-xl overflow-hidden shadow-sm">
+          <!-- Inspector Header & Toolstrip -->
+          <div class="p-3.5 bg-[#1c1f2a] flex flex-wrap items-center justify-between gap-2 border-b border-[#262a35]">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#4f46e5] text-[20px]">3d_rotation</span>
+              <div>
+                <h2 class="font-display font-semibold text-sm text-white leading-tight">Reference Model</h2>
+                <span class="text-[11px] text-[#918fa1]">Mẫu Chuẩn 360° • Standard Spec</span>
+              </div>
+            </div>
+            <!-- Shading Viewport Toggles -->
+            <div class="flex items-center gap-1 bg-[#0a0e18] p-1 rounded-lg border border-[#262a35]">
+              <button class="px-2.5 py-1 rounded text-xs bg-[#4f46e5] text-white font-semibold transition-all" id="btn-wireframe" onclick="setShading('wireframe')" type="button">
+                Wireframe
+              </button>
+              <button class="px-2.5 py-1 rounded text-xs text-[#c7c4d8] hover:text-white transition-colors" id="btn-solid" onclick="setShading('solid')" type="button">
+                Solid
+              </button>
+              <button class="px-2.5 py-1 rounded text-xs text-[#c7c4d8] hover:text-white transition-colors" id="btn-xray" onclick="setShading('xray')" type="button">
+                X-Ray
+              </button>
+            </div>
+            <!-- Camera Preset Pills -->
+            <div class="flex items-center gap-1 text-xs text-[#c7c4d8]">
+              <span class="text-[#918fa1] text-[10px] uppercase font-semibold pr-1">Views</span>
+              <button class="flex items-center gap-1 px-2 py-0.5 rounded bg-[#262a35] hover:bg-[#313540] text-white transition-colors" onclick="resetCamera('front')" type="button">
+                <span>Front</span><kbd class="px-1 py-0.2 rounded bg-[#0a0e18] text-[10px] font-mono text-[#c3c0ff]">1</kbd>
+              </button>
+              <button class="flex items-center gap-1 px-2 py-0.5 rounded bg-[#262a35] hover:bg-[#313540] text-white transition-colors" onclick="resetCamera('top')" type="button">
+                <span>Top</span><kbd class="px-1 py-0.2 rounded bg-[#0a0e18] text-[10px] font-mono text-[#c3c0ff]">7</kbd>
+              </button>
+              <button class="flex items-center gap-1 px-2 py-0.5 rounded bg-[#262a35] hover:bg-[#313540] text-white transition-colors" onclick="resetCamera('right')" type="button">
+                <span>Right</span><kbd class="px-1 py-0.2 rounded bg-[#0a0e18] text-[10px] font-mono text-[#c3c0ff]">3</kbd>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3D Viewport Area -->
+          <div class="relative w-full bg-[#0a0e18] p-2">
+            <div class="relative w-full h-[470px] rounded-lg overflow-hidden bg-[#070b13] flex items-center justify-center border border-[#262a35]">
+              <!-- Three.js Canvas Container -->
+              <div id="threejs-container-ANIMATION_21" class="w-full h-full relative cursor-grab active:cursor-grabbing"></div>
+
+              <!-- Top-Right Gizmo -->
+              <div class="absolute top-3 right-3 bg-[#171b26]/90 backdrop-blur-md px-2.5 py-1 rounded border border-[#262a35] flex items-center gap-1.5 shadow-md pointer-events-none">
+                <span class="font-mono text-[10px] font-semibold text-[#dfe2f1]">3D VIEWPORT</span>
+              </div>
+              <!-- Floating Hint -->
+              <div class="absolute bottom-3 left-3 bg-[#171b26]/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#262a35] flex items-center gap-1.5 text-[#c7c4d8] text-xs pointer-events-none">
+                <span class="material-symbols-outlined text-[13px] text-[#ea7600]">touch_app</span>
+                <span>Click &amp; drag chuột để xoay 360° • Cuộn để zoom</span>
+              </div>
+              <!-- Shading Mode Indicator -->
+              <div class="absolute top-3 left-3 px-2 py-0.5 rounded bg-[#4f46e5]/80 text-white font-mono text-[10px] uppercase tracking-wider backdrop-blur-sm" id="shading-indicator">
+                Mode: Wireframe Quad Overlay
+              </div>
+            </div>
+          </div>
+
+          <!-- Reference Model Metrics HUD -->
+          <div class="p-3.5 flex flex-col gap-2.5 bg-[#171b26] border-t border-[#262a35]">
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="bg-[#1c1f2a] p-2.5 rounded-lg border border-[#262a35] flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-[#4edea3]">scatter_plot</span>
+                  <span class="text-xs text-[#918fa1]">Vertices</span>
+                </div>
+                <span class="text-sm text-[#4edea3] font-bold font-mono">148</span>
+              </div>
+              <div class="bg-[#1c1f2a] p-2.5 rounded-lg border border-[#262a35] flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-[#c3c0ff]">polyline</span>
+                  <span class="text-xs text-[#918fa1]">Faces</span>
+                </div>
+                <span class="text-sm text-[#c3c0ff] font-bold font-mono">136 <span class="text-[10px] text-[#918fa1] font-normal">(100% Quads)</span></span>
+              </div>
+              <div class="bg-[#1c1f2a] p-2.5 rounded-lg border border-[#262a35] flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-[#ffb695]">tune</span>
+                  <span class="text-xs text-[#918fa1]">Modifiers</span>
+                </div>
+                <span class="text-xs text-[#ffb695] font-semibold truncate">Mirror + Bevel</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-2 p-2.5 rounded-lg bg-[#313540]/40 border border-[#262a35] text-xs">
+              <span class="material-symbols-outlined text-[#4edea3] text-[18px] shrink-0 mt-0.5">verified</span>
+              <div>
+                <span class="font-semibold text-white">Quy chuẩn Topology:</span>
+                <p class="text-[#c7c4d8] text-[11px] mt-0.5">
+                  Đảm bảo các vòng cạnh (Edge loops) chạy đều xung quanh chân ghế và tựa lưng. 100% mặt tứ giác (Quads), không tạo N-gons hay tam giác (Tris).
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT PANEL: Live Blender Practice & Task Checklist -->
+        <section class="flex flex-col bg-[#171b26] border border-[#262a35] rounded-xl overflow-hidden shadow-sm">
+          <!-- Header -->
+          <div class="p-3.5 bg-[#1c1f2a] flex items-center justify-between border-b border-[#262a35]">
+            <div>
+              <h2 class="font-display font-semibold text-sm text-white leading-tight">Your Practice Workspace</h2>
+              <span class="text-[11px] text-[#918fa1]">Làm theo mẫu • Realtime Bridge Active</span>
+            </div>
+            <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#0a0e18] border border-[#262a35]">
+              <span class="w-2 h-2 rounded-full bg-[#4edea3] shadow-[0_0_8px_rgba(78,222,163,0.7)] animate-pulse"></span>
+              <span class="text-xs text-[#dfe2f1] font-medium">Blender 4.2 Connected</span>
+            </div>
+          </div>
+
+          <!-- Launch Action Bar -->
+          <div class="p-3.5 bg-[#171b26] flex flex-col gap-2 border-b border-[#262a35]">
+            <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#ea7600] to-[#ff9800] hover:from-[#d66b00] hover:to-[#f57c00] text-white flex items-center justify-between transition-all duration-200 shadow-lg shadow-[#ea7600]/25 active:scale-[0.99]" id="btn-launch-blend" onclick="triggerLaunch()" type="button">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-[24px]">rocket_launch</span>
+                <div class="text-left">
+                  <div class="font-display font-bold text-sm tracking-tight">Open starter_chair.blend in Blender</div>
+                  <div class="text-[11px] text-white/80">Khởi chạy Blender 4.2 • nạp sẵn file bài tập</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-black/25 px-2 py-1 rounded-lg backdrop-blur-sm">
+                <span class="text-[10px] text-white/90 uppercase font-semibold">Hotkey</span>
+                <kbd class="px-1.5 py-0.5 rounded bg-black/40 text-[11px] font-mono font-bold text-white">Alt+O</kbd>
+              </div>
+            </button>
+          </div>
+
+          <!-- Step-by-Step Task Checklist -->
+          <div class="p-3.5 flex-1 flex flex-col justify-between">
+            <div class="flex flex-col gap-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-[#918fa1]">Tiến độ bài thực hành</span>
+                <span class="text-xs text-[#4edea3] font-bold">2 / 4 Bước Hoàn Thành (50%)</span>
+              </div>
+
+              <!-- Step 1 (Completed) -->
+              <div class="p-2.5 rounded-lg bg-[#1c1f2a] border border-[#262a35] flex items-start gap-2.5">
+                <div class="w-5 h-5 rounded-full bg-[#00a572]/30 text-[#4edea3] flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined text-[14px] font-bold">check</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-[#918fa1] line-through font-semibold">Bước 1: Base Blockout (Tạo mặt ngồi)</span>
+                    <span class="text-[10px] text-[#4edea3] font-mono bg-[#4edea3]/10 px-1.5 py-0.5 rounded">✓ Verified (8 verts)</span>
+                  </div>
+                  <p class="text-[11px] text-[#c7c4d8] mt-0.5">
+                    Tạo Cube (<kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#ffb695] rounded font-mono text-[10px]">Shift+A</kbd>) và thu nhỏ theo trục Z (<kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#ffb695] rounded font-mono text-[10px]">S + Z</kbd>).
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 2 (Completed) -->
+              <div class="p-2.5 rounded-lg bg-[#1c1f2a] border border-[#262a35] flex items-start gap-2.5">
+                <div class="w-5 h-5 rounded-full bg-[#00a572]/30 text-[#4edea3] flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined text-[14px] font-bold">check</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-[#918fa1] line-through font-semibold">Bước 2: Inset & Extrude 4 chân ghế</span>
+                    <span class="text-[10px] text-[#4edea3] font-mono bg-[#4edea3]/10 px-1.5 py-0.5 rounded">✓ 4 legs generated</span>
+                  </div>
+                  <p class="text-[11px] text-[#c7c4d8] mt-0.5">
+                    Inset mặt đáy bằng <kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#ffb695] rounded font-mono text-[10px]">I</kbd>, chia 4 góc và Extrude chân ghế xuống dưới bằng <kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#ffb695] rounded font-mono text-[10px]">E</kbd>.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Step 3 (Active) -->
+              <div class="p-2.5 rounded-lg bg-[#262a35] border border-[#4f46e5]/50 shadow-md flex items-start gap-2.5">
+                <div class="w-5 h-5 rounded-full bg-[#4f46e5] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-white font-bold flex items-center gap-1.5">
+                      Bước 3: Dựng thành tựa lưng (Backrest Extrude)
+                      <span class="text-[10px] bg-[#4f46e5]/30 text-[#c3c0ff] px-1.5 py-0.2 rounded">Đang thực hiện</span>
+                    </span>
+                    <span class="text-[10px] text-[#c3c0ff] font-mono animate-pulse">Syncing...</span>
+                  </div>
+                  <p class="text-[11px] text-[#dfe2f1] mt-0.5">
+                    Chọn 2 mặt sau và Extrude lên trên (<kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#ffb695] rounded font-mono text-[10px]">E</kbd>).
+                  </p>
+                  <div class="mt-1.5 p-1.5 rounded bg-[#0a0e18]/80 flex items-center gap-1.5 text-[11px] text-[#c7c4d8]">
+                    <span class="material-symbols-outlined text-[13px] text-[#ffb695]">lightbulb</span>
+                    <span>Mẹo: Nhấn <kbd class="px-1 py-0.2 rounded bg-[#1c1f2a] text-[10px] text-[#c3c0ff] font-mono">3</kbd> để chọn mặt (Face Mode), giữ <kbd class="px-1 py-0.2 rounded bg-[#1c1f2a] text-[10px] text-[#c3c0ff] font-mono">Shift</kbd> để chọn cả 2 cột.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4 (Pending) -->
+              <div class="p-2.5 rounded-lg bg-[#1c1f2a]/60 border border-[#262a35] opacity-60 flex items-start gap-2.5">
+                <div class="w-5 h-5 rounded-full bg-[#262a35] text-[#918fa1] flex items-center justify-center shrink-0 mt-0.5 text-xs font-mono">4</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-[#918fa1] font-medium">Bước 4: Bo tròn cạnh bằng Bevel</span>
+                    <span class="text-[10px] text-[#918fa1] font-mono">Chưa làm</span>
+                  </div>
+                  <p class="text-[11px] text-[#918fa1] mt-0.5">
+                    Apply scale (<kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#918fa1] rounded font-mono text-[10px]">Ctrl+A</kbd>), sau đó bo cạnh bằng <kbd class="px-1 py-0.2 bg-[#0a0e18] text-[#918fa1] rounded font-mono text-[10px]">Ctrl+B</kbd> (3 segments).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Companion Addon Sync Widget -->
+            <div class="mt-4 p-3 rounded-lg bg-[#1c1f2a] border border-[#262a35] flex flex-col gap-2">
+              <div class="flex items-center justify-between text-xs text-[#c7c4d8]">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-[#4edea3]">memory</span>
+                  <span class="font-medium text-white">BlenderFlow Addon v2.4</span>
+                  <span class="text-[#918fa1] text-[10px]">• IPC Pipe active</span>
+                </div>
+                <span class="font-mono text-[10px] text-[#4edea3] bg-[#4edea3]/10 px-1.5 py-0.5 rounded">4ms local sync</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button class="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-[#262a35] hover:bg-[#313540] text-white text-xs font-semibold transition-all" id="btn-verify" onclick="verifyTopology()" type="button">
+                  <span class="material-symbols-outlined text-[16px] text-[#4f46e5]" id="icon-verify">sync</span>
+                  <span>Kiểm tra lưới (Verify)</span>
+                </button>
+                <button class="flex items-center justify-center gap-1.5 py-2 rounded-lg bg-gradient-to-r from-[#4f46e5] to-[#00a572] hover:opacity-95 text-white text-xs font-bold transition-all shadow-md" onclick="submitChallenge()" type="button">
+                  <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                  <span>Nộp bài & Hoàn thành</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Three.js 3D Model Inspector Script
+    (function() {
+      const container = document.getElementById('threejs-container-ANIMATION_21');
+      if (!container) return;
+      const width = container.clientWidth || 600;
+      const height = container.clientHeight || 470;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+      camera.position.set(3.4, 3.2, 4.2);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffecd2, 1.4);
+      keyLight.position.set(5, 8, 4);
+      keyLight.castShadow = true;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.8);
+      fillLight.position.set(-5, 4, -3);
+      scene.add(fillLight);
+
+      // Grid Floor
+      const gridHelper = new THREE.GridHelper(8, 16, 0x4f46e5, 0x1e293b);
+      gridHelper.position.y = -1.1;
+      scene.add(gridHelper);
+
+      // 3D Low-Poly Chair
+      const chairGroup = new THREE.Group();
+      const frameMat = new THREE.MeshStandardMaterial({ color: 0xc87d46, roughness: 0.6, flatShading: true });
+      const seatMat = new THREE.MeshStandardMaterial({ color: 0xe29d62, roughness: 0.55, flatShading: true });
+      const cushionMat = new THREE.MeshStandardMaterial({ color: 0x4338ca, roughness: 0.7, flatShading: true });
+
+      // Seat Base & Cushion
+      const seatMesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.16, 1.5, 3, 1, 3), seatMat);
+      seatMesh.position.y = 0;
+      seatMesh.castShadow = true;
+      chairGroup.add(seatMesh);
+
+      const cushionMesh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 1.3, 2, 1, 2), cushionMat);
+      cushionMesh.position.y = 0.12;
+      chairGroup.add(cushionMesh);
+
+      // 4 Legs
+      const legGeo = new THREE.CylinderGeometry(0.065, 0.045, 1.1, 6);
+      [[-0.65, -0.55, -0.6], [0.65, -0.55, -0.6], [-0.65, -0.55, 0.6], [0.65, -0.55, 0.6]].forEach(pos => {
+        const leg = new THREE.Mesh(legGeo, frameMat);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        leg.castShadow = true;
+        chairGroup.add(leg);
+      });
+
+      // Backrest Uprights & Rails
+      const uprightGeo = new THREE.BoxGeometry(0.1, 1.4, 0.08, 1, 4, 1);
+      const lUp = new THREE.Mesh(uprightGeo, frameMat); lUp.position.set(-0.62, 0.75, -0.65); chairGroup.add(lUp);
+      const rUp = new THREE.Mesh(uprightGeo, frameMat); rUp.position.set(0.62, 0.75, -0.65); chairGroup.add(rUp);
+
+      const topRail = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.28, 0.08, 4, 1, 1), seatMat);
+      topRail.position.set(0, 1.35, -0.68); chairGroup.add(topRail);
+
+      // Wireframe Lines
+      window.wireframeLines = [];
+      window.chairGroup = chairGroup;
+      chairGroup.traverse(child => {
+        if (child.isMesh) {
+          const wireGeo = new THREE.WireframeGeometry(child.geometry);
+          const wireMat = new THREE.LineBasicMaterial({ color: 0x6366f1, linewidth: 1, transparent: true, opacity: 0.85 });
+          const wireLine = new THREE.LineSegments(wireGeo, wireMat);
+          window.wireframeLines.push(wireLine);
+          child.add(wireLine);
+        }
+      });
+      scene.add(chairGroup);
+      camera.lookAt(0, 0.35, 0);
+
+      // Orbit controls
+      let isDragging = false;
+      let prevMouse = { x: 0, y: 0 };
+      let targetRotY = 0.55, targetRotX = 0.2;
+
+      container.addEventListener('mousedown', e => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        targetRotY += (e.clientX - prevMouse.x) * 0.008;
+        targetRotX = Math.max(-0.4, Math.min(0.9, targetRotX + (e.clientY - prevMouse.y) * 0.008));
+        prevMouse = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('resize', () => {
+        const w = container.clientWidth || 600;
+        const h = container.clientHeight || 470;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        chairGroup.rotation.y += (targetRotY - chairGroup.rotation.y) * 0.08;
+        chairGroup.rotation.x += (targetRotX - chairGroup.rotation.x) * 0.08;
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+
+    // UI Interactive Handlers
+    function setShading(mode) {
+      const indicator = document.getElementById('shading-indicator');
+      const btnWire = document.getElementById('btn-wireframe');
+      const btnSolid = document.getElementById('btn-solid');
+      const btnXray = document.getElementById('btn-xray');
+      const def = "px-2.5 py-1 rounded text-xs text-[#c7c4d8] hover:text-white transition-colors";
+      const act = "px-2.5 py-1 rounded text-xs bg-[#4f46e5] text-white font-semibold transition-all";
+
+      btnWire.className = def; btnSolid.className = def; btnXray.className = def;
+
+      if (mode === 'wireframe') {
+        btnWire.className = act;
+        indicator.textContent = 'Mode: Wireframe Quad Overlay';
+        window.wireframeLines?.forEach(w => w.visible = true);
+      } else if (mode === 'solid') {
+        btnSolid.className = act;
+        indicator.textContent = 'Mode: Solid MatCap Clay';
+        window.wireframeLines?.forEach(w => w.visible = false);
+      } else if (mode === 'xray') {
+        btnXray.className = act;
+        indicator.textContent = 'Mode: X-Ray Translucent (Alpha 0.5)';
+        window.wireframeLines?.forEach(w => w.visible = true);
+      }
+    }
+
+    function resetCamera(view) {
+      const indicator = document.getElementById('shading-indicator');
+      indicator.textContent = `Camera: ${view.toUpperCase()} View (Numpad ${view === 'front' ? 1 : view === 'top' ? 7 : 3})`;
+      if (view === 'front') { window.chairGroup.rotation.set(0, 0, 0); }
+      else if (view === 'top') { window.chairGroup.rotation.set(Math.PI/2, 0, 0); }
+      else if (view === 'right') { window.chairGroup.rotation.set(0, -Math.PI/2, 0); }
+    }
+
+    function toggleAutoSnap() {
+      const btn = document.getElementById('btn-auto-snap');
+      btn.innerHTML = `<span class="material-symbols-outlined text-[15px] text-[#4edea3]">check_circle</span><span>Snapped (50/50 Desktop)</span>`;
+      setTimeout(() => {
+        btn.innerHTML = `<span class="material-symbols-outlined text-[15px] text-[#4f46e5]">vertical_split</span><span>Auto-Snap Windows (50/50)</span>`;
+      }, 2500);
+    }
+
+    function triggerLaunch() {
+      const btn = document.getElementById('btn-launch-blend');
+      const original = btn.innerHTML;
+      btn.innerHTML = `
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[24px] animate-spin">refresh</span>
+          <div class="text-left">
+            <div class="font-display font-bold text-sm tracking-tight">Syncing with Blender 4.2...</div>
+            <div class="text-[11px] text-white/80">Loaded starter_chair.blend [Connected]</div>
+          </div>
+        </div>
+      `;
+      setTimeout(() => { btn.innerHTML = original; }, 2200);
+    }
+
+    function verifyTopology() {
+      const icon = document.getElementById('icon-verify');
+      icon.classList.add('animate-spin');
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        alert("Blender 4.2 Bridge: Topology check passed! 92% match to target topology specification (148 vertices, 100% quads).");
+      }, 900);
+    }
+
+    function submitChallenge() {
+      alert("Nộp bài thành công! BlenderFlow AI đang phân tích topology edge loops và ghi nhận hoàn thành bài tập.");
+    }
+  </script>
+</body>
+</html>

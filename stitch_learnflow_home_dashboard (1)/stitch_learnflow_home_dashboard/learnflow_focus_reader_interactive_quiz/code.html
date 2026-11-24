@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>LearnFlow</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-background":"#131b2e","tertiary":"#7e3000","secondary-fixed-dim":"#68dba9","background":"#faf8ff","tertiary-fixed":"#ffdbcc","surface-bright":"#faf8ff","surface-dim":"#d2d9f4","on-secondary":"#ffffff","inverse-primary":"#c3c0ff","outline":"#777587","primary-fixed-dim":"#c3c0ff","on-tertiary-fixed-variant":"#7b2f00","error":"#ba1a1a","error-container":"#ffdad6","surface":"#faf8ff","surface-container-high":"#e2e7ff","on-tertiary-container":"#ffd2be","tertiary-fixed-dim":"#ffb695","surface-container-highest":"#dae2fd","on-secondary-fixed-variant":"#005137","secondary":"#006c4a","on-primary-fixed":"#0f0069","surface-container":"#eaedff","on-error":"#ffffff","secondary-fixed":"#85f8c4","primary-container":"#4f46e5","surface-container-low":"#f2f3ff","on-tertiary":"#ffffff","on-secondary-fixed":"#002114","surface-tint":"#4d44e3","inverse-on-surface":"#eef0ff","surface-container-lowest":"#ffffff","secondary-container":"#82f5c1","primary-fixed":"#e2dfff","inverse-surface":"#283044","on-secondary-container":"#00714e","on-primary-fixed-variant":"#3323cc","tertiary-container":"#a44100","surface-variant":"#dae2fd","on-primary-container":"#dad7ff","on-error-container":"#93000a","primary":"#3525cd","on-surface-variant":"#464555","on-surface":"#131b2e","on-tertiary-fixed":"#351000","outline-variant":"#c7c4d8","on-primary":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gutter":"1.5rem","space-lg":"1.5rem","space-md":"1rem","space-sm":"0.5rem","margin":"1.5rem","margin-desktop":"2rem","space-xl":"2rem","space-xs":"0.25rem"},"fontFamily":{"headline-lg":["Space Grotesk","sans-serif"],"headline-md":["Space Grotesk","sans-serif"],"headline-sm":["Space Grotesk","sans-serif"],"title-lg":["Space Grotesk","sans-serif"],"title-md":["Plus Jakarta Sans","sans-serif"],"body-lg":["Plus Jakarta Sans","sans-serif"],"body-md":["Plus Jakarta Sans","sans-serif"],"body-sm":["Plus Jakarta Sans","sans-serif"],"label-lg":["Plus Jakarta Sans","sans-serif"],"label-md":["Plus Jakarta Sans","sans-serif"],"label-sm":["Plus Jakarta Sans","sans-serif"]}}}};</script></head><body class="bg-[#F8FAFC] font-body-md text-body-md text-slate-800 antialiased"><aside class="fixed left-0 top-0 h-full w-60 bg-white border-r border-slate-200 z-50 flex flex-col pt-6 pb-6 shadow-sm"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-slate-900 tracking-tight">LearnFlow</span></div><nav class="flex-1 px-space-md space-y-space-xs"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all" data-path="home" href="#"><span class="material-symbols-outlined text-[20px]">home</span><span>Home</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all" data-path="search" href="#"><span class="material-symbols-outlined text-[20px]">search</span><span>Search</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-indigo-600 bg-indigo-50 font-semibold transition-all" data-path="my-courses" href="#"><span class="material-symbols-outlined text-[20px]">school</span><span>My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav><div class="px-space-md mt-auto"><div class="bg-slate-50 border border-slate-200/80 rounded-xl p-space-md space-y-space-sm"><div class="flex items-center gap-space-sm font-label-md text-label-md text-slate-800"><span>🔥</span><span class="font-semibold">12 Days Streak</span></div><div class="flex items-center gap-space-sm font-label-sm text-label-sm text-slate-500"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span><span>Ollama: Connected</span></div></div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200 z-40 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="LearnFlow Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6_ZqfM9u0ori5oVju14WYocOCaiXZVA5inVVy24JirbP6fchJPCC9g_cVR00tMhMlVQWN-5ctsLYuHW831xj7_a69EhVNZ3yg2MPszbExeXuOp7PcQlDCKRpRM3d0sQmENCF8XNt9qw1YHCq16aT0Xx-Y3O9LtQKkDZ73lqtYKeA-ABxtVPhbqks7rP6BXFkehxD3Zh-FnD1V4IhVB_BwhCuFPH3sWGCXkzph90k"/><span class="font-title-lg text-title-lg text-slate-900 tracking-tight">LearnFlow</span></div><div class="flex items-center gap-space-md"><div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] w-full px-margin"><div class="flex flex-col w-full relative -mx-margin -mt-16 min-h-[calc(100vh)] overflow-hidden">
+<!-- BASE LAYER: Simulated Study Workspace visible behind light soft overlay -->
+<div class="w-full min-h-screen bg-slate-50 select-none pointer-events-none opacity-50 blur-[2px] p-margin flex flex-col gap-space-lg">
+<div class="flex items-center justify-between pb-space-md">
+<div class="flex items-center gap-space-md">
+<span class="font-headline-sm text-headline-sm text-slate-900">Data Science &amp; Machine Learning Mastery</span>
+<span class="bg-indigo-100 text-indigo-700 font-label-sm text-label-sm px-space-sm py-0.5 rounded-full font-medium">In Progress (42%)</span>
+</div>
+<div class="flex gap-space-sm">
+<div class="h-9 w-28 bg-slate-200 rounded-lg"></div>
+<div class="h-9 w-32 bg-indigo-600 rounded-lg"></div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<div class="col-span-4 flex flex-col gap-space-md">
+<div class="bg-white border border-slate-200 rounded-xl p-space-lg flex flex-col gap-space-sm">
+<div class="h-5 w-40 bg-slate-200 rounded"></div>
+<div class="h-4 w-full bg-slate-100 rounded mt-2"></div>
+<div class="h-4 w-5/6 bg-slate-100 rounded"></div>
+</div>
+<div class="bg-white border border-slate-200 rounded-xl p-space-lg space-y-3">
+<div class="h-5 w-32 bg-slate-200 rounded"></div>
+<div class="space-y-2 mt-4">
+<div class="h-10 bg-slate-100 rounded-lg"></div>
+<div class="h-10 bg-slate-100 rounded-lg"></div>
+<div class="h-10 bg-slate-100 rounded-lg"></div>
+</div>
+</div>
+</div>
+<div class="col-span-8 bg-white border border-slate-200 rounded-xl p-space-xl min-h-[540px] flex flex-col gap-space-lg">
+<div class="flex items-center justify-between">
+<div class="h-7 w-64 bg-slate-200 rounded"></div>
+<div class="flex gap-2">
+<div class="h-8 w-20 bg-slate-100 rounded"></div>
+<div class="h-8 w-20 bg-slate-100 rounded"></div>
+</div>
+</div>
+<div class="w-full h-72 bg-slate-50 border border-slate-100 rounded-xl p-space-md">
+<div class="h-4 w-3/4 bg-slate-200 rounded mb-2"></div>
+<div class="h-4 w-1/2 bg-slate-200 rounded mb-2"></div>
+<div class="h-4 w-2/3 bg-slate-200 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- BACKDROP OVERLAY: soft semi-transparent overlay over the light Course Workspace -->
+<div class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 transition-opacity" id="reader-backdrop"></div>
+<!-- SLIDE-OVER DRAWER CONTAINER: Solid white, border-l #E2E8F0, soft elevation shadow -->
+<aside class="fixed top-0 right-0 h-full w-[68%] min-w-[780px] max-w-[1240px] bg-white border-l border-[#E2E8F0] shadow-[-12px_0_36px_rgba(15,23,42,0.12)] z-50 flex flex-col overflow-hidden" id="slideover-drawer">
+<!-- 1. SLIDE-OVER DRAWER HEADER & UTILITY BAR -->
+<header class="h-20 bg-white/95 backdrop-blur-md px-space-xl border-b border-[#E2E8F0] flex items-center justify-between shrink-0 z-30">
+<!-- Breadcrumb Context & Reading Pill -->
+<div class="flex items-center gap-space-md min-w-0">
+<div class="flex items-center gap-space-xs text-slate-500 font-label-md text-label-md truncate">
+<span>Module 2</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">chevron_right</span>
+<span class="text-[#0F172A] font-title-md text-title-md truncate font-semibold">Lesson 2.2: DataFrame Indexing &amp; Selection</span>
+</div>
+<span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+          20 min read
+        </span>
+</div>
+<!-- Action Controls -->
+<div class="flex items-center gap-space-sm shrink-0">
+<!-- Edit Note -->
+<button class="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-label-md text-label-md transition-all border border-slate-200/60" type="button">
+<span class="material-symbols-outlined text-[18px] text-indigo-600 group-hover:scale-110 transition-transform">edit_note</span>
+<span>Edit Note</span>
+</button>
+<!-- Text Size Toggle -->
+<div class="relative" id="text-size-container">
+<button class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60 transition-all font-title-lg text-title-lg" id="text-size-btn" title="Adjust Text Size" type="button">
+            Aa
+          </button>
+</div>
+<!-- Fullscreen Toggle -->
+<button class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60 transition-all" id="fullscreen-toggle-btn" title="Expand View" type="button">
+<span class="material-symbols-outlined text-[20px]">fullscreen</span>
+</button>
+<div class="h-6 w-px bg-slate-200 mx-1"></div>
+<!-- Close Drawer Button with [Esc] badge -->
+<button class="flex items-center gap-2 pl-3 pr-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200/60 hover:border-rose-200 transition-all group" id="close-drawer-btn" type="button">
+<span class="font-label-sm text-label-sm bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded group-hover:bg-rose-100 group-hover:text-rose-700 transition-colors">[Esc]</span>
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</header>
+<!-- 2. SCROLLABLE MARKDOWN READER & QUIZ BODY -->
+<div class="flex-1 overflow-y-auto px-space-xl py-space-xl flex flex-col gap-space-xl scroll-smooth bg-white" id="reader-scroll-canvas">
+<!-- Article Header Meta -->
+<section class="flex flex-col gap-space-md">
+<!-- Category & Time Tags -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 font-label-sm text-label-sm tracking-wide uppercase font-semibold">Pandas Core</span>
+<span class="text-slate-300 text-label-sm">•</span>
+<span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 font-label-sm text-label-sm font-semibold">Intermediate</span>
+<span class="text-slate-300 text-label-sm">•</span>
+<span class="text-slate-500 font-label-md text-label-md flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px] text-slate-400">menu_book</span>
+            Read Time: ~12 min
+          </span>
+</div>
+<!-- Main Title -->
+<h1 class="font-headline-lg text-headline-lg text-[#0F172A] tracking-tight">
+          Mastering DataFrame Indexing with <code class="font-title-lg text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">.loc</code> and <code class="font-title-lg text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">.iloc</code>
+</h1>
+<p class="font-body-lg text-body-lg text-[#1E293B] leading-relaxed">
+          Selecting and subsetting data efficiently is the cornerstone of robust tabular analysis. While Pandas permits standard Python bracket access <code class="text-slate-800 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded font-label-sm font-mono">df['col']</code>, explicit indexing accessors guarantee predictability, resolve reference ambiguity, and ensure safe data slicing across high-dimensional datasets.
+        </p>
+</section>
+<!-- Section: Label vs Position Distinction (Concept comparison cards) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-space-lg flex flex-col gap-space-xs shadow-sm hover:border-slate-300 transition-colors">
+<div class="flex items-center gap-space-sm text-indigo-600">
+<span class="material-symbols-outlined text-[22px]">label</span>
+<span class="font-title-md text-title-md text-[#0F172A] font-semibold">.loc[ ] — Label-Based</span>
+</div>
+<p class="font-body-md text-body-md text-slate-600 mt-1 leading-relaxed">
+            Selects data strictly matching explicit index names and column labels. Crucially, when slicing labels <code class="text-indigo-700 bg-indigo-50 px-1 py-0.5 rounded font-mono border border-indigo-100">loc['A':'C']</code>, both start and endpoints are fully inclusive.
+          </p>
+</div>
+<div class="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-space-lg flex flex-col gap-space-xs shadow-sm hover:border-slate-300 transition-colors">
+<div class="flex items-center gap-space-sm text-emerald-600">
+<span class="material-symbols-outlined text-[22px]">pin</span>
+<span class="font-title-md text-title-md text-[#0F172A] font-semibold">.iloc[ ] — Position-Based</span>
+</div>
+<p class="font-body-md text-body-md text-slate-600 mt-1 leading-relaxed">
+            References zero-indexed row and column positions exclusively (<code class="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded font-mono border border-emerald-100">0</code> to <code class="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded font-mono border border-emerald-100">n-1</code>). Conforms to canonical Python slicing semantics: start is inclusive, stop is exclusive.
+          </p>
+</div>
+</section>
+<!-- High-Contrast Clean Code Block Container -->
+<section class="flex flex-col rounded-xl overflow-hidden bg-[#0F172A] border border-slate-800 shadow-md">
+<!-- Editor Header Bar -->
+<div class="h-10 bg-[#1E293B] px-space-md flex items-center justify-between text-slate-300 border-b border-slate-700/60">
+<div class="flex items-center gap-2 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-indigo-400">code</span>
+<span class="text-slate-100 font-semibold">example_indexing.py</span>
+<span class="px-2 py-0.5 rounded text-label-sm bg-slate-700/70 text-slate-300 font-mono">Python</span>
+</div>
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-700/60 hover:bg-indigo-600 text-slate-200 hover:text-white font-label-sm text-label-sm transition-all" id="copy-code-btn" type="button">
+<span class="material-symbols-outlined text-[16px]" id="copy-icon">content_copy</span>
+<span id="copy-text">Copy code</span>
+</button>
+</div>
+<!-- Syntax Code Content -->
+<div class="p-space-lg overflow-x-auto font-mono text-body-sm leading-6 text-slate-200">
+<pre><code><span class="text-slate-500"># Import required libraries</span>
+<span class="text-pink-400">import</span> <span class="text-sky-300">pandas</span> <span class="text-pink-400">as</span> <span class="text-sky-300">pd</span>
+<span class="text-pink-400">import</span> <span class="text-sky-300">numpy</span> <span class="text-pink-400">as</span> <span class="text-sky-300">np</span>
+
+<span class="text-slate-500"># Create a sample multi-attribute telemetry DataFrame</span>
+df = pd.DataFrame({
+    <span class="text-emerald-300">'name'</span>: [<span class="text-emerald-300">'Elena Rostova'</span>, <span class="text-emerald-300">'Marcus Thorne'</span>, <span class="text-emerald-300">'Siddharth Chen'</span>],
+    <span class="text-emerald-300">'department'</span>: [<span class="text-emerald-300">'BioInformatics'</span>, <span class="text-emerald-300">'Quantum OS'</span>, <span class="text-emerald-300">'Distributed AI'</span>],
+    <span class="text-emerald-300">'age'</span>: [<span class="text-amber-300">34</span>, <span class="text-amber-300">29</span>, <span class="text-amber-300">41</span>],
+    <span class="text-emerald-300">'salary'</span>: [<span class="text-amber-300">142000</span>, <span class="text-amber-300">118000</span>, <span class="text-amber-300">165000</span>]
+}, index=[<span class="text-emerald-300">'emp_01'</span>, <span class="text-emerald-300">'emp_02'</span>, <span class="text-emerald-300">'emp_03'</span>])
+
+<span class="text-slate-500"># 1. Label selection with boolean conditional projection via .loc</span>
+high_earners = df.loc[df[<span class="text-emerald-300">'age'</span>] &gt; <span class="text-amber-300">30</span>, [<span class="text-emerald-300">'name'</span>, <span class="text-emerald-300">'salary'</span>]]
+<span class="text-sky-300">print</span>(high_earners)
+
+<span class="text-slate-500"># 2. Strict integer positional slice: First 2 rows, columns 0 through 2 (exclusive)</span>
+top_cohort = df.iloc[<span class="text-amber-300">0</span>:<span class="text-amber-300">2</span>, <span class="text-amber-300">0</span>:<span class="text-amber-300">2</span>]
+<span class="text-sky-300">print</span>(top_cohort)</code></pre>
+</div>
+</section>
+<!-- Key Takeaways Callout Box (Soft Indigo Tint with Indigo Accent Border) -->
+<section class="p-space-lg rounded-xl bg-[#EEF2FF] border-l-4 border-[#6366F1] flex gap-space-md shadow-sm">
+<div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-white text-[22px]">lightbulb</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h4 class="font-title-md text-title-md text-indigo-900 font-semibold">Core Architectural Takeaways</h4>
+<ul class="flex flex-col gap-2 font-body-md text-body-md text-slate-700 mt-1">
+<li class="flex items-start gap-2">
+<span class="text-indigo-600 font-bold">1.</span>
+<span><strong>Use <code class="text-slate-900 font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-100">.loc</code></strong> for known labels and boolean series filtering. It is resilient to index sorting permutations.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-indigo-600 font-bold">2.</span>
+<span><strong>Use <code class="text-slate-900 font-mono bg-white px-1.5 py-0.5 rounded border border-indigo-100">.iloc</code></strong> strictly when you require zero-indexed ordinal positional slices, identical to standard Python array semantics.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="text-indigo-600 font-bold">3.</span>
+<span><strong>Avoid chained assignments</strong> like <code class="text-rose-700 bg-rose-50 border border-rose-200 px-1 py-0.5 rounded">df['age'][0] = 35</code>. Always use <code class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.5 rounded font-mono">df.loc[row, col] = 35</code> to definitively eliminate unpredictable <code class="italic">SettingWithCopyWarning</code> errors.</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- 3. INTERACTIVE QUIZ COMPONENT: Crisp White Card with Subtle Border -->
+<section class="bg-white border border-[#E2E8F0] rounded-xl p-space-xl flex flex-col gap-space-lg shadow-sm relative overflow-hidden">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-1 border-b border-slate-100">
+<div class="flex items-center gap-space-sm">
+<span class="px-2.5 py-1 rounded bg-indigo-50 border border-indigo-100 text-indigo-700 font-label-sm text-label-sm tracking-wider uppercase font-semibold">
+              Quiz Checkpoint
+            </span>
+<span class="text-[#0F172A] font-title-md text-title-md font-semibold">Question 2 of 5</span>
+</div>
+<!-- 5 Segment Progress Bar -->
+<div class="flex items-center gap-1.5">
+<div class="h-2 w-8 rounded-full bg-emerald-500" title="Question 1 (Completed)"></div>
+<div class="h-2 w-8 rounded-full bg-indigo-600 shadow-sm" title="Question 2 (Active)"></div>
+<div class="h-2 w-8 rounded-full bg-slate-200" title="Question 3"></div>
+<div class="h-2 w-8 rounded-full bg-slate-200" title="Question 4"></div>
+<div class="h-2 w-8 rounded-full bg-slate-200" title="Question 5"></div>
+</div>
+</div>
+<!-- Question Prompt -->
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-slate-400 uppercase tracking-wider font-semibold">Concept Verification</span>
+<h3 class="font-headline-sm text-headline-sm text-[#0F172A] leading-snug">
+            Which Pandas method is best suited for filtering rows by a boolean condition using column labels?
+          </h3>
+</div>
+<!-- 4 Option Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md" id="quiz-options">
+<!-- OPTION A: HIGHLIGHTED WITH SOFT EMERALD TINT (#ECFDF5) AND BORDER (#10B981) -->
+<button class="group relative text-left p-space-md rounded-xl bg-[#ECFDF5] border-2 border-[#10B981] flex flex-col gap-space-xs transition-all shadow-sm" type="button">
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-[#10B981] text-white font-label-md text-label-md flex items-center justify-center font-bold">A</span>
+<span class="font-title-md text-title-md text-emerald-900 font-bold">.loc[ ]</span>
+</div>
+<span class="material-symbols-outlined text-[#10B981] text-[22px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="font-body-sm text-body-sm text-emerald-800 pl-8 font-medium">
+              Label-aligned indexing with full native support for boolean array masks and explicit column slicing.
+            </p>
+</button>
+<!-- OPTION B: Clean White Card -->
+<button class="group text-left p-space-md rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 flex flex-col gap-space-xs transition-all shadow-sm" type="button">
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 group-hover:bg-indigo-600 group-hover:text-white font-label-md text-label-md flex items-center justify-center font-bold transition-colors">B</span>
+<span class="font-title-md text-title-md text-slate-800 font-semibold">.iloc[ ]</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">radio_button_unchecked</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500 pl-8">
+              Accepts strictly integer positions, rejecting named column label vectors.
+            </p>
+</button>
+<!-- OPTION C: Clean White Card -->
+<button class="group text-left p-space-md rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 flex flex-col gap-space-xs transition-all shadow-sm" type="button">
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 group-hover:bg-indigo-600 group-hover:text-white font-label-md text-label-md flex items-center justify-center font-bold transition-colors">C</span>
+<span class="font-title-md text-title-md text-slate-800 font-semibold">.filter( )</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">radio_button_unchecked</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500 pl-8">
+              Subsets labels of rows/columns without evaluating value-based booleans.
+            </p>
+</button>
+<!-- OPTION D: Clean White Card -->
+<button class="group text-left p-space-md rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 flex flex-col gap-space-xs transition-all shadow-sm" type="button">
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-space-sm">
+<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 group-hover:bg-indigo-600 group-hover:text-white font-label-md text-label-md flex items-center justify-center font-bold transition-colors">D</span>
+<span class="font-title-md text-title-md text-slate-800 font-semibold">.query( )</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">radio_button_unchecked</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500 pl-8">
+              Evaluates string expressions; convenient but less direct for multidimensional projections.
+            </p>
+</button>
+</div>
+<!-- Instant Feedback Box -->
+<div class="p-space-md rounded-lg bg-emerald-50 border border-emerald-200 flex items-start gap-space-sm shadow-sm">
+<span class="material-symbols-outlined text-emerald-600 text-[22px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">verified</span>
+<div class="flex flex-col gap-0.5">
+<span class="font-title-md text-title-md text-emerald-900 font-bold">Correct!</span>
+<p class="font-body-sm text-body-sm text-emerald-800">
+<code class="text-emerald-700 font-mono font-semibold bg-emerald-100/60 px-1 py-0.5 rounded">.loc[]</code> is label-based and natively supports boolean array indexing to filter rows cleanly while simultaneously allowing specific column projection.
+            </p>
+</div>
+</div>
+<!-- Quiz Action Row -->
+<div class="flex items-center justify-between pt-space-xs">
+<!-- Local Ollama AI Button -->
+<button class="flex items-center gap-2 px-space-md py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-label-md text-label-md transition-all font-medium" type="button">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
+<span class="material-symbols-outlined text-[18px] text-indigo-600">psychology</span>
+<span>Explain with Local Ollama AI</span>
+</button>
+<!-- Next Question Primary CTA -->
+<button class="flex items-center gap-2 px-space-lg py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-label-lg text-label-lg shadow-sm transition-all font-semibold" type="button">
+<span>Next Question</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- 4. USER PERSONAL NOTE ACCORDION SECTION -->
+<section class="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm" id="notes-accordion">
+<!-- Accordion Header -->
+<button class="w-full p-space-lg flex items-center justify-between hover:bg-slate-50 transition-colors text-left" id="notes-accordion-toggle" type="button">
+<div class="flex items-center gap-space-sm">
+<span class="text-title-lg">📝</span>
+<span class="font-title-md text-title-md text-slate-900 font-semibold">My Personal Notes (Auto-saved)</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">2 Entries</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-emerald-600 flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">cloud_done</span>
+              Synced locally
+            </span>
+<span class="material-symbols-outlined text-slate-400 transition-transform duration-200" id="accordion-chevron">expand_more</span>
+</div>
+</button>
+<!-- Accordion Body -->
+<div class="px-space-lg pb-space-lg flex flex-col gap-space-md border-t border-slate-100 pt-4" id="notes-accordion-body">
+<div class="flex items-center justify-between pb-2">
+<div class="flex gap-2">
+<span class="px-2.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-700 font-label-sm text-label-sm font-semibold">Preview</span>
+<span class="px-2 py-0.5 rounded text-slate-500 font-label-sm text-label-sm cursor-pointer hover:text-slate-800">Markdown</span>
+</div>
+<span class="font-label-sm text-label-sm text-slate-400">Author: Alex • Last edited 4 min ago</span>
+</div>
+<div class="p-space-md rounded-lg bg-slate-50 border border-slate-200/60 flex flex-col gap-2.5 font-body-md text-body-md text-slate-700">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-indigo-600 text-[18px] shrink-0 mt-0.5">bookmark</span>
+<span>Remember: <code class="text-indigo-700 font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded">df.loc[:, 'col']</code> always includes <strong>endpoints</strong> in slicing, unlike standard Python lists!</span>
+</div>
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-emerald-600 text-[18px] shrink-0 mt-0.5">speed</span>
+<span>Benchmark <code class="text-emerald-700 font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded">df.query()</code> vs <code class="text-emerald-700 font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded">df.loc</code> on 1M+ rows next week during the high-load latency lab.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Extra breathing room before sticky footer -->
+<div class="h-6"></div>
+</div>
+<!-- 5. STICKY BOTTOM NAVIGATION BAR: Solid White, border-t #E2E8F0, Electric Indigo CTA -->
+<footer class="h-20 bg-white border-t border-[#E2E8F0] px-space-xl flex items-center justify-between shrink-0 z-30 shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+<!-- Previous Lesson Link -->
+<button class="flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-label-lg text-label-lg transition-all group font-medium" type="button">
+<span class="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform text-slate-500">arrow_back</span>
+<span class="truncate max-w-[200px] xl:max-w-none">Prev: 2.1 NumPy Arrays</span>
+</button>
+<!-- Center & Right Next Lesson CTAs -->
+<div class="flex items-center gap-space-md">
+<!-- Mark as Completed & Continue (Electric Indigo #4F46E5) -->
+<button class="flex items-center gap-2 px-space-lg py-2.5 rounded-lg bg-[#4F46E5] hover:bg-indigo-700 text-white font-label-lg text-label-lg shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all font-semibold active:scale-95" type="button">
+<span>Mark as Completed &amp; Continue</span>
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+<!-- Next Lesson Link -->
+<button class="flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-label-lg text-label-lg transition-all group font-medium" type="button">
+<span class="truncate max-w-[210px] xl:max-w-none">Next: 2.3 Handling Missing Values</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-0.5 transition-transform text-slate-500">arrow_forward</span>
+</button>
+</div>
+</footer>
+</aside>
+</div>
+<script>
+  (function initFocusReader() {
+    // Copy code button feedback
+    const copyBtn = document.getElementById('copy-code-btn');
+    const copyText = document.getElementById('copy-text');
+    const copyIcon = document.getElementById('copy-icon');
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const sampleCode = `import pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame({...})\nhigh_earners = df.loc[df['age'] > 30, ['name', 'salary']]`;
+        navigator.clipboard?.writeText(sampleCode);
+        copyText.textContent = 'Copied!';
+        copyIcon.textContent = 'done';
+        setTimeout(() => {
+          copyText.textContent = 'Copy code';
+          copyIcon.textContent = 'content_copy';
+        }, 2200);
+      });
+    }
+
+    // Personal Note Accordion Toggle
+    const accordionToggle = document.getElementById('notes-accordion-toggle');
+    const accordionBody = document.getElementById('notes-accordion-body');
+    const accordionChevron = document.getElementById('accordion-chevron');
+
+    if (accordionToggle && accordionBody && accordionChevron) {
+      accordionToggle.addEventListener('click', () => {
+        const isHidden = accordionBody.classList.contains('hidden');
+        if (isHidden) {
+          accordionBody.classList.remove('hidden');
+          accordionChevron.style.transform = 'rotate(0deg)';
+        } else {
+          accordionBody.classList.add('hidden');
+          accordionChevron.style.transform = 'rotate(-90deg)';
+        }
+      });
+    }
+
+    // Close Drawer & Backdrop dismissal with Esc key
+    const drawer = document.getElementById('slideover-drawer');
+    const backdrop = document.getElementById('reader-backdrop');
+    const closeBtn = document.getElementById('close-drawer-btn');
+
+    function closeSlideover() {
+      if (drawer && backdrop) {
+        drawer.style.transform = 'translateX(100%)';
+        drawer.style.transition = 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)';
+        backdrop.style.opacity = '0';
+        backdrop.style.transition = 'opacity 300ms ease';
+        setTimeout(() => {
+          drawer.style.display = 'none';
+          backdrop.style.display = 'none';
+        }, 300);
+      }
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeSlideover);
+    if (backdrop) backdrop.addEventListener('click', closeSlideover);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSlideover();
+      }
+    });
+
+    // Font size cyclic toggle
+    const textBtn = document.getElementById('text-size-btn');
+    const readerCanvas = document.getElementById('reader-scroll-canvas');
+    const fontSizes = ['100%', '112%', '90%'];
+    let currentSizeIdx = 0;
+
+    if (textBtn && readerCanvas) {
+      textBtn.addEventListener('click', () => {
+        currentSizeIdx = (currentSizeIdx + 1) % fontSizes.length;
+        readerCanvas.style.fontSize = fontSizes[currentSizeIdx];
+      });
+    }
+
+    // Fullscreen Toggle
+    const fullBtn = document.getElementById('fullscreen-toggle-btn');
+    if (fullBtn && drawer) {
+      let isFull = false;
+      fullBtn.addEventListener('click', () => {
+        isFull = !isFull;
+        if (isFull) {
+          drawer.style.width = '100%';
+          drawer.style.maxWidth = '100%';
+          fullBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">fullscreen_exit</span>';
+        } else {
+          drawer.style.width = '68%';
+          drawer.style.maxWidth = '1240px';
+          fullBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">fullscreen</span>';
+        }
+      });
+    }
+  })();
+</script></main></div></body></html>
