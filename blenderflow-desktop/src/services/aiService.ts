@@ -1,10 +1,11 @@
-import { Roadmap, CourseModule } from '../types';
+import { Roadmap } from '../types';
 
 export interface AIConfig {
   provider: 'gemini' | 'ollama' | 'offline_local';
   apiKey: string;
   model: string;
   ollamaEndpoint: string;
+  ollamaModel?: string;
 }
 
 const DEFAULT_AI_CONFIG: AIConfig = {
@@ -12,6 +13,7 @@ const DEFAULT_AI_CONFIG: AIConfig = {
   apiKey: '',
   model: 'gemini-1.5-flash',
   ollamaEndpoint: 'http://localhost:11434',
+  ollamaModel: 'llama3',
 };
 
 const AI_CONFIG_KEY = 'blenderflow_ai_config_v1';
@@ -50,7 +52,7 @@ const OFFLINE_KNOWLEDGE_BASE: Record<string, string> = {
 4. Blender sẽ thông báo ở thanh đáy: *"Removed X vertices"*.`,
 
   loopcut: `### 🛠️ Vòng Cắt (Loop Cut - Ctrl + R) Bị Dừng Lại Giữa Chừng
-**Nguyên tắc:** Lệnh Loop Cut (\`Ctrl + R\`) chỉ có thể chạy xuyên qua các mặt Đa giác 4 đỉnh (Quads). Nếu gặp tam giác (Triangle), N-gon hoặc điểm tụ (Pole có $\ge 5$ cạnh), vòng cắt sẽ bị ngắt lập tức.
+**Nguyên tắc:** Lệnh Loop Cut (\`Ctrl + R\`) chỉ có thể chạy xuyên qua các mặt Đa giác 4 đỉnh (Quads). Nếu gặp tam giác (Triangle), N-gon hoặc điểm tụ (Pole có >= 5 cạnh), vòng cắt sẽ bị ngắt lập tức.
 **Cách sửa:**
 - Kiểm tra lại các mặt lưới tại vị trí bị ngắt để loại bỏ tam giác hoặc chuyển hướng Edge Flow.`,
 
@@ -76,36 +78,28 @@ export class AIService {
     localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(config));
   }
 
-  /**
-   * AI 3D Topology Doctor: Diagnoses errors using either Gemini API, Ollama or Built-in Knowledge Base
-   */
-  static async diagnoseIssue(query: string): Promise<string> {
-    const config = this.getConfig();
+  private static resolveOfflineAnswer(query: string): string {
     const qLower = query.toLowerCase();
+    if (qLower.includes('normal') || qLower.includes('lật mặt') || qLower.includes('đen mặt')) {
+      return OFFLINE_KNOWLEDGE_BASE.normals;
+    }
+    if (qLower.includes('ngon') || qLower.includes('n-gon') || qLower.includes('quad') || qLower.includes('4 đỉnh')) {
+      return OFFLINE_KNOWLEDGE_BASE.ngons;
+    }
+    if (qLower.includes('bevel') || qLower.includes('vát') || qLower.includes('dẹt') || qLower.includes('méo') || qLower.includes('scale')) {
+      return OFFLINE_KNOWLEDGE_BASE.bevel;
+    }
+    if (qLower.includes('trùng') || qLower.includes('double') || qLower.includes('dính đỉnh') || qLower.includes('merge')) {
+      return OFFLINE_KNOWLEDGE_BASE.doubles;
+    }
+    if (qLower.includes('loop cut') || qLower.includes('ctrl r') || qLower.includes('vòng cắt')) {
+      return OFFLINE_KNOWLEDGE_BASE.loopcut;
+    }
+    if (qLower.includes('boolean') || qLower.includes('đục lỗ') || qLower.includes('rách lưới')) {
+      return OFFLINE_KNOWLEDGE_BASE.boolean;
+    }
 
-    // Check offline knowledge base match first or if offline mode is enabled
-    if (config.provider === 'offline_local' || !config.apiKey) {
-      if (qLower.includes('normal') || qLower.includes('lật mặt') || qLower.includes('đen mặt')) {
-        return OFFLINE_KNOWLEDGE_BASE.normals;
-      }
-      if (qLower.includes('ngon') || qLower.includes('n-gon') || qLower.includes('quad') || qLower.includes('4 đỉnh')) {
-        return OFFLINE_KNOWLEDGE_BASE.ngons;
-      }
-      if (qLower.includes('bevel') || qLower.includes('vát') || qLower.includes('dẹt') || qLower.includes('méo') || qLower.includes('scale')) {
-        return OFFLINE_KNOWLEDGE_BASE.bevel;
-      }
-      if (qLower.includes('trùng') || qLower.includes('double') || qLower.includes('dính điểm') || qLower.includes('merge')) {
-        return OFFLINE_KNOWLEDGE_BASE.doubles;
-      }
-      if (qLower.includes('loop cut') || qLower.includes('ctrl r') || qLower.includes('vòng cắt')) {
-        return OFFLINE_KNOWLEDGE_BASE.loopcut;
-      }
-      if (qLower.includes('boolean') || qLower.includes('đục lỗ') || qLower.includes('rách lưới')) {
-        return OFFLINE_KNOWLEDGE_BASE.boolean;
-      }
-
-      // Default offline general answer
-      return `### 💡 Khuyến Nghị Kỹ Thuật 3D Blender 5.3 (Offline Assistant)
+    return `### 💡 Khuyến Nghị Kỹ Thuật 3D Blender 5.3 (Offline Assistant)
 Về câu hỏi: *"${query}"*
 
 **Quy tắc vàng khi dựng hình Hard-Surface:**
@@ -114,18 +108,24 @@ Về câu hỏi: *"${query}"*
 3. **Chuẩn hóa Quads:** Giữ tỷ lệ Quads 100% để bề mặt phản chiếu ánh sáng mượt mà dưới shader PBR.
 4. **Shading:** Sử dụng kết hợp *Shade Auto Smooth* và *Weighted Normal Modifier*.
 
-*(Để nhận câu trả lời AI mở rộng không giới hạn, bạn có thể nhập Gemini API Key hoặc kết nối Ollama trong mục Settings).*`;
-    }
+*(Để nhận câu trả lời AI mở rộng không giới hạn, bạn có thể nhập Gemini API Key hoặc kết nối Local Ollama trong mục Settings).*`;
+  }
 
-    // Call Gemini API if Key is provided
+  /**
+   * AI 3D Topology Doctor: Supports Gemini API, Local Ollama, and Offline Knowledge Base
+   */
+  static async diagnoseIssue(query: string): Promise<string> {
+    const config = this.getConfig();
+
+    const prompt = `You are an elite 3D Blender 5.3 Hard-Surface & Topology Engineer.
+The user is asking for troubleshooting help: "${query}".
+Answer concisely in clear Vietnamese with Markdown formatting.
+Provide exact Blender 5.3 keyboard shortcuts, step-by-step resolution, and quad topology principles.`;
+
+    // 1. Online Gemini Provider
     if (config.provider === 'gemini' && config.apiKey) {
       try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`;
-        const prompt = `You are an elite 3D Blender 5.3 Hard-Surface & Topology Engineer.
-The user is asking for troubleshooting help: "${query}".
-Answer concisely in clear Vietnamese with Markdown formatting.
-Provide exact Blender 5.3 keyboard shortcuts (<kbd>), step-by-step resolution, and quad topology principles.`;
-
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -141,27 +141,48 @@ Provide exact Blender 5.3 keyboard shortcuts (<kbd>), step-by-step resolution, a
           if (reply) return reply;
         }
       } catch (err) {
-        console.warn('[AIService] Online API call failed, falling back to local database:', err);
+        console.warn('[AIService] Gemini API call failed, falling back to offline KB:', err);
       }
     }
 
-    // Fallback if API fails
-    return OFFLINE_KNOWLEDGE_BASE.bevel;
+    // 2. Local Ollama Provider
+    if (config.provider === 'ollama' && config.ollamaEndpoint) {
+      try {
+        const base = config.ollamaEndpoint.replace(/\/+$/, '');
+        const res = await fetch(`${base}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: config.ollamaModel || 'llama3',
+            prompt,
+            stream: false,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.response) return data.response;
+        }
+      } catch (err) {
+        console.warn('[AIService] Ollama API call failed, falling back to offline KB:', err);
+      }
+    }
+
+    // 3. Offline Knowledge Base (Smart keyword lookup fallback)
+    return this.resolveOfflineAnswer(query);
   }
 
   /**
-   * AI Roadmap Generator: Generates a complete valid Roadmap object from any 3D topic
+   * Builds offline curated template fallback with accurate module/lesson counts
    */
-  static generateCustomRoadmap(topic: string): Roadmap {
-    const safeTopic = topic.trim() || 'Custom 3D Project';
+  private static buildOfflineRoadmapTemplate(safeTopic: string): Roadmap {
     const id = `roadmap-${Date.now()}`;
-
     return {
       id,
       title: `AI Curated: ${safeTopic} Masterclass`,
       category: 'Modeling',
-      description: `Comprehensive AI-generated curriculum for "${safeTopic}" in Blender 5.3 with quad topology, procedural shading, and render workflows.`,
-      totalLessons: 6,
+      description: `Structured curriculum for "${safeTopic}" in Blender 5.3 with quad topology, procedural shading, and render workflows.`,
+      totalLessons: 5,
       completedLessons: 0,
       progressPercent: 0,
       lastStudied: 'Just created',
@@ -190,11 +211,11 @@ Provide exact Blender 5.3 keyboard shortcuts (<kbd>), step-by-step resolution, a
               modifiers: 'Mirror',
               isCompleted: false,
               checklist: [
-                { id: 'c1', stepNumber: 1, title: 'Import orthographic reference planes', hotkeyHint: 'Numpad 1, 3', isDone: false },
-                { id: 'c2', stepNumber: 2, title: 'Block major volumes using scaled cubes', hotkeyHint: 'Shift + A', isDone: false },
-              ]
-            }
-          ]
+                { id: `${id}-c1`, stepNumber: 1, title: 'Import orthographic reference planes', hotkeyHint: 'Numpad 1, 3', isDone: false },
+                { id: `${id}-c2`, stepNumber: 2, title: 'Block major volumes using scaled cubes', hotkeyHint: 'Shift + A', isDone: false },
+              ],
+            },
+          ],
         },
         {
           id: `${id}-m2`,
@@ -209,9 +230,154 @@ Provide exact Blender 5.3 keyboard shortcuts (<kbd>), step-by-step resolution, a
             { id: `${id}-l3`, moduleId: `${id}-m2`, title: `2.1 Beveling and Corner Quad Redirects`, orderIndex: 1, readTime: '10 min', hotkeys: ['Ctrl + B', 'K'], isCompleted: false },
             { id: `${id}-l4`, moduleId: `${id}-m2`, title: `2.2 Clean Booleans with Weighted Normal`, orderIndex: 2, readTime: '12 min', hotkeys: ['Fast vs Exact'], isCompleted: false },
           ],
-          practiceTasks: []
-        }
-      ]
+          practiceTasks: [],
+        },
+      ],
     };
+  }
+
+  /**
+   * AI Roadmap Generator: Uses Gemini/Ollama if configured, otherwise returns smart offline template
+   */
+  static async generateCustomRoadmap(topic: string): Promise<Roadmap> {
+    const safeTopic = topic.trim() || 'Custom 3D Project';
+    const config = this.getConfig();
+
+    const jsonPrompt = `Generate a JSON object (no markdown fences) for a Blender 5.3 learning roadmap on "${safeTopic}".
+Schema:
+{
+  "title": "string",
+  "category": "Modeling" | "Shading" | "Lighting" | "Animation",
+  "description": "string",
+  "modules": [
+    {
+      "title": "Module 1: ...",
+      "description": "string",
+      "lessons": [{ "title": "string", "readTime": "8 min", "hotkeys": ["Tab", "E"] }],
+      "practiceTitle": "Challenge: ..."
+    }
+  ]
+}
+Keep strictly 2 modules, 2 lessons per module.`;
+
+    let rawText: string | null = null;
+
+    if (config.provider === 'gemini' && config.apiKey) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: jsonPrompt }] }],
+              generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+            }),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        }
+      } catch {
+        // Fallback below
+      }
+    } else if (config.provider === 'ollama' && config.ollamaEndpoint) {
+      try {
+        const base = config.ollamaEndpoint.replace(/\/+$/, '');
+        const res = await fetch(`${base}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: config.ollamaModel || 'llama3',
+            prompt: jsonPrompt,
+            stream: false,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          rawText = data.response || null;
+        }
+      } catch {
+        // Fallback below
+      }
+    }
+
+    if (rawText) {
+      try {
+        const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+        if (parsed && Array.isArray(parsed.modules) && parsed.modules.length > 0) {
+          const id = `roadmap-${Date.now()}`;
+          const validCat = ['Modeling', 'Shading', 'Lighting', 'Animation'].includes(parsed.category)
+            ? parsed.category
+            : 'Modeling';
+
+          const modules = parsed.modules.map((m: any, mIdx: number) => {
+            const modId = `${id}-m${mIdx + 1}`;
+            const lessons = (m.lessons || []).map((l: any, lIdx: number) => ({
+              id: `${modId}-l${lIdx + 1}`,
+              moduleId: modId,
+              title: l.title || `Lesson ${mIdx + 1}.${lIdx + 1}`,
+              orderIndex: lIdx + 1,
+              readTime: l.readTime || '8 min',
+              hotkeys: Array.isArray(l.hotkeys) ? l.hotkeys : ['Tab'],
+              isCompleted: false,
+            }));
+
+            const practiceTasks =
+              mIdx === 0
+                ? [
+                    {
+                      id: `${id}-p1`,
+                      moduleId: modId,
+                      title: m.practiceTitle || `Challenge: ${safeTopic}`,
+                      type: '3d_challenge' as const,
+                      expectedVertices: 120,
+                      expectedFaces: 112,
+                      modifiers: 'Mirror, Bevel',
+                      isCompleted: false,
+                      checklist: [
+                        { id: `${id}-s1`, stepNumber: 1, title: `Block primary silhouette of ${safeTopic}`, hotkeyHint: 'Shift + A, S', isDone: false },
+                        { id: `${id}-s2`, stepNumber: 2, title: 'Refine edge loops and apply Bevel modifier', hotkeyHint: 'Ctrl + R, Ctrl + B', isDone: false },
+                      ],
+                    },
+                  ]
+                : [];
+
+            return {
+              id: modId,
+              roadmapId: id,
+              title: m.title || `Module ${mIdx + 1}`,
+              orderIndex: mIdx + 1,
+              description: m.description || `Core skills for ${safeTopic}`,
+              progressPercent: 0,
+              isCompleted: false,
+              isLocked: false,
+              lessons,
+              practiceTasks,
+            };
+          });
+
+          const totalLessons = modules.reduce((acc: number, m: any) => acc + m.lessons.length + m.practiceTasks.length, 0);
+
+          return {
+            id,
+            title: parsed.title || `AI Curated: ${safeTopic}`,
+            category: validCat,
+            description: parsed.description || `AI-generated Blender 5.3 roadmap for ${safeTopic}.`,
+            totalLessons,
+            completedLessons: 0,
+            progressPercent: 0,
+            lastStudied: 'Just created',
+            modules,
+          };
+        }
+      } catch {
+        // Fallback to clean offline template
+      }
+    }
+
+    return this.buildOfflineRoadmapTemplate(safeTopic);
   }
 }

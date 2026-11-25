@@ -33,11 +33,13 @@ import {
 interface CurriculumExplorerViewProps {
   onOpenPracticeChallenge?: (taskId: string) => void;
   onNavigateHome?: () => void;
+  onProgressChanged?: () => void;
 }
 
 export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
   onOpenPracticeChallenge,
   onNavigateHome,
+  onProgressChanged,
 }) => {
   const [selectedModuleId, setSelectedModuleId] = useState<string>('cur-mod-00');
   const [activeLesson, setActiveLesson] = useState<CurriculumLesson | null>(() => {
@@ -66,12 +68,14 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
   const handleToggleComplete = (lessonId: string) => {
     CurriculumService.toggleLessonCompleted(lessonId);
     setCompletedIds(CurriculumService.getCompletedLessonIds());
+    onProgressChanged?.();
   };
 
   // Handle toggle bookmark
   const handleToggleBookmark = (lessonId: string) => {
     CurriculumService.toggleBookmark(lessonId);
     setBookmarks(CurriculumService.getBookmarks());
+    onProgressChanged?.();
   };
 
   // Handle save note
@@ -79,6 +83,7 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
     if (!activeLesson) return;
     CurriculumService.saveLessonNote(activeLesson.id, noteContent);
     setIsNoteSaved(true);
+    onProgressChanged?.();
     setTimeout(() => setIsNoteSaved(false), 2000);
   };
 

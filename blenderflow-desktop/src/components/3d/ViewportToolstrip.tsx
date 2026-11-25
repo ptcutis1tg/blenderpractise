@@ -30,13 +30,13 @@ export const ViewportToolstrip: React.FC<ViewportToolstripProps> = ({
   onResetCamera,
 }) => {
   return (
-    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0F131D]/90 backdrop-blur-md border border-[#1F2637] shadow-xl select-none">
+    <div className="flex flex-wrap items-center justify-end gap-1 sm:gap-1.5 p-1 rounded-xl bg-[#0F131D]/90 backdrop-blur-md border border-[#1F2637] shadow-xl select-none max-w-full">
       {/* Shading Mode Pills */}
       <div className="flex items-center bg-[#141A28] rounded-lg p-0.5 border border-[#1F2637]">
         <button
           type="button"
           onClick={() => onSelectShading('solid')}
-          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+          className={`px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
             shadingMode === 'solid'
               ? 'bg-[#4F46E5] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
@@ -47,18 +47,18 @@ export const ViewportToolstrip: React.FC<ViewportToolstripProps> = ({
         <button
           type="button"
           onClick={() => onSelectShading('wireframe')}
-          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+          className={`px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
             shadingMode === 'wireframe'
               ? 'bg-[#4F46E5] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          Wireframe
+          Wire
         </button>
         <button
           type="button"
           onClick={() => onSelectShading('xray')}
-          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+          className={`px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-semibold transition-all cursor-pointer ${
             shadingMode === 'xray'
               ? 'bg-[#4F46E5] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
@@ -68,7 +68,7 @@ export const ViewportToolstrip: React.FC<ViewportToolstripProps> = ({
         </button>
       </div>
 
-      <div className="w-[1px] h-4 bg-[#1F2637]" />
+      <div className="hidden sm:block w-[1px] h-4 bg-[#1F2637]" />
 
       {/* Blender Numpad View Presets */}
       <div className="flex items-center bg-[#141A28] rounded-lg p-0.5 border border-[#1F2637]">
@@ -76,43 +76,46 @@ export const ViewportToolstrip: React.FC<ViewportToolstripProps> = ({
           type="button"
           onClick={() => onSelectCameraPreset('front')}
           title="Front Ortho View (Numpad 1)"
-          className={`px-2 py-1 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
+          className={`px-1.5 sm:px-2 py-1 rounded text-[10px] sm:text-[11px] font-mono font-bold transition-all cursor-pointer ${
             activeCameraPreset === 'front'
               ? 'bg-[#F97316] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          Front (1)
+          <span className="sm:hidden">F(1)</span>
+          <span className="hidden sm:inline">Front (1)</span>
         </button>
         <button
           type="button"
           onClick={() => onSelectCameraPreset('right')}
           title="Right Ortho View (Numpad 3)"
-          className={`px-2 py-1 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
+          className={`px-1.5 sm:px-2 py-1 rounded text-[10px] sm:text-[11px] font-mono font-bold transition-all cursor-pointer ${
             activeCameraPreset === 'right'
               ? 'bg-[#F97316] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          Right (3)
+          <span className="sm:hidden">R(3)</span>
+          <span className="hidden sm:inline">Right (3)</span>
         </button>
         <button
           type="button"
           onClick={() => onSelectCameraPreset('top')}
           title="Top Ortho View (Numpad 7)"
-          className={`px-2 py-1 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
+          className={`px-1.5 sm:px-2 py-1 rounded text-[10px] sm:text-[11px] font-mono font-bold transition-all cursor-pointer ${
             activeCameraPreset === 'top'
               ? 'bg-[#F97316] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          Top (7)
+          <span className="sm:hidden">T(7)</span>
+          <span className="hidden sm:inline">Top (7)</span>
         </button>
         <button
           type="button"
           onClick={() => onSelectCameraPreset('perspective')}
           title="Perspective Orbit (Numpad 5)"
-          className={`px-2 py-1 rounded text-[11px] font-mono font-bold transition-all cursor-pointer ${
+          className={`px-1.5 sm:px-2 py-1 rounded text-[10px] sm:text-[11px] font-mono font-bold transition-all cursor-pointer ${
             activeCameraPreset === 'perspective'
               ? 'bg-[#4F46E5] text-white shadow-sm'
               : 'text-gray-400 hover:text-white'

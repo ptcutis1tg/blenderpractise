@@ -166,28 +166,21 @@ export const DesktopTitlebar: React.FC<DesktopTitlebarProps> = ({
           </button>
         )}
 
-        {/* Window Controls (Desktop only) */}
+        {/* Fullscreen Toggle (Works natively in Browser & Desktop Web) */}
         <div className="hidden md:flex items-center ml-1 border-l border-[#1F2637] pl-2 gap-0.5">
           <button
             type="button"
-            title="Minimize"
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-white hover:bg-[#1E2538] transition-colors"
-          >
-            <Minus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            title="Maximize"
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-white hover:bg-[#1E2538] transition-colors"
+            title="Toggle Fullscreen"
+            onClick={() => {
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              } else {
+                document.exitFullscreen().catch(() => {});
+              }
+            }}
+            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-white hover:bg-[#1E2538] transition-colors cursor-pointer"
           >
             <Square className="w-3 h-3" />
-          </button>
-          <button
-            type="button"
-            title="Close"
-            className="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

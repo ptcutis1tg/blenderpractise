@@ -21,6 +21,8 @@ import { KeycapBadge } from '../components/common/KeycapBadge';
 interface HomeDashboardViewProps {
   roadmaps: Roadmap[];
   userStats: UserStats;
+  bridgeConnected?: boolean;
+  isWebMode?: boolean;
   onSelectRoadmap: (roadmapId: string) => void;
   onOpenPracticeChallenge: (taskId: string) => void;
   onNavigateHotkeys: () => void;
@@ -32,6 +34,8 @@ type RoadmapStatusFilter = 'all' | 'in_progress' | 'completed';
 export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   roadmaps,
   userStats,
+  bridgeConnected = false,
+  isWebMode = false,
   onSelectRoadmap,
   onOpenPracticeChallenge,
   onNavigateHotkeys,
@@ -43,6 +47,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   // Primary active roadmap (in progress)
   const activeRoadmap = roadmaps.find((r) => r.progressPercent > 0 && r.progressPercent < 100) || roadmaps[0];
+
+  // Resolve next practice task dynamically from activeRoadmap
+  const activeTasks = activeRoadmap?.modules.flatMap((m) => m.practiceTasks) || [];
+  const nextPracticeTask = activeTasks.find((t) => !t.isCompleted) || activeTasks[0];
+  const fallbackTaskId = nextPracticeTask?.id || 'task-chair-01';
+  const nextChallengeTitle = nextPracticeTask?.title || activeRoadmap?.currentLessonTitle || 'Challenge 04: Low-Poly Stylized Wooden Chair';
 
   const categories = ['All', 'Modeling', 'Shading', 'Lighting'];
 
@@ -97,9 +107,22 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <span className="text-[12px] font-semibold text-gray-300">Study:</span>
               <span className="text-[13px] font-bold font-mono text-white">{userStats.totalHoursStudied}h</span>
             </div>
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141A28] border border-emerald-500/20">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-[12px] font-semibold text-emerald-400">{userStats.blenderVersion}</span>
+            <div
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141A28] border ${
+                bridgeConnected ? 'border-emerald-500/25' : 'border-slate-700/60'
+              }`}
+              title={
+                bridgeConnected
+                  ? 'Local Vite Blender Bridge active'
+                  : isWebMode
+                  ? 'Running in Web / Mobile Companion Mode'
+                  : 'Blender Bridge not detected locally'
+              }
+            >
+              <span className={`w-2 h-2 rounded-full ${bridgeConnected ? 'bg-emerald-400' : isWebMode ? 'bg-indigo-400' : 'bg-amber-400'}`} />
+              <span className={`text-[12px] font-semibold ${bridgeConnected ? 'text-emerald-400' : isWebMode ? 'text-indigo-300' : 'text-amber-300'}`}>
+                {bridgeConnected ? userStats.blenderVersion : isWebMode ? 'Web / Mobile Mode' : 'Bridge Offline'}
+              </span>
             </div>
           </div>
         </div>
@@ -125,7 +148,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </h2>
 
                 <p className="text-[13px] text-gray-300 max-w-2xl leading-relaxed">
-                  Next Challenge: <strong className="text-white font-semibold">Challenge 04: Low-Poly Stylized Wooden Chair</strong>. Practice quads, loop cuts, and non-destructive beveling directly in Blender with side-by-side 3D reference.
+                  Next Focus: <strong className="text-white font-semibold">{nextChallengeTitle}</strong>. Practice quads, loop cuts, and non-destructive workflows with side-by-side 3D reference.
                 </p>
 
                 {/* Focus Hotkeys Pills */}
@@ -141,7 +164,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 {/* Progress bar */}
                 <div className="flex flex-col gap-1.5 max-w-md mt-2">
                   <div className="flex items-center justify-between text-[11px] font-semibold">
-                    <span className="text-gray-400">Roadmap Progress</span>
+                    <span className="text-gray-400">Roadmap Progress (Overall: {overallPercentage}%)</span>
                     <span className="text-indigo-400 font-mono">{activeRoadmap.progressPercent}% ({activeRoadmap.completedLessons}/{activeRoadmap.totalLessons} completed)</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-[#0B0F19] overflow-hidden border border-[#1F2637]">
@@ -156,7 +179,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
                 <button
-                  onClick={() => onOpenPracticeChallenge('task-chair-01')}
+                  onClick={() => onOpenPracticeChallenge(fallbackTaskId)}
                   type="button"
                   className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#FB923C] hover:to-[#F97316] text-white font-bold text-[13px] shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
                 >
@@ -171,7 +194,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   className="py-2.5 px-5 rounded-xl bg-[#1F2637] hover:bg-[#283248] text-gray-200 hover:text-white font-semibold text-[13px] flex items-center justify-center gap-2 transition-all border border-[#2B354D] cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4 text-indigo-400" />
-                  <span>Resume Curriculum</span>
+                  <span>Mở chi tiết Roadmap</span>
                 </button>
               </div>
             </div>

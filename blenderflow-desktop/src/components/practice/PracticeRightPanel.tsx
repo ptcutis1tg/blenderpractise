@@ -21,6 +21,8 @@ import { BlenderBridgeService, VerificationResult } from '../../services/blender
 
 interface PracticeRightPanelProps {
   task: PracticeTask;
+  bridgeConnected?: boolean;
+  isWebMode?: boolean;
   onToggleStep: (stepId: string, currentStatus: boolean) => void;
   onLaunchBlender: () => void;
   onSubmitChallenge?: () => void;
@@ -28,6 +30,8 @@ interface PracticeRightPanelProps {
 
 export const PracticeRightPanel: React.FC<PracticeRightPanelProps> = ({
   task,
+  bridgeConnected = false,
+  isWebMode = false,
   onToggleStep,
   onLaunchBlender,
   onSubmitChallenge,
@@ -56,37 +60,51 @@ export const PracticeRightPanel: React.FC<PracticeRightPanelProps> = ({
     <div className="w-full h-full flex flex-col bg-[#0F131D] border-l border-[#1F2637] select-none overflow-y-auto">
       {/* Top Banner: Native Blender Launcher CTA */}
       <div className="p-4 border-b border-[#1F2637] bg-gradient-to-b from-[#161D2B] to-[#0F131D]">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[12px] font-semibold text-emerald-400 flex items-center gap-1.5">
-              <Cable className="w-3.5 h-3.5" /> Blender 5.3 Installed & Ready
+            <span className={`w-2.5 h-2.5 rounded-full ${bridgeConnected ? 'bg-emerald-400 animate-pulse' : isWebMode ? 'bg-indigo-400' : 'bg-amber-400'}`} />
+            <span className={`text-[12px] font-semibold flex items-center gap-1.5 ${bridgeConnected ? 'text-emerald-400' : isWebMode ? 'text-indigo-300' : 'text-amber-300'}`}>
+              <Cable className="w-3.5 h-3.5" />
+              {bridgeConnected
+                ? 'Blender 5.3 Bridge Connected'
+                : isWebMode
+                ? 'Web / Mobile Companion Mode'
+                : 'Local Bridge Offline'}
             </span>
           </div>
-          <span className="text-[11px] font-mono text-gray-400 bg-[#0B0F19] px-2 py-0.5 rounded border border-[#1F2637]">
-            challenge_04_chair_starter.blend
-          </span>
+          {task.blendFileName && (
+            <span className="text-[11px] font-mono text-gray-400 bg-[#0B0F19] px-2 py-0.5 rounded border border-[#1F2637] truncate max-w-[200px]">
+              {task.blendFileName}
+            </span>
+          )}
         </div>
 
-        {/* Direct Open in Blender Button */}
-        <button
-          onClick={onLaunchBlender}
-          type="button"
-          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#FB923C] hover:to-[#F97316] active:scale-[0.99] text-white font-bold text-[13px] shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <Play className="w-4 h-4 fill-white" />
-          <span>Launch & Work in Blender 5.3</span>
-          <span className="text-[11px] bg-black/25 px-2 py-0.5 rounded-md font-mono font-normal">
-            87.7 KB
-          </span>
-        </button>
+        {/* Direct Open in Blender Button (Shown when task uses a .blend starter asset) */}
+        {task.blendFileName ? (
+          <>
+            <button
+              onClick={onLaunchBlender}
+              type="button"
+              disabled={isWebMode}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#FB923C] hover:to-[#F97316] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-[13px] shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              <span>
+                {isWebMode
+                  ? 'Chỉ mở trực tiếp Blender khi chạy trên Desktop Local'
+                  : 'Launch & Work in Blender 5.3'}
+              </span>
+            </button>
 
-        <p className="text-[11px] text-gray-400 text-center mt-2 flex items-center justify-center gap-1">
-          <span>Opens native Blender 5.3 with starter seat base & reference camera</span>
-        </p>
-        <p className="text-[10px] text-gray-500 text-center mt-0.5 font-mono">
-          Batch launcher: open_starter_in_blender.bat
-        </p>
+            <p className="text-[11px] text-gray-400 text-center mt-2 flex items-center justify-center gap-1">
+              <span>Opens Blender 5.3 with starter scene for "{task.title}"</span>
+            </p>
+          </>
+        ) : (
+          <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1F2637] text-[12px] text-gray-300">
+            Chế độ bài tập thực hành tương tác ({task.type === 'hotkey_drill' ? 'Hotkey & Precision Drill' : '3D Topology Exercise'}). Tích hoàn thành từng bước bên dưới!
+          </div>
+        )}
       </div>
 
       {/* Main Checklist Section */}

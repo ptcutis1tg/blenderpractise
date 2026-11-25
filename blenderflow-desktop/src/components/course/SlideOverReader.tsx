@@ -23,6 +23,7 @@ import { Lesson } from '../../types';
 interface SlideOverReaderProps {
   lesson: Lesson | null;
   moduleTitle: string;
+  practiceTaskId?: string;
   isOpen: boolean;
   onClose: () => void;
   onToggleComplete: (lessonId: string) => void;
@@ -34,6 +35,7 @@ type TextSize = 'compact' | 'standard' | 'comfortable';
 export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
   lesson,
   moduleTitle,
+  practiceTaskId,
   isOpen,
   onClose,
   onToggleComplete,
@@ -335,12 +337,12 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            {onOpenChallenge && (
+            {onOpenChallenge && practiceTaskId && (
               <button
                 type="button"
                 onClick={() => {
                   onClose();
-                  onOpenChallenge('task-chair-01');
+                  onOpenChallenge(practiceTaskId);
                 }}
                 className="px-4 py-2 rounded-xl bg-[#1E2538] hover:bg-[#252E45] text-indigo-300 border border-indigo-500/30 text-[12px] font-bold transition-all flex items-center gap-2 cursor-pointer"
               >

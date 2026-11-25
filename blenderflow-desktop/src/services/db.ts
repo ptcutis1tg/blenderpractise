@@ -3,14 +3,14 @@ import { Roadmap, HotkeyItem, UserStats, PracticeTask, CourseModule } from '../t
 const STORAGE_KEYS = {
   ROADMAPS: 'blenderflow_roadmaps_v1',
   USER_STATS: 'blenderflow_stats_v1',
-  CHECKLISTS: 'blenderflow_checklists_v1',
+  LAST_ACTIVE_DATE: 'blenderflow_last_active_date_v1',
 };
 
 export const INITIAL_USER_STATS: UserStats = {
-  streakDays: 12,
-  blenderConnected: true,
+  streakDays: 0,
+  blenderConnected: false,
   blenderVersion: 'Blender 5.3 LTS',
-  totalHoursStudied: 28.5,
+  totalHoursStudied: 0,
 };
 
 export const INITIAL_HOTKEYS: HotkeyItem[] = [
@@ -195,21 +195,71 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
 ];
 
 export class DatabaseService {
+  /**
+   * Recomputes module and roadmap completion metrics from actual lessons and tasks
+   */
+  static recalculateRoadmapMetrics(roadmaps: Roadmap[]): Roadmap[] {
+    return roadmaps.map((rm) => {
+      const updatedModules = rm.modules.map((mod, mIdx) => {
+        const totalItems = mod.lessons.length + mod.practiceTasks.length;
+        const completedItems =
+          mod.lessons.filter((l) => l.isCompleted).length +
+          mod.practiceTasks.filter((t) => t.isCompleted).length;
+        const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+        const isCompleted = totalItems > 0 && progressPercent === 100;
+
+        return {
+          ...mod,
+          progressPercent,
+          isCompleted,
+          isLocked: mIdx === 0 ? false : mod.isLocked,
+        };
+      });
+
+      // Unlock next module whenever previous module is completed
+      for (let i = 0; i < updatedModules.length - 1; i++) {
+        if (updatedModules[i].isCompleted) {
+          updatedModules[i + 1].isLocked = false;
+        }
+      }
+
+      const rmTotal = updatedModules.reduce((acc, m) => acc + m.lessons.length + m.practiceTasks.length, 0);
+      const rmDone = updatedModules.reduce(
+        (acc, m) =>
+          acc +
+          m.lessons.filter((l) => l.isCompleted).length +
+          m.practiceTasks.filter((t) => t.isCompleted).length,
+        0
+      );
+
+      return {
+        ...rm,
+        modules: updatedModules,
+        totalLessons: rmTotal,
+        completedLessons: rmDone,
+        progressPercent: rmTotal > 0 ? Math.round((rmDone / rmTotal) * 100) : 0,
+      };
+    });
+  }
+
   static getRoadmaps(): Roadmap[] {
     const raw = localStorage.getItem(STORAGE_KEYS.ROADMAPS);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(INITIAL_ROADMAPS));
-      return INITIAL_ROADMAPS;
+      const seeded = this.recalculateRoadmapMetrics(INITIAL_ROADMAPS);
+      localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(seeded));
+      return seeded;
     }
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      return this.recalculateRoadmapMetrics(parsed);
     } catch {
-      return INITIAL_ROADMAPS;
+      return this.recalculateRoadmapMetrics(INITIAL_ROADMAPS);
     }
   }
 
   static saveRoadmaps(roadmaps: Roadmap[]): void {
-    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(roadmaps));
+    const normalized = this.recalculateRoadmapMetrics(roadmaps);
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(normalized));
   }
 
   static saveUserStats(stats: UserStats): void {
@@ -233,8 +283,70 @@ export class DatabaseService {
     }
   }
 
+  static recordStudyActivity(minutesAdded = 10): UserStats {
+    const stats = this.getUserStats();
+    const today = new Date().toISOString().slice(0, 10);
+    const lastActive = localStorage.getItem(STORAGE_KEYS.LAST_ACTIVE_DATE);
+
+    let nextStreak = stats.streakDays;
+    if (!lastActive) {
+      nextStreak = Math.max(1, nextStreak);
+    } else if (lastActive !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      nextStreak = lastActive === yesterday ? nextStreak + 1 : 1;
+    }
+
+    const updatedStats: UserStats = {
+      ...stats,
+      streakDays: nextStreak,
+      totalHoursStudied: Number((stats.totalHoursStudied + minutesAdded / 60).toFixed(2)),
+    };
+
+    localStorage.setItem(STORAGE_KEYS.LAST_ACTIVE_DATE, today);
+    this.saveUserStats(updatedStats);
+    return updatedStats;
+  }
+
   static getHotkeys(): HotkeyItem[] {
     return INITIAL_HOTKEYS;
+  }
+
+  static getChecklistStateMap(): Record<string, boolean> {
+    const map: Record<string, boolean> = {};
+    for (const rm of this.getRoadmaps()) {
+      for (const mod of rm.modules) {
+        for (const task of mod.practiceTasks) {
+          for (const step of task.checklist) {
+            map[`${task.id}:${step.id}`] = step.isDone;
+          }
+        }
+      }
+    }
+    return map;
+  }
+
+  static applyChecklistStateMap(stateMap: Record<string, boolean>): Roadmap[] {
+    const roadmaps = this.getRoadmaps();
+    for (const rm of roadmaps) {
+      for (const mod of rm.modules) {
+        for (const task of mod.practiceTasks) {
+          for (const step of task.checklist) {
+            const compositeKey = `${task.id}:${step.id}`;
+            if (typeof stateMap[compositeKey] === 'boolean') {
+              step.isDone = step.isDone || stateMap[compositeKey];
+            } else if (typeof stateMap[step.id] === 'boolean') {
+              step.isDone = step.isDone || stateMap[step.id];
+            }
+          }
+          if (task.checklist.length > 0 && task.checklist.every((s) => s.isDone)) {
+            task.isCompleted = true;
+          }
+        }
+      }
+    }
+    const updated = this.recalculateRoadmapMetrics(roadmaps);
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(updated));
+    return updated;
   }
 
   static updateTaskChecklistStep(taskId: string, stepId: string, isDone: boolean): Roadmap[] {
@@ -247,77 +359,61 @@ export class DatabaseService {
             if (step) {
               step.isDone = isDone;
             }
-            // Recalculate task completion
-            const allDone = task.checklist.every((s) => s.isDone);
-            task.isCompleted = allDone;
-
-            // Recalculate module progress
-            const totalItems = mod.lessons.length + mod.practiceTasks.length;
-            const completedItems =
-              mod.lessons.filter((l) => l.isCompleted).length +
-              mod.practiceTasks.filter((t) => t.isCompleted).length;
-            mod.progressPercent = Math.round((completedItems / totalItems) * 100);
-
-            // Recalculate roadmap progress
-            const rmTotal = rm.modules.reduce((acc, m) => acc + m.lessons.length + m.practiceTasks.length, 0);
-            const rmDone = rm.modules.reduce(
-              (acc, m) =>
-                acc +
-                m.lessons.filter((l) => l.isCompleted).length +
-                m.practiceTasks.filter((t) => t.isCompleted).length,
-              0
-            );
-            rm.progressPercent = Math.round((rmDone / rmTotal) * 100);
-            rm.completedLessons = rmDone;
+            task.isCompleted = task.checklist.length > 0 && task.checklist.every((s) => s.isDone);
+            rm.lastStudied = 'Just now';
           }
         }
       }
     }
-    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(roadmaps));
-    return roadmaps;
+    const updated = this.recalculateRoadmapMetrics(roadmaps);
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(updated));
+    if (isDone) {
+      this.recordStudyActivity(5);
+    }
+    return updated;
+  }
+
+  static completePracticeTask(taskId: string): Roadmap[] {
+    const roadmaps = this.getRoadmaps();
+    for (const rm of roadmaps) {
+      for (const mod of rm.modules) {
+        const task = mod.practiceTasks.find((t) => t.id === taskId);
+        if (task) {
+          task.isCompleted = true;
+          task.checklist.forEach((s) => {
+            s.isDone = true;
+          });
+          rm.lastStudied = 'Just now';
+        }
+      }
+    }
+    const updated = this.recalculateRoadmapMetrics(roadmaps);
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(updated));
+    this.recordStudyActivity(20);
+    return updated;
   }
 
   static toggleLessonCompleted(lessonId: string): Roadmap[] {
     const roadmaps = this.getRoadmaps();
+    let markedCompleted = false;
     for (const rm of roadmaps) {
-      for (let mIdx = 0; mIdx < rm.modules.length; mIdx++) {
-        const mod = rm.modules[mIdx];
+      for (const mod of rm.modules) {
         const lesson = mod.lessons.find((l) => l.id === lessonId);
         if (lesson) {
           lesson.isCompleted = !lesson.isCompleted;
-
-          // Recalculate module progress
-          const totalItems = mod.lessons.length + mod.practiceTasks.length;
-          const completedItems =
-            mod.lessons.filter((l) => l.isCompleted).length +
-            mod.practiceTasks.filter((t) => t.isCompleted).length;
-          mod.progressPercent = Math.round((completedItems / totalItems) * 100);
-          mod.isCompleted = mod.progressPercent === 100;
-
-          // Unlock next module if this module is completed
-          if (mod.isCompleted && mIdx + 1 < rm.modules.length) {
-            rm.modules[mIdx + 1].isLocked = false;
-          }
-
-          // Recalculate roadmap progress
-          const rmTotal = rm.modules.reduce((acc, m) => acc + m.lessons.length + m.practiceTasks.length, 0);
-          const rmDone = rm.modules.reduce(
-            (acc, m) =>
-              acc +
-              m.lessons.filter((l) => l.isCompleted).length +
-              m.practiceTasks.filter((t) => t.isCompleted).length,
-            0
-          );
-          rm.progressPercent = Math.round((rmDone / rmTotal) * 100);
-          rm.completedLessons = rmDone;
+          markedCompleted = lesson.isCompleted;
           rm.lastStudied = 'Just now';
           rm.currentLessonId = lesson.id;
           rm.currentLessonTitle = lesson.title;
         }
       }
     }
-    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(roadmaps));
-    return roadmaps;
+    const updated = this.recalculateRoadmapMetrics(roadmaps);
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(updated));
+    if (markedCompleted) {
+      this.recordStudyActivity(10);
+    }
+    return updated;
   }
 
   static findPracticeTask(taskId: string): { task: PracticeTask; roadmap: Roadmap; module: CourseModule } | null {

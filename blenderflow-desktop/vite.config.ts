@@ -5,14 +5,50 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 
+function getLocalLanIp(): string {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
 function blenderBridgePlugin(): Plugin {
+  const blenderExe = 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe';
+  const defaultBlend = path.resolve(__dirname, 'starter_assets/challenge_04_chair_starter.blend');
+  const telemetryPath = path.join(os.homedir(), '.blenderflow_telemetry.json');
+
   const registerMiddlewares = (server: any) => {
+    // 0. Healthcheck endpoint to verify local bridge & Blender availability
+    server.middlewares.use('/api/bridge-status', (req: any, res: any) => {
+      if (req.method === 'GET') {
+        const lanIp = getLocalLanIp();
+        const port = server.config?.server?.port || 5173;
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(
+          JSON.stringify({
+            serverAvailable: true,
+            blenderInstalled: fs.existsSync(blenderExe),
+            blenderPath: blenderExe,
+            starterAssetExists: fs.existsSync(defaultBlend),
+            telemetryAvailable: fs.existsSync(telemetryPath),
+            lanUrl: `http://${lanIp}:${port}`,
+          })
+        );
+      } else {
+        res.statusCode = 405;
+        res.end('Method Not Allowed');
+      }
+    });
+
     // 1. Endpoint to launch Blender 5.3 with .blend file
     server.middlewares.use('/api/launch-blender', (req: any, res: any) => {
       if (req.method === 'POST') {
-        const blenderExe = 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe';
-        const defaultBlend = path.resolve(__dirname, 'starter_assets/challenge_04_chair_starter.blend');
-
         let body = '';
         req.on('data', (chunk: any) => (body += chunk));
         req.on('end', () => {
@@ -20,8 +56,13 @@ function blenderBridgePlugin(): Plugin {
           try {
             if (body) {
               const parsed = JSON.parse(body);
-              if (parsed.filePath && fs.existsSync(parsed.filePath)) {
-                targetFile = parsed.filePath;
+              if (parsed.filePath) {
+                const candidate = path.isAbsolute(parsed.filePath)
+                  ? parsed.filePath
+                  : path.resolve(__dirname, 'starter_assets', path.basename(parsed.filePath));
+                if (fs.existsSync(candidate)) {
+                  targetFile = candidate;
+                }
               }
             }
           } catch (e) {}

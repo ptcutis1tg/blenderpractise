@@ -4,6 +4,7 @@ import { ViewportToolstrip, ShadingMode, CameraPreset } from './ViewportToolstri
 import { MetricsHUD } from './MetricsHUD';
 
 interface ModelInspector3DProps {
+  taskId?: string;
   challengeTitle?: string;
   expectedVertices?: number;
   expectedFaces?: number;
@@ -11,6 +12,7 @@ interface ModelInspector3DProps {
 }
 
 export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
+  taskId = 'task-chair-01',
   challengeTitle = 'Challenge 04: Low-Poly Stylized Chair',
   expectedVertices = 148,
   expectedFaces = 136,
@@ -79,9 +81,9 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
     scene.background = new THREE.Color(0x0a0e17);
     sceneRef.current = scene;
 
-    // 2. Camera setup
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    // 2. Camera setup (Guard against 0 dimensions during layout transitions)
+    const width = Math.max(1, container.clientWidth);
+    const height = Math.max(1, container.clientHeight);
     const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
     cameraRef.current = camera;
     updateCameraPos();
@@ -129,9 +131,9 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // 6. Low-Poly Stylized Chair Group
-    const chairGroup = new THREE.Group();
-    modelGroupRef.current = chairGroup;
+    // 6. Task-Specific 3D Reference Model Group
+    const modelGroup = new THREE.Group();
+    modelGroupRef.current = modelGroup;
 
     const woodMat = new THREE.MeshStandardMaterial({
       color: 0xc87d46,
@@ -139,10 +141,16 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       metalness: 0.05,
     });
 
-    const cushionMat = new THREE.MeshStandardMaterial({
+    const accentMat = new THREE.MeshStandardMaterial({
       color: 0x4f46e5,
-      roughness: 0.6,
-      metalness: 0.1,
+      roughness: 0.5,
+      metalness: 0.15,
+    });
+
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: 0x64748b,
+      roughness: 0.28,
+      metalness: 0.7,
     });
 
     const edgeMat = new THREE.LineBasicMaterial({
@@ -161,39 +169,55 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       const wire = new THREE.LineSegments(wireGeo, edgeMat);
       mesh.add(wire);
 
-      chairGroup.add(mesh);
+      modelGroup.add(mesh);
       return mesh;
     };
 
-    // Chair Seat Base
-    addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.12, 1.2), woodMat, 0, 0.85, 0);
-    // Soft Cushion
-    addMeshWithEdges(new THREE.BoxGeometry(1.08, 0.08, 1.08), cushionMat, 0, 0.94, 0);
+    if (taskId === 'task-vp-01') {
+      // Precision Align Drill: 4 symmetrical cubes around center 3D Cursor marker
+      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, -0.75, 0.275, -0.75);
+      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, 0.75, 0.275, -0.75);
+      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, -0.75, 0.275, 0.75);
+      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, 0.75, 0.275, 0.75);
+      addMeshWithEdges(new THREE.OctahedronGeometry(0.22, 0), woodMat, 0, 0.55, 0);
+    } else if (taskId === 'task-sci-fi-crate') {
+      // Sci-Fi Military Storage Crate
+      addMeshWithEdges(new THREE.BoxGeometry(1.5, 1.0, 1.1), metalMat, 0, 0.52, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(1.58, 0.14, 1.18), accentMat, 0, 1.02, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(1.58, 0.12, 1.18), accentMat, 0, 0.08, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.18, 0.76, 1.16), woodMat, -0.58, 0.54, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.18, 0.76, 1.16), woodMat, 0.58, 0.54, 0);
+    } else if (taskId !== 'task-chair-01') {
+      // Generic Procedural Hard-Surface Reference Prop for custom/AI tasks
+      addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.75, 1.2), metalMat, 0, 0.38, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.42, 0.5, 0.45, 8), accentMat, 0, 0.98, 0);
+      addMeshWithEdges(new THREE.TorusGeometry(0.32, 0.06, 8, 16), woodMat, 0, 1.25, 0, Math.PI / 2, 0, 0);
+    } else {
+      // Challenge 04: Low-Poly Stylized Wooden Chair
+      addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.12, 1.2), woodMat, 0, 0.85, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(1.08, 0.08, 1.08), accentMat, 0, 0.94, 0);
 
-    // 4 Chair Legs (slight splay angle)
-    const legGeo = new THREE.BoxGeometry(0.09, 0.85, 0.09);
-    const legOffsetX = 0.48;
-    const legOffsetZ = 0.48;
-    addMeshWithEdges(legGeo, woodMat, -legOffsetX, 0.425, -legOffsetZ, -0.04, 0, 0.04);
-    addMeshWithEdges(legGeo, woodMat, legOffsetX, 0.425, -legOffsetZ, -0.04, 0, -0.04);
-    addMeshWithEdges(legGeo, woodMat, -legOffsetX, 0.425, legOffsetZ, 0.04, 0, 0.04);
-    addMeshWithEdges(legGeo, woodMat, legOffsetX, 0.425, legOffsetZ, 0.04, 0, -0.04);
+      const legGeo = new THREE.BoxGeometry(0.09, 0.85, 0.09);
+      const legOffsetX = 0.48;
+      const legOffsetZ = 0.48;
+      addMeshWithEdges(legGeo, woodMat, -legOffsetX, 0.425, -legOffsetZ, -0.04, 0, 0.04);
+      addMeshWithEdges(legGeo, woodMat, legOffsetX, 0.425, -legOffsetZ, -0.04, 0, -0.04);
+      addMeshWithEdges(legGeo, woodMat, -legOffsetX, 0.425, legOffsetZ, 0.04, 0, 0.04);
+      addMeshWithEdges(legGeo, woodMat, legOffsetX, 0.425, legOffsetZ, 0.04, 0, -0.04);
 
-    // Crossbars
-    addMeshWithEdges(new THREE.BoxGeometry(0.05, 0.05, 0.96), woodMat, -legOffsetX + 0.03, 0.35, 0);
-    addMeshWithEdges(new THREE.BoxGeometry(0.05, 0.05, 0.96), woodMat, legOffsetX - 0.03, 0.35, 0);
-    addMeshWithEdges(new THREE.BoxGeometry(0.96, 0.05, 0.05), woodMat, 0, 0.38, -legOffsetZ + 0.03);
+      addMeshWithEdges(new THREE.BoxGeometry(0.05, 0.05, 0.96), woodMat, -legOffsetX + 0.03, 0.35, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.05, 0.05, 0.96), woodMat, legOffsetX - 0.03, 0.35, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.96, 0.05, 0.05), woodMat, 0, 0.38, -legOffsetZ + 0.03);
 
-    // Backrest Posts
-    addMeshWithEdges(new THREE.BoxGeometry(0.08, 1.1, 0.08), woodMat, -legOffsetX + 0.05, 1.45, -legOffsetZ + 0.05, 0.05, 0, 0);
-    addMeshWithEdges(new THREE.BoxGeometry(0.08, 1.1, 0.08), woodMat, legOffsetX - 0.05, 1.45, -legOffsetZ + 0.05, 0.05, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.08, 1.1, 0.08), woodMat, -legOffsetX + 0.05, 1.45, -legOffsetZ + 0.05, 0.05, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.08, 1.1, 0.08), woodMat, legOffsetX - 0.05, 1.45, -legOffsetZ + 0.05, 0.05, 0, 0);
 
-    // Backrest Horizontal Slats
-    addMeshWithEdges(new THREE.BoxGeometry(0.98, 0.18, 0.06), woodMat, 0, 1.9, -legOffsetZ + 0.08, 0.05, 0, 0);
-    addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.62, -legOffsetZ + 0.07, 0.05, 0, 0);
-    addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.38, -legOffsetZ + 0.06, 0.05, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.98, 0.18, 0.06), woodMat, 0, 1.9, -legOffsetZ + 0.08, 0.05, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.62, -legOffsetZ + 0.07, 0.05, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.38, -legOffsetZ + 0.06, 0.05, 0, 0);
+    }
 
-    scene.add(chairGroup);
+    scene.add(modelGroup);
 
     // 7. Mouse Orbit Handlers
     const onMouseDown = (e: MouseEvent) => {
@@ -281,6 +305,7 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       if (!container || !renderer || !camera) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
+      if (w <= 0 || h <= 0) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -351,7 +376,7 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
         container.removeChild(dom);
       }
     };
-  }, []);
+  }, [taskId]);
 
   // Update Shading Visuals (Solid, Wireframe, X-Ray)
   useEffect(() => {
@@ -397,8 +422,8 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       {/* 3D WebGL Canvas */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing touch-none select-none" />
 
-      {/* Top Controls: ViewportToolstrip */}
-      <div className="absolute top-3 right-3 pointer-events-auto z-20">
+      {/* Top Controls: ViewportToolstrip (Below title badge on narrow mobile screens to avoid overlap) */}
+      <div className="absolute top-11 sm:top-3 right-2.5 sm:right-3 pointer-events-auto z-20 max-w-[calc(100%-20px)]">
         <ViewportToolstrip
           shadingMode={shadingMode}
           onSelectShading={setShadingMode}

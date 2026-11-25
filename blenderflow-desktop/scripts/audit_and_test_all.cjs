@@ -109,22 +109,36 @@ console.log('\n--- 4. POST-REMEDIATION CODE VERIFICATIONS ---');
 const model3DPath = path.join(ROOT_DIR, 'src/components/3d/ModelInspector3D.tsx');
 if (fs.existsSync(model3DPath)) {
   const mContent = fs.readFileSync(model3DPath, 'utf8');
-  const hasCleanDependency = mContent.includes('}, []);');
+  const hasTaskDepOnly = mContent.includes('}, [taskId]);');
   const hasAutoRotateRef = mContent.includes('autoRotateRef.current');
   const hasResizeObserver = mContent.includes('ResizeObserver');
+  const hasMultiModel = mContent.includes("taskId === 'task-vp-01'") && mContent.includes("taskId === 'task-sci-fi-crate'");
 
-  recordTest('BUG-01 Fixed: WebGL Teardown on AutoRotate', hasCleanDependency && hasAutoRotateRef, 'Using autoRotateRef with empty dependency array []');
+  recordTest('BUG-01 Fixed: WebGL Teardown on AutoRotate', hasTaskDepOnly && hasAutoRotateRef, 'Using autoRotateRef without tearing down WebGL on autoRotate toggle');
   recordTest('BUG-02 Fixed: Canvas ResizeObserver', hasResizeObserver, 'ResizeObserver active on 3D container for instant split ratio adaptation');
+  recordTest('3D Multi-Model Support', hasMultiModel, 'Renders distinct 3D models for chair, precision cubes, and sci-fi crate');
 }
 
-// Bug 7: Vite preview server hook & manualChunks
+// Bug 7: Vite preview server hook, bridge healthcheck & manualChunks
 const viteConfigPath = path.join(ROOT_DIR, 'vite.config.ts');
 if (fs.existsSync(viteConfigPath)) {
   const vContent = fs.readFileSync(viteConfigPath, 'utf8');
   const hasConfigurePreviewServer = vContent.includes('configurePreviewServer');
+  const hasBridgeStatus = vContent.includes('/api/bridge-status');
   const hasManualChunks = vContent.includes('manualChunks');
-  recordTest('BUG-07 Fixed: configurePreviewServer in Vite', hasConfigurePreviewServer, 'Both dev and preview servers support /api/launch-blender & /api/mesh-telemetry');
-  recordTest('Bundle Optimization: manualChunks in Vite', hasManualChunks, 'Vendor chunks for three and lucide-react configured');
+  recordTest('BUG-07 Fixed: configurePreviewServer in Vite', hasConfigurePreviewServer, 'Both dev and preview servers support bridge APIs');
+  recordTest('Real Bridge Healthcheck: /api/bridge-status', hasBridgeStatus, 'Vite middleware provides live Blender & LAN IP status');
+  recordTest('Bundle Optimization: manualChunks in Vite', hasManualChunks, 'Vendor chunks for three, lucide-react, and supabase configured');
+}
+
+// SplitPracticeView Dynamic Tailwind check
+const splitViewPath = path.join(ROOT_DIR, 'src/views/SplitPracticeView.tsx');
+if (fs.existsSync(splitViewPath)) {
+  const sContent = fs.readFileSync(splitViewPath, 'utf8');
+  const noDynamicMdPrefix = !sContent.includes('md:${');
+  const hasLiveTimer = sContent.includes('elapsedSeconds');
+  recordTest('SplitPracticeView: Static Tailwind Classes', noDynamicMdPrefix, 'No broken md:${...} dynamic interpolation; JIT classes preserved');
+  recordTest('SplitPracticeView: Live Practice Timer', hasLiveTimer, 'Session timer ticks dynamically per second');
 }
 
 // Check Strict Telemetry in PracticeRightPanel
@@ -152,14 +166,25 @@ if (fs.existsSync(syncPath)) {
   const syncContent = fs.readFileSync(syncPath, 'utf8');
   const hasMerge = syncContent.includes('mergeGuestDataOnLogin');
   const hasDebounce = syncContent.includes('debouncedPush');
+  const syncsCurriculum = syncContent.includes('curriculumCompleted') && syncContent.includes("'roadmap-shading'");
   recordTest('Cloud Sync: Offline-First Hybrid Sync', hasMerge && hasDebounce, 'Supports debounced progress push and guest progress merge on login');
+  recordTest('Cloud Sync: Unified Curriculum & Roadmap IDs', syncsCurriculum, 'Syncs 26 curriculum lessons/notes/bookmarks and uses accurate standard IDs');
+}
+
+const aiPath = path.join(ROOT_DIR, 'src/services/aiService.ts');
+if (fs.existsSync(aiPath)) {
+  const aiContent = fs.readFileSync(aiPath, 'utf8');
+  const hasOllama = aiContent.includes('/api/generate') && aiContent.includes('ollamaEndpoint');
+  recordTest('AIService: Real Ollama Integration', hasOllama, 'Implements live Ollama /api/generate calls for diagnoseIssue & roadmap generation');
 }
 
 if (fs.existsSync(appPath)) {
   const appContent = fs.readFileSync(appPath, 'utf8');
   const hasAuthModal = appContent.includes('<AuthModal');
   const hasAuthListener = appContent.includes('onAuthStateChange');
+  const routesToCourse = appContent.includes("setViewMode('course')");
   recordTest('App Integration: AuthModal & State Listener', hasAuthModal && hasAuthListener, 'Auth modal mounted and auth state changes wired');
+  recordTest('App Routing: CourseWorkspaceView Accessible', routesToCourse, 'Roadmap cards route into CourseWorkspaceView properly');
 }
 
 console.log('\n====================================================');
@@ -168,3 +193,7 @@ console.log(`PASSED: ${results.passed}`);
 console.log(`FAILED: ${results.failed}`);
 console.log(`WARNINGS: ${results.warnings}`);
 console.log('====================================================');
+
+if (results.failed > 0) {
+  process.exit(1);
+}

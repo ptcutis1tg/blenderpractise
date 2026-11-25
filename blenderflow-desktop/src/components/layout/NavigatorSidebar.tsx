@@ -20,6 +20,8 @@ interface NavigatorSidebarProps {
   onSelectTab: (tab: NavigationTab) => void;
   userStats: UserStats;
   userProfile?: UserProfile | null;
+  bridgeConnected?: boolean;
+  isWebMode?: boolean;
   onOpenAuthModal?: () => void;
   onOpenPracticeChallenge?: () => void;
 }
@@ -29,6 +31,8 @@ export const NavigatorSidebar: React.FC<NavigatorSidebarProps> = ({
   onSelectTab,
   userStats,
   userProfile,
+  bridgeConnected = false,
+  isWebMode = false,
   onOpenAuthModal,
   onOpenPracticeChallenge,
 }) => {
@@ -147,21 +151,41 @@ export const NavigatorSidebar: React.FC<NavigatorSidebarProps> = ({
             </span>
           </div>
 
-          {/* Blender Bridge Status */}
-          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#161D2B] border border-emerald-500/20">
+          {/* Blender Bridge Status (Truthful Environment Detection) */}
+          <div
+            className={`flex items-center justify-between px-3 py-2 rounded-lg bg-[#161D2B] border ${
+              bridgeConnected ? 'border-emerald-500/20' : isWebMode ? 'border-indigo-500/20' : 'border-amber-500/20'
+            }`}
+          >
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                {bridgeConnected && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                )}
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    bridgeConnected ? 'bg-emerald-500' : isWebMode ? 'bg-indigo-400' : 'bg-amber-400'
+                  }`}
+                ></span>
               </span>
               <div className="flex flex-col">
-                <span className="text-[11px] font-semibold text-emerald-300 flex items-center gap-1">
-                  <Cable className="w-3 h-3 text-emerald-400" /> {userStats.blenderVersion}
+                <span
+                  className={`text-[11px] font-semibold flex items-center gap-1 ${
+                    bridgeConnected ? 'text-emerald-300' : isWebMode ? 'text-indigo-300' : 'text-amber-300'
+                  }`}
+                >
+                  <Cable className="w-3 h-3" /> {userStats.blenderVersion}
                 </span>
-                <span className="text-[9px] text-gray-400">Bridge Active (9876)</span>
+                <span className="text-[9px] text-gray-400">
+                  {bridgeConnected
+                    ? 'Local Bridge Ready'
+                    : isWebMode
+                    ? 'Web Companion Mode'
+                    : 'Blender Not Detected'}
+                </span>
               </div>
             </div>
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            {bridgeConnected && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
           </div>
         </div>
       </aside>

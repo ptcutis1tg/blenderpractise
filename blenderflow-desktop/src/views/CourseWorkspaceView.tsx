@@ -37,24 +37,31 @@ export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
   onLaunchHotkeyDrill,
   onOpenStarterBlend,
 }) => {
-  // Expanded module tracking (Module 2 open by default, Module 1 can be toggled)
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
-    'mod-1': false,
-    'mod-2': true,
-    'mod-3': false,
-  });
-
-  // Focus Reader Drawer state
+  // Dynamically expand the first unlocked, incomplete module (fallback to first module)
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [readingLesson, setReadingLesson] = useState<Lesson | null>(null);
   const [activeModuleTitle, setActiveModuleTitle] = useState<string>('');
+  const [activePracticeTaskId, setActivePracticeTaskId] = useState<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    const firstActive =
+      roadmap.modules.find((m) => !m.isLocked && !m.isCompleted) || roadmap.modules[0];
+    const initialMap: Record<string, boolean> = {};
+    roadmap.modules.forEach((m) => {
+      initialMap[m.id] = firstActive ? m.id === firstActive.id : false;
+    });
+    setExpandedModules(initialMap);
+  }, [roadmap.id]);
 
   const toggleModule = (modId: string) => {
     setExpandedModules((prev) => ({ ...prev, [modId]: !prev[modId] }));
   };
 
-  const handleOpenReader = (lesson: Lesson, modTitle: string) => {
+  const handleOpenReader = (lesson: Lesson, mod: CourseModule) => {
     setReadingLesson(lesson);
-    setActiveModuleTitle(modTitle);
+    setActiveModuleTitle(mod.title);
+    const challenge = mod.practiceTasks.find((t) => t.type === '3d_challenge') || mod.practiceTasks[0];
+    setActivePracticeTaskId(challenge?.id);
   };
 
   return (
@@ -192,7 +199,7 @@ export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
                         >
                           <div 
                             className="flex items-center gap-3 flex-1"
-                            onClick={() => handleOpenReader(lesson, mod.title)}
+                            onClick={() => handleOpenReader(lesson, mod)}
                           >
                             <button
                               type="button"
@@ -221,7 +228,7 @@ export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
 
                           <div 
                             className="flex items-center gap-3 shrink-0"
-                            onClick={() => handleOpenReader(lesson, mod.title)}
+                            onClick={() => handleOpenReader(lesson, mod)}
                           >
                             {lesson.hotkeys.length > 0 && (
                               <div className="hidden sm:flex items-center gap-1.5">
@@ -264,6 +271,7 @@ export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
       <SlideOverReader
         lesson={readingLesson}
         moduleTitle={activeModuleTitle}
+        practiceTaskId={activePracticeTaskId}
         isOpen={Boolean(readingLesson)}
         onClose={() => setReadingLesson(null)}
         onToggleComplete={(lessonId) => {

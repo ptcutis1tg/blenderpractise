@@ -28,12 +28,56 @@ export interface VerificationResult {
   suggestions: string[];
 }
 
+export interface BridgeStatus {
+  serverAvailable: boolean;
+  isWebMode: boolean;
+  blenderInstalled: boolean;
+  blenderPath?: string;
+  starterAssetExists: boolean;
+  telemetryAvailable: boolean;
+  lanUrl: string;
+}
+
 export const BLENDER_EXE_PATH = 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe';
-export const STARTER_BLEND_PATH = 'C:\\Users\\Admin\\Desktop\\CODE\\blenderflow-desktop\\starter_assets\\challenge_04_chair_starter.blend';
+export const STARTER_BLEND_PATH = 'starter_assets/challenge_04_chair_starter.blend';
 
 export class BlenderBridgeService {
   static getStarterBlendPath(blendFileName?: string): string {
-    return STARTER_BLEND_PATH;
+    if (!blendFileName) return STARTER_BLEND_PATH;
+    return blendFileName;
+  }
+
+  /**
+   * Checks whether local Vite Blender Bridge middleware is active and Blender is installed
+   */
+  static async checkBridgeStatus(): Promise<BridgeStatus> {
+    try {
+      const res = await fetch('/api/bridge-status');
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const data = await res.json();
+        return {
+          serverAvailable: Boolean(data.serverAvailable),
+          isWebMode: false,
+          blenderInstalled: Boolean(data.blenderInstalled),
+          blenderPath: data.blenderPath,
+          starterAssetExists: Boolean(data.starterAssetExists),
+          telemetryAvailable: Boolean(data.telemetryAvailable),
+          lanUrl: data.lanUrl || window.location.origin,
+        };
+      }
+    } catch {
+      // Static web / GitHub Pages / disconnected
+    }
+
+    return {
+      serverAvailable: false,
+      isWebMode: true,
+      blenderInstalled: false,
+      starterAssetExists: false,
+      telemetryAvailable: false,
+      lanUrl: typeof window !== 'undefined' ? window.location.origin : '',
+    };
   }
 
   static async launchBlender(filePath?: string): Promise<{ success: boolean; message: string }> {
@@ -43,6 +87,13 @@ export class BlenderBridgeService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filePath: filePath || STARTER_BLEND_PATH }),
       });
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return {
+          success: false,
+          message: 'Tính năng mở trực tiếp Blender 5.3 chỉ hoạt động khi chạy ứng dụng trên máy tính cá nhân qua Vite Local Server.',
+        };
+      }
       const data = await response.json();
       if (response.ok && data.success) {
         return { success: true, message: data.message || 'Blender 5.3 launched successfully!' };
@@ -52,7 +103,7 @@ export class BlenderBridgeService {
       console.warn('[BlenderBridge] Direct API call error, using fallback launcher:', err);
       return {
         success: false,
-        message: 'Could not connect to Vite dev server API. Please run "open_starter_in_blender.bat" or restart "npm run dev".',
+        message: 'Không kết nối được tới Local Bridge Server. Hãy chạy "start_blenderflow_desktop.bat" trên PC có cài Blender.',
       };
     }
   }
@@ -60,7 +111,8 @@ export class BlenderBridgeService {
   static async fetchTelemetry(): Promise<MeshTelemetry | null> {
     try {
       const response = await fetch('/api/mesh-telemetry');
-      if (response.ok) {
+      const contentType = response.headers.get('content-type') || '';
+      if (response.ok && contentType.includes('application/json')) {
         const data = await response.json();
         if (data.success && data.telemetry) {
           return data.telemetry as MeshTelemetry;
@@ -84,11 +136,10 @@ export class BlenderBridgeService {
     const actualQuads = telemetry.quads || 0;
     const ngons = telemetry.ngons || 0;
     const isAllQuads = telemetry.is_all_quads || (ngons === 0 && (telemetry.triangles || 0) === 0);
-    const hasBevel = (telemetry.modifiers || []).some(m => m.toLowerCase().includes('bevel'));
+    const hasBevel = (telemetry.modifiers || []).some((m) => m.toLowerCase().includes('bevel'));
 
     const suggestions: string[] = [];
 
-    // Calculate score based on real Blender mesh
     let score = 0;
     if (isAllQuads) {
       score += 50;
@@ -150,13 +201,12 @@ export class BlenderBridgeService {
       return this.verifyLiveMeshTopology(liveTelemetry, expectedVertices, expectedFaces);
     }
 
-    // If Blender is not connected or telemetry file is not found
     return {
       tested: true,
       passed: false,
       score: 0,
       isLiveBlender: false,
-      message: 'CHƯA NHẬN ĐƯỢC DỮ LIỆU TỪ BLENDER 5.3! Vui lòng khởi chạy Blender và bấm "Sync Mesh to BlenderFlow" trong Addon.',
+      message: 'CHƯA NHẬN ĐƯỢC DỮ LIỆU TỪ BLENDER 5.3! Vui lòng khởi chạy Blender và bấm "Sync Topology to App" trong Addon.',
       metrics: {
         expectedVertices,
         actualVertices: 0,
@@ -165,10 +215,10 @@ export class BlenderBridgeService {
         ngons: 0,
       },
       suggestions: [
-        '1. Bấm nút màu cam "Launch & Work in Blender 5.3" ở trên để mở file challenge.',
+        '1. Bấm nút màu cam "Launch & Work in Blender 5.3" ở trên để mở file challenge trên PC.',
         '2. Trong Blender, bấm phím N ở 3D Viewport để mở thanh công cụ bên phải.',
-        '3. Chọn tab "BlenderFlow" và bấm nút "Sync Mesh to BlenderFlow".',
-        '4. Sau khi đồng bộ thành công, quay lại đây bấm nút "Kiểm tra & Chấm điểm Topology" để nhận kết quả chấm điểm thật 100%!',
+        '3. Chọn tab "BlenderFlow" và bấm nút "Sync Topology to App".',
+        '4. Sau khi đồng bộ thành công, quay lại đây bấm nút "Validate Active Mesh" để nhận kết quả chấm điểm thật 100%!',
       ],
     };
   }

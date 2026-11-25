@@ -20,8 +20,9 @@ export const HotkeyCheatsheetView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMode, setSelectedMode] = useState<string>('All');
   const [lastKeyPressed, setLastKeyPressed] = useState<string | null>(null);
+  const keyTimerRef = React.useRef<number | null>(null);
 
-  const modes = ['All', 'Object Mode', 'Edit Mode', 'Viewport', 'Organization'];
+  const modes = ['All', 'Object Mode', 'Edit Mode', 'Modeling', 'Transform', 'Viewport', 'Organization'];
 
   // Listen to user keyboard presses to highlight active hotkey!
   useEffect(() => {
@@ -34,11 +35,14 @@ export const HotkeyCheatsheetView: React.FC = () => {
       if (key === 'ESCAPE') key = 'Esc';
       if (key === 'CONTROL') key = 'Ctrl';
       setLastKeyPressed(key);
-      const timer = setTimeout(() => setLastKeyPressed(null), 1200);
-      return () => clearTimeout(timer);
+      if (keyTimerRef.current) window.clearTimeout(keyTimerRef.current);
+      keyTimerRef.current = window.setTimeout(() => setLastKeyPressed(null), 1200);
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (keyTimerRef.current) window.clearTimeout(keyTimerRef.current);
+    };
   }, []);
 
   const filtered = hotkeys.filter((hk) => {
@@ -49,8 +53,7 @@ export const HotkeyCheatsheetView: React.FC = () => {
     const matchesMode =
       selectedMode === 'All' ||
       hk.mode === selectedMode ||
-      (selectedMode === 'Viewport' && hk.category === 'Viewport') ||
-      (selectedMode === 'Organization' && hk.category === 'Organization');
+      hk.category === selectedMode;
     return matchesSearch && matchesMode;
   });
 

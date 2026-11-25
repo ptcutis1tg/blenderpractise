@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { AIService, AIConfig } from '../services/aiService';
 import { ExportService } from '../services/exportService';
+import { DatabaseService } from '../services/db';
+import { BridgeStatus } from '../services/blenderBridge';
 import { Roadmap } from '../types';
 import { UserProfile } from '../services/supabaseClient';
 
@@ -30,20 +32,24 @@ interface SettingsViewProps {
   onRoadmapsUpdated: () => void;
   showToast: (msg: string) => void;
   userProfile?: UserProfile | null;
+  bridgeStatus?: BridgeStatus | null;
   onOpenAuthModal?: () => void;
   onSignOut?: () => void;
   onManualCloudSync?: () => void;
   isCloudSyncing?: boolean;
+  onRoadmapCreated?: (roadmapId: string) => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   onRoadmapsUpdated,
   showToast,
   userProfile,
+  bridgeStatus,
   onOpenAuthModal,
   onSignOut,
   onManualCloudSync,
   isCloudSyncing = false,
+  onRoadmapCreated,
 }) => {
   const [aiConfig, setAiConfig] = useState<AIConfig>(() => AIService.getConfig());
   const [showApiKey, setShowApiKey] = useState(false);
@@ -51,39 +57,42 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [roadmapTopic, setRoadmapTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const mobileAccessUrl = bridgeStatus?.lanUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173');
+
   const handleSaveAIConfig = () => {
     AIService.saveConfig(aiConfig);
     showToast('AI Settings saved successfully!');
   };
 
   const handleTestAI = async () => {
+    AIService.saveConfig(aiConfig);
     setTestStatus('Testing AI connection...');
     const reply = await AIService.diagnoseIssue('normals');
     if (reply) {
-      setTestStatus('Connection verified! 3D Topology engine is responding.');
+      setTestStatus(`Connection verified (${aiConfig.provider})! Engine is responding.`);
     } else {
       setTestStatus('Could not reach AI provider.');
     }
   };
 
-  const handleGenerateRoadmap = () => {
+  const handleGenerateRoadmap = async () => {
     if (!roadmapTopic.trim()) {
       showToast('Please enter a 3D topic name first.');
       return;
     }
     setIsGenerating(true);
-    setTimeout(() => {
-      const newRoadmap = AIService.generateCustomRoadmap(roadmapTopic);
-      const currentRoadmaps: Roadmap[] = JSON.parse(
-        localStorage.getItem('blenderflow_roadmaps_v1') || '[]'
-      );
+    try {
+      const newRoadmap = await AIService.generateCustomRoadmap(roadmapTopic);
+      const currentRoadmaps = DatabaseService.getRoadmaps();
       currentRoadmaps.push(newRoadmap);
-      localStorage.setItem('blenderflow_roadmaps_v1', JSON.stringify(currentRoadmaps));
-      setIsGenerating(false);
+      DatabaseService.saveRoadmaps(currentRoadmaps);
       setRoadmapTopic('');
       onRoadmapsUpdated();
-      showToast(`✨ Generated and added "${newRoadmap.title}" to My Roadmaps!`);
-    }, 700);
+      showToast(`✨ Đã tạo lộ trình "${newRoadmap.title}"!`);
+      onRoadmapCreated?.(newRoadmap.id);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleExport = () => {
@@ -153,19 +162,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#0B0F19] border border-[#1F2637] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Địa chỉ IP mạng LAN (Wi-Fi):</span>
-              <span className="text-[15px] font-bold font-mono text-emerald-400 mt-0.5 selection:bg-indigo-600">
-                http://192.168.1.6:5173
+            <div className="flex flex-col min-w-0">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                {bridgeStatus?.serverAvailable ? 'Địa chỉ IP mạng LAN (Wi-Fi):' : 'Đường dẫn Web hiện tại:'}
+              </span>
+              <span className="text-[14px] sm:text-[15px] font-bold font-mono text-emerald-400 mt-0.5 selection:bg-indigo-600 truncate">
+                {mobileAccessUrl}
               </span>
             </div>
             <button
               type="button"
               onClick={() => {
-                navigator.clipboard.writeText('http://192.168.1.6:5173');
+                navigator.clipboard.writeText(mobileAccessUrl);
                 showToast('📋 Đã sao chép liên kết mobile vào bộ nhớ tạm!');
               }}
-              className="px-3 py-1.5 rounded-lg bg-[#1E2538] hover:bg-[#252E45] text-indigo-300 border border-indigo-500/30 text-[12px] font-semibold transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-[#1E2538] hover:bg-[#252E45] text-indigo-300 border border-indigo-500/30 text-[12px] font-semibold transition-all cursor-pointer shrink-0"
             >
               Sao chép liên kết
             </button>
@@ -377,6 +388,36 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           )}
 
+          {/* Ollama Endpoint & Model input if selected */}
+          {aiConfig.provider === 'ollama' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-semibold text-gray-300 flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-indigo-400" /> Ollama Server Endpoint
+                </label>
+                <input
+                  type="text"
+                  placeholder="http://localhost:11434"
+                  value={aiConfig.ollamaEndpoint}
+                  onChange={(e) => setAiConfig({ ...aiConfig, ollamaEndpoint: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-lg bg-[#0B0F19] border border-[#1F2637] text-white text-[13px] font-mono focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12px] font-semibold text-gray-300 flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5 text-indigo-400" /> Model Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="llama3"
+                  value={aiConfig.ollamaModel || 'llama3'}
+                  onChange={(e) => setAiConfig({ ...aiConfig, ollamaModel: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-lg bg-[#0B0F19] border border-[#1F2637] text-white text-[13px] font-mono focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-2 border-t border-[#1F2637]">
             <button
               onClick={handleTestAI}
@@ -458,15 +499,46 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Laptop className="w-5 h-5 text-gray-400" />
               <h3 className="text-[15px] font-bold text-white">Blender Environment</h3>
             </div>
-            <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/30">
-              Verified Installed
+            <span
+              className={`text-[11px] font-mono px-2.5 py-0.5 rounded border ${
+                bridgeStatus?.blenderInstalled
+                  ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+                  : bridgeStatus?.isWebMode
+                  ? 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'
+                  : 'text-amber-300 bg-amber-500/10 border-amber-500/30'
+              }`}
+            >
+              {bridgeStatus?.blenderInstalled
+                ? 'Verified Installed'
+                : bridgeStatus?.isWebMode
+                ? 'Web / Mobile Companion'
+                : 'Blender 5.3 Not Found'}
             </span>
           </div>
 
           <div className="flex flex-col gap-1 text-[12px] font-mono bg-[#0B0F19] p-3.5 rounded-xl border border-[#1F2637] text-gray-300">
-            <div><strong>Executable:</strong> C:\Program Files\Blender Foundation\Blender 5.3\blender.exe</div>
-            <div><strong>Starter Project:</strong> starter_assets\challenge_04_chair_starter.blend (87.7 KB)</div>
-            <div><strong>Addon:</strong> blender_addon\blenderflow_bridge.py (Registered)</div>
+            <div>
+              <strong>Runtime:</strong>{' '}
+              {bridgeStatus?.serverAvailable
+                ? 'Local Vite Bridge Server Active'
+                : 'Static Web Browser (Local Bridge disabled)'}
+            </div>
+            <div>
+              <strong>Executable:</strong>{' '}
+              {bridgeStatus?.blenderPath || 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe'}
+            </div>
+            <div>
+              <strong>Starter Asset:</strong>{' '}
+              {bridgeStatus?.starterAssetExists
+                ? 'starter_assets/challenge_04_chair_starter.blend (Found)'
+                : 'Available in desktop repository'}
+            </div>
+            <div>
+              <strong>Telemetry Sync:</strong>{' '}
+              {bridgeStatus?.telemetryAvailable
+                ? '~/.blenderflow_telemetry.json (Synced)'
+                : 'Waiting for Blender addon sync'}
+            </div>
           </div>
         </div>
       </div>

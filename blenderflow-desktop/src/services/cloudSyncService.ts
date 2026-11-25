@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { DatabaseService } from './db';
+import { CurriculumService } from '../data/curriculumDatabase';
 import { Roadmap, UserStats } from '../types';
 
 export interface SyncStatus {
@@ -7,6 +8,15 @@ export interface SyncStatus {
   isSyncing: boolean;
   error: string | null;
 }
+
+interface CloudChecklistsPayload {
+  steps?: Record<string, boolean>;
+  curriculumCompleted?: string[];
+  curriculumBookmarks?: string[];
+  curriculumNotes?: Record<string, string>;
+}
+
+const STANDARD_ROADMAP_IDS = ['roadmap-hard-surface', 'roadmap-shading', 'roadmap-lighting'];
 
 export class CloudSyncService {
   private static debounceTimer: any = null;
@@ -35,7 +45,7 @@ export class CloudSyncService {
   }
 
   /**
-   * Pull progress, stats, and custom roadmaps from Supabase into LocalStorage
+   * Pull progress, curriculum state, stats, and custom roadmaps from Supabase into LocalStorage
    */
   static async pullCloudData(userId: string): Promise<boolean> {
     this.setStatus({ isSyncing: true, error: null });
@@ -60,63 +70,65 @@ export class CloudSyncService {
         .select('roadmap_data')
         .eq('user_id', userId);
 
-      // Merge into local storage
-      const localRoadmaps = DatabaseService.getRoadmaps();
+      let roadmaps = DatabaseService.getRoadmaps();
       const completedLessons: string[] = progressData?.completed_lessons || [];
-      const checklistsState: Record<string, boolean> = progressData?.checklists_state || {};
+      const completedTasks: string[] = progressData?.completed_tasks || [];
+      const rawChecklistsState = progressData?.checklists_state || {};
 
-      // Update checklists
-      if (Object.keys(checklistsState).length > 0) {
-        const storedChecklists = JSON.parse(localStorage.getItem('blenderflow_checklists_v1') || '{}');
-        const mergedChecklists = { ...storedChecklists, ...checklistsState };
-        localStorage.setItem('blenderflow_checklists_v1', JSON.stringify(mergedChecklists));
+      // Normalize structured payload vs flat legacy checklist state
+      const payload: CloudChecklistsPayload =
+        rawChecklistsState && typeof rawChecklistsState === 'object' && ('steps' in rawChecklistsState || 'curriculumCompleted' in rawChecklistsState)
+          ? (rawChecklistsState as CloudChecklistsPayload)
+          : { steps: rawChecklistsState as Record<string, boolean> };
+
+      // Apply checklist step states
+      if (payload.steps && Object.keys(payload.steps).length > 0) {
+        roadmaps = DatabaseService.applyChecklistStateMap(payload.steps);
       }
 
-      // Update roadmaps completion status
-      if (completedLessons.length > 0) {
-        const updated = localRoadmaps.map((rm) => {
-          const updatedModules = rm.modules.map((mod) => {
-            const updatedLessons = mod.lessons.map((les) => ({
+      // Merge Curriculum 26 lessons completion, bookmarks, and notes
+      if (payload.curriculumCompleted && payload.curriculumCompleted.length > 0) {
+        const localCur = CurriculumService.getCompletedLessonIds();
+        CurriculumService.setCompletedLessonIds([...localCur, ...payload.curriculumCompleted]);
+      }
+      if (payload.curriculumBookmarks && payload.curriculumBookmarks.length > 0) {
+        const localBm = CurriculumService.getBookmarks();
+        CurriculumService.setBookmarks([...localBm, ...payload.curriculumBookmarks]);
+      }
+      if (payload.curriculumNotes && Object.keys(payload.curriculumNotes).length > 0) {
+        const localNotes = CurriculumService.getAllNotes();
+        CurriculumService.setAllNotes({ ...payload.curriculumNotes, ...localNotes });
+      }
+
+      // Merge custom roadmaps regardless of completedLessons length
+      if (customRoadmapsData && customRoadmapsData.length > 0) {
+        customRoadmapsData.forEach((item) => {
+          const rm: Roadmap = item.roadmap_data;
+          if (rm && !roadmaps.some((existing) => existing.id === rm.id)) {
+            roadmaps.push(rm);
+          }
+        });
+      }
+
+      // Apply completed lessons & tasks to roadmaps
+      if (completedLessons.length > 0 || completedTasks.length > 0) {
+        roadmaps = roadmaps.map((rm) => ({
+          ...rm,
+          modules: rm.modules.map((mod) => ({
+            ...mod,
+            lessons: mod.lessons.map((les) => ({
               ...les,
               isCompleted: les.isCompleted || completedLessons.includes(les.id),
-            }));
-            const completedCount = updatedLessons.filter((l) => l.isCompleted).length;
-            const progress = updatedLessons.length > 0 ? Math.round((completedCount / updatedLessons.length) * 100) : 0;
-            return {
-              ...mod,
-              lessons: updatedLessons,
-              progressPercent: progress,
-              isCompleted: progress === 100,
-            };
-          });
-
-          const totalLessons = updatedModules.reduce((acc, m) => acc + m.lessons.length, 0);
-          const totalCompleted = updatedModules.reduce(
-            (acc, m) => acc + m.lessons.filter((l) => l.isCompleted).length,
-            0
-          );
-          const percent = totalLessons > 0 ? Math.round((totalCompleted / totalLessons) * 100) : 0;
-
-          return {
-            ...rm,
-            modules: updatedModules,
-            completedLessons: totalCompleted,
-            progressPercent: percent,
-          };
-        });
-
-        // Add custom roadmaps from cloud if not present locally
-        if (customRoadmapsData && customRoadmapsData.length > 0) {
-          customRoadmapsData.forEach((item) => {
-            const rm: Roadmap = item.roadmap_data;
-            if (!updated.some((existing) => existing.id === rm.id)) {
-              updated.push(rm);
-            }
-          });
-        }
-
-        DatabaseService.saveRoadmaps(updated);
+            })),
+            practiceTasks: mod.practiceTasks.map((tsk) => ({
+              ...tsk,
+              isCompleted: tsk.isCompleted || completedTasks.includes(tsk.id),
+            })),
+          })),
+        }));
       }
+
+      DatabaseService.saveRoadmaps(roadmaps);
 
       // Update User Stats
       if (profileData) {
@@ -139,23 +151,18 @@ export class CloudSyncService {
   }
 
   /**
-   * Push current LocalStorage data up to Supabase
+   * Push current LocalStorage data (Roadmaps, Checklist steps, Curriculum 26 lessons, Bookmarks, Notes) to Supabase
    */
   static async pushLocalDataToCloud(userId: string): Promise<boolean> {
     this.setStatus({ isSyncing: true, error: null });
     try {
       const roadmaps = DatabaseService.getRoadmaps();
       const stats = DatabaseService.getUserStats();
-      const checklists: Record<string, boolean> = JSON.parse(
-        localStorage.getItem('blenderflow_checklists_v1') || '{}'
-      );
+      const checklistStepsMap = DatabaseService.getChecklistStateMap();
 
-      // Collect completed lesson IDs
       const completedLessons: string[] = [];
       const completedTasks: string[] = [];
       const customRoadmaps: Roadmap[] = [];
-
-      const STANDARD_ROADMAP_IDS = ['roadmap-hard-surface', 'roadmap-organic-sculpt', 'roadmap-shading-lighting'];
 
       roadmaps.forEach((rm) => {
         if (!STANDARD_ROADMAP_IDS.includes(rm.id)) {
@@ -171,7 +178,14 @@ export class CloudSyncService {
         });
       });
 
-      // 1. Upsert Profile Stats
+      const structuredPayload: CloudChecklistsPayload = {
+        steps: checklistStepsMap,
+        curriculumCompleted: CurriculumService.getCompletedLessonIds(),
+        curriculumBookmarks: CurriculumService.getBookmarks(),
+        curriculumNotes: CurriculumService.getAllNotes(),
+      };
+
+      // 1. Update Profile Stats
       await supabase
         .from('profiles')
         .update({
@@ -189,7 +203,7 @@ export class CloudSyncService {
             user_id: userId,
             completed_lessons: completedLessons,
             completed_tasks: completedTasks,
-            checklists_state: checklists,
+            checklists_state: structuredPayload,
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'user_id' }
@@ -225,9 +239,7 @@ export class CloudSyncService {
   static async mergeGuestDataOnLogin(userId: string): Promise<void> {
     this.setStatus({ isSyncing: true, error: null });
     try {
-      // 1. Pull cloud data first to combine
       await this.pullCloudData(userId);
-      // 2. Push combined result back to ensure cloud has latest guest achievements
       await this.pushLocalDataToCloud(userId);
     } catch (e: any) {
       console.error('[CloudSync] Merge on login error:', e);

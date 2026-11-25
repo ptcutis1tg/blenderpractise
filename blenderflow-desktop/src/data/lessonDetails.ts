@@ -140,14 +140,35 @@ export const DETAILED_LESSONS: Record<string, DetailedLesson> = {
   }
 };
 
-const NOTES_STORAGE_KEY_PREFIX = 'blenderflow_notes_';
+const UNIFIED_NOTES_KEY = 'blenderflow_curriculum_notes_v1';
+const LEGACY_NOTES_PREFIX = 'blenderflow_notes_';
 
 export class NotesService {
   static getNote(lessonId: string): string {
-    return localStorage.getItem(NOTES_STORAGE_KEY_PREFIX + lessonId) || '';
+    try {
+      const allNotes = JSON.parse(localStorage.getItem(UNIFIED_NOTES_KEY) || '{}');
+      if (typeof allNotes[lessonId] === 'string') {
+        return allNotes[lessonId];
+      }
+      const legacy = localStorage.getItem(LEGACY_NOTES_PREFIX + lessonId);
+      if (legacy) {
+        allNotes[lessonId] = legacy;
+        localStorage.setItem(UNIFIED_NOTES_KEY, JSON.stringify(allNotes));
+        return legacy;
+      }
+      return '';
+    } catch {
+      return '';
+    }
   }
 
   static saveNote(lessonId: string, content: string): void {
-    localStorage.setItem(NOTES_STORAGE_KEY_PREFIX + lessonId, content);
+    try {
+      const allNotes = JSON.parse(localStorage.getItem(UNIFIED_NOTES_KEY) || '{}');
+      allNotes[lessonId] = content;
+      localStorage.setItem(UNIFIED_NOTES_KEY, JSON.stringify(allNotes));
+    } catch (e) {
+      console.error('Failed to save note', e);
+    }
   }
 }

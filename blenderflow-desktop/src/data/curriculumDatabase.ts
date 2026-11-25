@@ -472,9 +472,18 @@ export class CurriculumService {
   static getCompletedLessonIds(): string[] {
     try {
       const data = localStorage.getItem(this.STORAGE_COMPLETED_KEY);
-      return data ? JSON.parse(data) : ['les-cur-mod-00-01', 'les-cur-mod-01-01'];
+      return data ? JSON.parse(data) : [];
     } catch {
-      return ['les-cur-mod-00-01', 'les-cur-mod-01-01'];
+      return [];
+    }
+  }
+
+  static setCompletedLessonIds(ids: string[]): void {
+    try {
+      const uniqueIds = Array.from(new Set(ids));
+      localStorage.setItem(this.STORAGE_COMPLETED_KEY, JSON.stringify(uniqueIds));
+    } catch (e) {
+      console.error('Failed to set completed lessons', e);
     }
   }
 
@@ -519,11 +528,36 @@ export class CurriculumService {
     }
   }
 
+  static getAllNotes(): Record<string, string> {
+    try {
+      return JSON.parse(localStorage.getItem(this.STORAGE_NOTES_KEY) || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  static setAllNotes(notes: Record<string, string>): void {
+    try {
+      localStorage.setItem(this.STORAGE_NOTES_KEY, JSON.stringify(notes));
+    } catch (e) {
+      console.error('Failed to save all notes', e);
+    }
+  }
+
   static getBookmarks(): string[] {
     try {
       return JSON.parse(localStorage.getItem(this.STORAGE_BOOKMARKS_KEY) || '[]');
     } catch {
       return [];
+    }
+  }
+
+  static setBookmarks(ids: string[]): void {
+    try {
+      const uniqueIds = Array.from(new Set(ids));
+      localStorage.setItem(this.STORAGE_BOOKMARKS_KEY, JSON.stringify(uniqueIds));
+    } catch (e) {
+      console.error('Failed to save bookmarks', e);
     }
   }
 
