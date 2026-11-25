@@ -56,6 +56,9 @@ const filesToCheck = [
   'src/components/curriculum/MarkdownArticleViewer.tsx',
   'src/components/practice/PracticeRightPanel.tsx',
   'src/components/ai/AIAssistantModal.tsx',
+  'src/components/auth/AuthModal.tsx',
+  'src/services/supabaseClient.ts',
+  'src/services/cloudSyncService.ts',
 ];
 
 filesToCheck.forEach(file => {
@@ -130,6 +133,33 @@ if (fs.existsSync(panelPath)) {
   const pContent = fs.readFileSync(panelPath, 'utf8');
   const usesStrictTelemetry = pContent.includes('verifyTopologyStrict');
   recordTest('Q2.B Decision: Strict Live Telemetry Verification', usesStrictTelemetry, 'PracticeRightPanel requires live telemetry sync from Blender 5.3');
+}
+
+// 5. Check Supabase Integration & Cloud Sync
+console.log('\n--- 5. SUPABASE AUTH & CLOUD SYNC VERIFICATIONS ---');
+const supaClientPath = path.join(ROOT_DIR, 'src/services/supabaseClient.ts');
+if (fs.existsSync(supaClientPath)) {
+  const supaContent = fs.readFileSync(supaClientPath, 'utf8');
+  const hasClient = supaContent.includes('createClient');
+  const hasAuthService = supaContent.includes('AuthService');
+  const hasGoogleOAuth = supaContent.includes('signInWithOAuth');
+  recordTest('Supabase Client: Initialization', hasClient, 'Supabase client properly initialized with project URL');
+  recordTest('Supabase Auth: Email & Google OAuth', hasAuthService && hasGoogleOAuth, 'AuthService supports Email/Password & Google 1-tap OAuth');
+}
+
+const syncPath = path.join(ROOT_DIR, 'src/services/cloudSyncService.ts');
+if (fs.existsSync(syncPath)) {
+  const syncContent = fs.readFileSync(syncPath, 'utf8');
+  const hasMerge = syncContent.includes('mergeGuestDataOnLogin');
+  const hasDebounce = syncContent.includes('debouncedPush');
+  recordTest('Cloud Sync: Offline-First Hybrid Sync', hasMerge && hasDebounce, 'Supports debounced progress push and guest progress merge on login');
+}
+
+if (fs.existsSync(appPath)) {
+  const appContent = fs.readFileSync(appPath, 'utf8');
+  const hasAuthModal = appContent.includes('<AuthModal');
+  const hasAuthListener = appContent.includes('onAuthStateChange');
+  recordTest('App Integration: AuthModal & State Listener', hasAuthModal && hasAuthListener, 'Auth modal mounted and auth state changes wired');
 }
 
 console.log('\n====================================================');

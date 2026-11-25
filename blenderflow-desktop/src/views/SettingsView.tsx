@@ -14,20 +14,36 @@ import {
   FileCode,
   FolderOpen,
   PlusCircle,
-  Laptop
+  Laptop,
+  Cloud,
+  LogOut,
+  User as UserIcon,
+  CloudUpload,
+  Database
 } from 'lucide-react';
 import { AIService, AIConfig } from '../services/aiService';
 import { ExportService } from '../services/exportService';
 import { Roadmap } from '../types';
+import { UserProfile } from '../services/supabaseClient';
 
 interface SettingsViewProps {
   onRoadmapsUpdated: () => void;
   showToast: (msg: string) => void;
+  userProfile?: UserProfile | null;
+  onOpenAuthModal?: () => void;
+  onSignOut?: () => void;
+  onManualCloudSync?: () => void;
+  isCloudSyncing?: boolean;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   onRoadmapsUpdated,
   showToast,
+  userProfile,
+  onOpenAuthModal,
+  onSignOut,
+  onManualCloudSync,
+  isCloudSyncing = false,
 }) => {
   const [aiConfig, setAiConfig] = useState<AIConfig>(() => AIService.getConfig());
   const [showApiKey, setShowApiKey] = useState(false);
@@ -154,6 +170,100 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               Sao chép liên kết
             </button>
           </div>
+        </div>
+
+        {/* Section: Supabase Cloud & Account Sync */}
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-[#121A2C] via-[#101726] to-[#0D121F] border border-blue-500/30 flex flex-col gap-4 shadow-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
+                <Cloud className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-[15px] font-bold text-white flex items-center gap-2">
+                  Tài khoản & Supabase Cloud Sync
+                  {userProfile ? (
+                    <span className="text-[10px] bg-emerald-500/15 text-emerald-400 font-mono px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 size={11} /> Đã kết nối Cloud
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-amber-500/15 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">
+                      Chế độ Khách (Offline)
+                    </span>
+                  )}
+                </h3>
+                <p className="text-[12px] text-gray-400">
+                  Tự động đồng bộ tiến độ học tập 3D, bài tập checklist, và lộ trình tùy chỉnh qua máy chủ Supabase Postgres.
+                </p>
+              </div>
+            </div>
+
+            {userProfile && (
+              <button
+                type="button"
+                onClick={onSignOut}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/50 text-red-300 border border-red-800/50 text-xs font-medium transition cursor-pointer"
+              >
+                <LogOut size={13} />
+                <span>Đăng xuất</span>
+              </button>
+            )}
+          </div>
+
+          {userProfile ? (
+            <div className="p-4 rounded-xl bg-[#090D15] border border-[#1F2637] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center text-base font-bold shadow-md">
+                  {userProfile.displayName ? userProfile.displayName.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">{userProfile.displayName}</h4>
+                  <p className="text-xs text-slate-400 font-mono">{userProfile.email}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    ID: <span className="font-mono text-slate-400">{userProfile.id.slice(0, 8)}...</span> | Máy chủ: <span className="text-indigo-400 font-mono">iidfgycdawaygzbkqsgy</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={onManualCloudSync}
+                  disabled={isCloudSyncing}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition cursor-pointer disabled:opacity-50"
+                >
+                  <CloudUpload size={14} className={isCloudSyncing ? 'animate-spin' : ''} />
+                  <span>{isCloudSyncing ? 'Đang đồng bộ...' : 'Đồng bộ ngay'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onSignOut}
+                  className="sm:hidden px-3 py-2 rounded-lg bg-red-950/40 text-red-300 border border-red-800/50 text-xs font-medium"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl bg-[#090D15] border border-[#1F2637] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-slate-200">
+                  Bạn đang sử dụng ứng dụng ở chế độ Khách (Guest Mode)
+                </span>
+                <span className="text-[11px] text-slate-400 mt-0.5">
+                  Đăng nhập hoặc đăng ký tài khoản để sao lưu dữ liệu lên đám mây và đồng bộ tiến độ sang điện thoại di động.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition cursor-pointer active:scale-95"
+              >
+                <Cloud size={14} />
+                <span>Đăng nhập / Đăng ký Cloud</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Section 1: AI 3D Roadmap Generator */}

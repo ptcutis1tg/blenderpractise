@@ -129,6 +129,7 @@ export default defineConfig({
         manualChunks: {
           three: ['three'],
           lucide: ['lucide-react'],
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },

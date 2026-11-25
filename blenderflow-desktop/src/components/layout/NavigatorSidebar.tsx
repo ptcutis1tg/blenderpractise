@@ -12,11 +12,15 @@ import {
   BookOpen
 } from 'lucide-react';
 import { NavigationTab, UserStats } from '../../types';
+import { UserProfile } from '../../services/supabaseClient';
+import { Cloud, User as UserIcon } from 'lucide-react';
 
 interface NavigatorSidebarProps {
   currentTab: NavigationTab;
   onSelectTab: (tab: NavigationTab) => void;
   userStats: UserStats;
+  userProfile?: UserProfile | null;
+  onOpenAuthModal?: () => void;
   onOpenPracticeChallenge?: () => void;
 }
 
@@ -24,6 +28,8 @@ export const NavigatorSidebar: React.FC<NavigatorSidebarProps> = ({
   currentTab,
   onSelectTab,
   userStats,
+  userProfile,
+  onOpenAuthModal,
   onOpenPracticeChallenge,
 }) => {
   const navItems: { id: NavigationTab; label: string; icon: React.ReactNode }[] = [
@@ -105,6 +111,32 @@ export const NavigatorSidebar: React.FC<NavigatorSidebarProps> = ({
 
         {/* Bottom Live System Widgets */}
         <div className="p-3 border-t border-[#1F2637] flex flex-col gap-2 bg-[#0A0E17]/40">
+          {/* User Account / Cloud Sync Widget */}
+          {userProfile ? (
+            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#161D2B] border border-indigo-500/20">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                  {userProfile.displayName ? userProfile.displayName.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[11px] font-semibold text-white truncate">{userProfile.displayName}</span>
+                  <span className="text-[9px] text-emerald-400 flex items-center gap-1">
+                    <Cloud className="w-2.5 h-2.5" /> Supabase Synced
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              type="button"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-600/20 to-indigo-600/20 hover:from-blue-600/30 border border-indigo-500/30 text-indigo-300 hover:text-white text-[12px] font-semibold transition cursor-pointer"
+            >
+              <Cloud className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Đăng nhập Cloud</span>
+            </button>
+          )}
+
           {/* Streak Counter */}
           <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#161D2B] border border-[#1F2637]">
             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">

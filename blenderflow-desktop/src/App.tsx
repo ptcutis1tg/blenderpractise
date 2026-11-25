@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DatabaseService } from './services/db';
 import { BlenderBridgeService } from './services/blenderBridge';
+import { AuthService, UserProfile } from './services/supabaseClient';
+import { CloudSyncService } from './services/cloudSyncService';
 import { NavigationTab, Roadmap, UserStats, PracticeTask } from './types';
 import { NavigatorSidebar } from './components/layout/NavigatorSidebar';
 import { DesktopTitlebar } from './components/layout/DesktopTitlebar';
@@ -11,11 +13,15 @@ import { HotkeyCheatsheetView } from './views/HotkeyCheatsheetView';
 import { SettingsView } from './views/SettingsView';
 import { CurriculumExplorerView } from './views/CurriculumExplorerView';
 import { AIAssistantModal } from './components/ai/AIAssistantModal';
+import { AuthModal } from './components/auth/AuthModal';
 import { Search, X, Box, CheckCircle2, AlertCircle, BookOpen } from 'lucide-react';
 
 export function App() {
   const [roadmaps, setRoadmaps] = useState<Roadmap[]>(() => DatabaseService.getRoadmaps());
   const [userStats, setUserStats] = useState<UserStats>(() => DatabaseService.getUserStats());
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const [currentTab, setCurrentTab] = useState<NavigationTab>('home');
   const [activeRoadmapId, setActiveRoadmapId] = useState<string>('roadmap-hard-surface');
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
@@ -28,7 +34,47 @@ export function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Listen for Ctrl+K
+  // 1. Listen to Supabase Auth state changes & sync
+  useEffect(() => {
+    // Check initial user session
+    AuthService.getCurrentUser().then(async (user) => {
+      if (user) {
+        const profile = await AuthService.getUserProfile(user.id);
+        setUserProfile(profile);
+        await CloudSyncService.pullCloudData(user.id);
+        setRoadmaps([...DatabaseService.getRoadmaps()]);
+        setUserStats(DatabaseService.getUserStats());
+      }
+    });
+
+    // Subscribe to auth state changes
+    const { data: authListener } = AuthService.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const profile = await AuthService.getUserProfile(session.user.id);
+        setUserProfile(profile);
+        showToast(`👋 Chào mừng ${profile?.displayName || 'bạn'}! Đang đồng bộ tiến độ...`);
+        await CloudSyncService.mergeGuestDataOnLogin(session.user.id);
+        setRoadmaps([...DatabaseService.getRoadmaps()]);
+        setUserStats(DatabaseService.getUserStats());
+        showToast('☁️ Đã đồng bộ toàn bộ tiến độ lên Supabase Cloud!');
+      } else if (event === 'SIGNED_OUT') {
+        setUserProfile(null);
+        showToast('👋 Đã đăng xuất. Bạn đang ở chế độ Khách (Offline).');
+      }
+    });
+
+    // Subscribe to sync status
+    const unsubscribeSync = CloudSyncService.subscribeStatus((status) => {
+      setIsCloudSyncing(status.isSyncing);
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+      unsubscribeSync();
+    };
+  }, []);
+
+  // 2. Listen for Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -39,6 +85,30 @@ export function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const handleManualCloudSync = async () => {
+    if (!userProfile) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    showToast('⏳ Đang đồng bộ tiến độ lên Supabase Cloud...');
+    const success = await CloudSyncService.pushLocalDataToCloud(userProfile.id);
+    if (success) {
+      showToast('☁️ Đồng bộ Supabase Cloud hoàn tất!');
+    } else {
+      showToast('⚠️ Không thể đồng bộ. Vui lòng kiểm tra kết nối mạng.');
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await AuthService.signOut();
+      setUserProfile(null);
+      showToast('Đã đăng xuất tài khoản.');
+    } catch (e: any) {
+      showToast(`⚠️ Lỗi đăng xuất: ${e?.message}`);
+    }
+  };
 
   const handleSelectTab = (tab: NavigationTab) => {
     setCurrentTab(tab);
@@ -78,6 +148,7 @@ export function App() {
     if (!activeTaskId) return;
     const updated = DatabaseService.updateTaskChecklistStep(activeTaskId, stepId, !currentStatus);
     setRoadmaps([...updated]);
+    CloudSyncService.debouncedPush(userProfile?.id);
   };
 
   const handleLaunchBlender = async () => {
@@ -121,6 +192,8 @@ export function App() {
         currentTab={currentTab}
         onSelectTab={handleSelectTab}
         userStats={userStats}
+        userProfile={userProfile}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenPracticeChallenge={() => handleOpenPracticeChallenge('task-chair-01')}
       />
 
@@ -129,7 +202,12 @@ export function App() {
         {/* Top Desktop Titlebar */}
         <DesktopTitlebar
           breadcrumbs={getBreadcrumbs()}
+          userProfile={userProfile}
           onOpenSearch={() => setSearchOpen(true)}
+          onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          onSignOut={handleSignOut}
+          onManualCloudSync={handleManualCloudSync}
+          isCloudSyncing={isCloudSyncing}
           onSyncBlender={async () => {
             showToast('⏳ Đang thăm dò telemetry từ Blender 5.3...');
             const data = await BlenderBridgeService.fetchTelemetry();
@@ -186,6 +264,7 @@ export function App() {
               onToggleLessonCompleted={(lessonId) => {
                 const updated = DatabaseService.toggleLessonCompleted(lessonId);
                 setRoadmaps([...updated]);
+                CloudSyncService.debouncedPush(userProfile?.id);
                 showToast('Lesson progress updated!');
               }}
               onLaunchHotkeyDrill={() => {
@@ -218,6 +297,11 @@ export function App() {
             <SettingsView
               onRoadmapsUpdated={() => setRoadmaps([...DatabaseService.getRoadmaps()])}
               showToast={showToast}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setIsAuthModalOpen(true)}
+              onSignOut={handleSignOut}
+              onManualCloudSync={handleManualCloudSync}
+              isCloudSyncing={isCloudSyncing}
             />
           )}
         </div>
@@ -305,6 +389,13 @@ export function App() {
           </div>
         </div>
       )}
+
+      {/* Supabase Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(msg) => showToast(msg)}
+      />
 
       {/* Toast Notification (Top-Right to avoid overlapping bottom-right AI Assistant button) */}
       {toastMessage && (

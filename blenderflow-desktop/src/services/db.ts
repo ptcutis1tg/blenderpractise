@@ -208,6 +208,14 @@ export class DatabaseService {
     }
   }
 
+  static saveRoadmaps(roadmaps: Roadmap[]): void {
+    localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(roadmaps));
+  }
+
+  static saveUserStats(stats: UserStats): void {
+    localStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(stats));
+  }
+
   static getRoadmapById(id: string): Roadmap | undefined {
     return this.getRoadmaps().find((r) => r.id === id);
   }
