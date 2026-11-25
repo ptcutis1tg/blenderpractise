@@ -179,9 +179,9 @@ Provide exact Blender 5.3 keyboard shortcuts, step-by-step resolution, and quad 
     const id = `roadmap-${Date.now()}`;
     return {
       id,
-      title: `AI Curated: ${safeTopic} Masterclass`,
+      title: `Offline Template: ${safeTopic}`,
       category: 'Modeling',
-      description: `Structured curriculum for "${safeTopic}" in Blender 5.3 with quad topology, procedural shading, and render workflows.`,
+      description: `Offline structured Blender 5.3 starter template for "${safeTopic}" (nhập Gemini API Key hoặc kết nối Ollama trong Settings để tạo lộ trình AI chuyên sâu).`,
       totalLessons: 5,
       completedLessons: 0,
       progressPercent: 0,
@@ -206,9 +206,7 @@ Provide exact Blender 5.3 keyboard shortcuts, step-by-step resolution, and quad 
               moduleId: `${id}-m1`,
               title: `Challenge 01: ${safeTopic} Base Mesh Blocking`,
               type: '3d_challenge',
-              expectedVertices: 96,
-              expectedFaces: 90,
-              modifiers: 'Mirror',
+              modifiers: 'Mirror, Bevel',
               isCompleted: false,
               checklist: [
                 { id: `${id}-c1`, stepNumber: 1, title: 'Import orthographic reference planes', hotkeyHint: 'Numpad 1, 3', isDone: false },

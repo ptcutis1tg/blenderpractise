@@ -34,10 +34,10 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Hard-Surface & Low-Poly 3D Modeling',
     category: 'Modeling',
     description: 'Master non-destructive quad modeling workflows, mesh topology rules, and bevel techniques in Blender 5.3.',
-    totalLessons: 18,
-    completedLessons: 7,
-    progressPercent: 38,
-    lastStudied: 'Today, 2 hours ago',
+    totalLessons: 11,
+    completedLessons: 0,
+    progressPercent: 0,
+    lastStudied: 'Not started',
     currentLessonId: 'task-chair-01',
     currentLessonTitle: 'Challenge 04: Low-Poly Stylized Wooden Chair',
     modules: [
@@ -47,13 +47,13 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         title: 'Module 1: Viewport Navigation & Transform Mastery',
         orderIndex: 1,
         description: 'Blender 5.3 3D navigation, origin points, 3D Cursor, and precision snapping.',
-        progressPercent: 100,
-        isCompleted: true,
+        progressPercent: 0,
+        isCompleted: false,
         isLocked: false,
         lessons: [
-          { id: 'les-1-1', moduleId: 'mod-1', title: '1.1 Viewport Orbit, Pan, and Orthographic Projections', orderIndex: 1, readTime: '5 min', hotkeys: ['Middle Click', 'Shift + MMB', 'Numpad 1,3,7'], isCompleted: true },
-          { id: 'les-1-2', moduleId: 'mod-1', title: '1.2 The Power of 3D Cursor and Transform Orientations', orderIndex: 2, readTime: '7 min', hotkeys: ['Shift + S', '.'], isCompleted: true },
-          { id: 'les-1-3', moduleId: 'mod-1', title: '1.3 Precision Snapping to Vertices, Edges, and Grid', orderIndex: 3, readTime: '6 min', hotkeys: ['Shift + Tab', 'Ctrl'], isCompleted: true },
+          { id: 'les-1-1', moduleId: 'mod-1', title: '1.1 Viewport Orbit, Pan, and Orthographic Projections', orderIndex: 1, readTime: '5 min', hotkeys: ['Middle Click', 'Shift + MMB', 'Numpad 1,3,7'], isCompleted: false },
+          { id: 'les-1-2', moduleId: 'mod-1', title: '1.2 The Power of 3D Cursor and Transform Orientations', orderIndex: 2, readTime: '7 min', hotkeys: ['Shift + S', '.'], isCompleted: false },
+          { id: 'les-1-3', moduleId: 'mod-1', title: '1.3 Precision Snapping to Vertices, Edges, and Grid', orderIndex: 3, readTime: '6 min', hotkeys: ['Shift + Tab', 'Ctrl'], isCompleted: false },
         ],
         practiceTasks: [
           {
@@ -61,10 +61,13 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
             moduleId: 'mod-1',
             title: 'Precision Align Drill',
             type: 'hotkey_drill',
-            isCompleted: true,
+            expectedVertices: 32,
+            expectedFaces: 24,
+            modifiers: 'None (Origin & Cursor)',
+            isCompleted: false,
             checklist: [
-              { id: 'c-1', stepNumber: 1, title: 'Align 4 cubes to 3D Cursor', hotkeyHint: 'Shift + S -> Selection to Cursor', isDone: true },
-              { id: 'c-2', stepNumber: 2, title: 'Snap vertex to grid bounds', hotkeyHint: 'Shift + Tab', isDone: true }
+              { id: 'c-1', stepNumber: 1, title: 'Align 4 cubes symmetrically around 3D Cursor', hotkeyHint: 'Shift + S -> Selection to Cursor', isDone: false },
+              { id: 'c-2', stepNumber: 2, title: 'Snap vertices cleanly to grid bounds', hotkeyHint: 'Shift + Tab', isDone: false }
             ]
           }
         ]
@@ -75,12 +78,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         title: 'Module 2: Mesh Topology & Hard-Surface Tools',
         orderIndex: 2,
         description: 'Quad topology fundamentals, avoiding N-gons, loop cuts, and beveling.',
-        progressPercent: 60,
+        progressPercent: 0,
         isCompleted: false,
         isLocked: false,
         lessons: [
-          { id: 'les-2-1', moduleId: 'mod-2', title: '2.1 Edit Mode Selections: Vertex (1), Edge (2), Face (3)', orderIndex: 1, readTime: '4 min', hotkeys: ['1', '2', '3', 'Alt + Click'], isCompleted: true },
-          { id: 'les-2-2', moduleId: 'mod-2', title: '2.2 Loop Cuts, Inset, and Extrude with Precision', orderIndex: 2, readTime: '8 min', hotkeys: ['Ctrl + R', 'I', 'E'], isCompleted: true },
+          { id: 'les-2-1', moduleId: 'mod-2', title: '2.1 Edit Mode Selections: Vertex (1), Edge (2), Face (3)', orderIndex: 1, readTime: '4 min', hotkeys: ['1', '2', '3', 'Alt + Click'], isCompleted: false },
+          { id: 'les-2-2', moduleId: 'mod-2', title: '2.2 Loop Cuts, Inset, and Extrude with Precision', orderIndex: 2, readTime: '8 min', hotkeys: ['Ctrl + R', 'I', 'E'], isCompleted: false },
           { id: 'les-2-3', moduleId: 'mod-2', title: '2.3 Bevel Modifier vs Destructive Bevel Weights', orderIndex: 3, readTime: '10 min', hotkeys: ['Ctrl + B', 'Ctrl + E'], isCompleted: false, isActive: true },
         ],
         practiceTasks: [
@@ -95,9 +98,9 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
             modifiers: 'Mirror, Subdivision Surface, Bevel',
             isCompleted: false,
             checklist: [
-              { id: 'step-1', stepNumber: 1, title: 'Add a Cube and scale down along Z-axis for Chair Seat', hotkeyHint: 'Shift + A -> Mesh -> Cube, S then Z', isDone: true },
-              { id: 'step-2', stepNumber: 2, title: 'Enter Edit Mode, select bottom face and Inset with I', hotkeyHint: 'Tab, Face Mode (3), I', isDone: true },
-              { id: 'step-3', stepNumber: 3, title: 'Add 2 Loop Cuts along X & Y to carve 4 equal corner leg roots', hotkeyHint: 'Ctrl + R -> Scroll Wheel 2', isDone: true },
+              { id: 'step-1', stepNumber: 1, title: 'Add a Cube and scale down along Z-axis for Chair Seat', hotkeyHint: 'Shift + A -> Mesh -> Cube, S then Z', isDone: false },
+              { id: 'step-2', stepNumber: 2, title: 'Enter Edit Mode, select bottom face and Inset with I', hotkeyHint: 'Tab, Face Mode (3), I', isDone: false },
+              { id: 'step-3', stepNumber: 3, title: 'Add 2 Loop Cuts along X & Y to carve 4 equal corner leg roots', hotkeyHint: 'Ctrl + R -> Scroll Wheel 2', isDone: false },
               { id: 'step-4', stepNumber: 4, title: 'Extrude 4 corner faces downwards to create chair legs', hotkeyHint: 'E then -1.8 Z', isDone: false },
               { id: 'step-5', stepNumber: 5, title: 'Extrude rear top faces upward and bridge edges for Backrest', hotkeyHint: 'E, Ctrl + E -> Bridge Edge Loops', isDone: false },
               { id: 'step-6', stepNumber: 6, title: 'Apply Bevel modifier with 2 segments to soften wooden edges', hotkeyHint: 'Modifier Tab -> Add Bevel (0.02m)', isDone: false },
@@ -113,10 +116,10 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         description: 'Harness Mirror, Array, Solidify, and Boolean modifiers for complex props.',
         progressPercent: 0,
         isCompleted: false,
-        isLocked: true,
+        isLocked: false,
         lessons: [
-          { id: 'les-3-1', moduleId: 'mod-3', title: '3.1 Mirror Modifier Mastery with Clipping & Merge', orderIndex: 1, readTime: '8 min', hotkeys: ['Ctrl + A -> Apply All Transforms'], isCompleted: false, isLocked: true },
-          { id: 'les-3-2', moduleId: 'mod-3', title: '3.2 Non-destructive Booleans without mesh artifacts', orderIndex: 2, readTime: '12 min', hotkeys: ['Fast / Exact Solver'], isCompleted: false, isLocked: true },
+          { id: 'les-3-1', moduleId: 'mod-3', title: '3.1 Mirror Modifier Mastery with Clipping & Merge', orderIndex: 1, readTime: '8 min', hotkeys: ['Ctrl + A -> Apply All Transforms'], isCompleted: false },
+          { id: 'les-3-2', moduleId: 'mod-3', title: '3.2 Non-destructive Booleans without mesh artifacts', orderIndex: 2, readTime: '12 min', hotkeys: ['Fast / Exact Solver'], isCompleted: false },
         ],
         practiceTasks: [
           {
@@ -129,7 +132,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
             expectedFaces: 398,
             modifiers: 'Mirror, Bevel, Weighted Normal',
             isCompleted: false,
-            checklist: []
+            checklist: [
+              { id: 'crate-1', stepNumber: 1, title: 'Bisect crate base and add X+Y Mirror Modifier with Clipping', hotkeyHint: 'Ctrl + R, Modifier -> Mirror', isDone: false },
+              { id: 'crate-2', stepNumber: 2, title: 'Inset side panels and extrude recessed armor ribs', hotkeyHint: 'I then E', isDone: false },
+              { id: 'crate-3', stepNumber: 3, title: 'Cut corner latches using Boolean Exact Solver', hotkeyHint: 'Modifier -> Boolean (Exact)', isDone: false },
+              { id: 'crate-4', stepNumber: 4, title: 'Add Bevel (Angle 30°) + Weighted Normal (Keep Sharp)', hotkeyHint: 'Modifier -> Bevel + Weighted Normal', isDone: false },
+            ]
           }
         ]
       }
@@ -140,12 +148,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Procedural Shading & Material Nodes',
     category: 'Shading',
     description: 'Learn shader math, PBR materials, procedural grunge maps, and displacement with Principled BSDF in Blender 5.3.',
-    totalLessons: 12,
-    completedLessons: 2,
-    progressPercent: 16,
-    lastStudied: 'Yesterday',
-    currentLessonId: 'les-shade-02',
-    currentLessonTitle: '2.2 Procedural Wood Grain & Bump Mapping',
+    totalLessons: 2,
+    completedLessons: 0,
+    progressPercent: 0,
+    lastStudied: 'Not started',
+    currentLessonId: 'les-shade-01',
+    currentLessonTitle: '1.1 Principled BSDF v2 Deep Dive',
     modules: [
       {
         id: 'mod-shade-1',
@@ -153,11 +161,11 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         title: 'Module 1: PBR Fundamentals & Node Wrangler',
         orderIndex: 1,
         description: 'Understand roughness, metallic, IOR, and speed up work with Node Wrangler.',
-        progressPercent: 40,
+        progressPercent: 0,
         isCompleted: false,
         isLocked: false,
         lessons: [
-          { id: 'les-shade-01', moduleId: 'mod-shade-1', title: '1.1 Principled BSDF v2 Deep Dive', orderIndex: 1, readTime: '10 min', hotkeys: ['Ctrl + T', 'Ctrl + Shift + Click'], isCompleted: true },
+          { id: 'les-shade-01', moduleId: 'mod-shade-1', title: '1.1 Principled BSDF v2 Deep Dive', orderIndex: 1, readTime: '10 min', hotkeys: ['Ctrl + T', 'Ctrl + Shift + Click'], isCompleted: false },
           { id: 'les-shade-02', moduleId: 'mod-shade-1', title: '1.2 Procedural Wood Grain & Bump Mapping', orderIndex: 2, readTime: '14 min', hotkeys: ['Wave Texture', 'ColorRamp', 'Bump Node'], isCompleted: false, isActive: true },
         ],
         practiceTasks: []
@@ -169,7 +177,7 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Cinematic 3-Point Lighting & Cycles Rendering',
     category: 'Lighting',
     description: 'Master photographic light balance, HDRI studio rigs, light linking, and real-time Cycles viewport rendering.',
-    totalLessons: 10,
+    totalLessons: 1,
     completedLessons: 0,
     progressPercent: 0,
     lastStudied: 'Not started',

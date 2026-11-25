@@ -38,13 +38,32 @@ export interface BridgeStatus {
   lanUrl: string;
 }
 
-export const BLENDER_EXE_PATH = 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe';
 export const STARTER_BLEND_PATH = 'starter_assets/challenge_04_chair_starter.blend';
 
 export class BlenderBridgeService {
   static getStarterBlendPath(blendFileName?: string): string {
     if (!blendFileName) return STARTER_BLEND_PATH;
     return blendFileName;
+  }
+
+  /**
+   * Notifies local Vite Bridge of the currently active challenge so the Blender Addon panel adapts dynamically
+   */
+  static async setActiveTarget(target: {
+    taskId: string;
+    title: string;
+    expectedVertices?: number;
+    expectedFaces?: number;
+  }): Promise<void> {
+    try {
+      await fetch('/api/active-challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(target),
+      });
+    } catch {
+      // Safe no-op in Web / Mobile mode
+    }
   }
 
   /**
@@ -129,14 +148,17 @@ export class BlenderBridgeService {
    */
   static verifyLiveMeshTopology(
     telemetry: MeshTelemetry,
-    expectedVertices = 148,
-    expectedFaces = 136
+    expectedVertices?: number,
+    expectedFaces?: number
   ): VerificationResult {
     const actualVerts = telemetry.vertices || 0;
     const actualQuads = telemetry.quads || 0;
     const ngons = telemetry.ngons || 0;
     const isAllQuads = telemetry.is_all_quads || (ngons === 0 && (telemetry.triangles || 0) === 0);
     const hasBevel = (telemetry.modifiers || []).some((m) => m.toLowerCase().includes('bevel'));
+    const hasVertexTarget = typeof expectedVertices === 'number' && expectedVertices > 0;
+    const targetVerts = hasVertexTarget ? expectedVertices : actualVerts;
+    const targetFaces = typeof expectedFaces === 'number' && expectedFaces > 0 ? expectedFaces : actualQuads;
 
     const suggestions: string[] = [];
 
@@ -149,12 +171,19 @@ export class BlenderBridgeService {
       suggestions.push(`⚠️ Phát hiện ${ngons} mặt N-gons! Hãy dùng phím K (Knife) hoặc J (Join) để chia về Quad 4 đỉnh.`);
     }
 
-    if (actualVerts >= expectedVertices * 0.85 && actualVerts <= expectedVertices * 1.3) {
+    if (!hasVertexTarget) {
+      if (actualVerts >= 8) {
+        score += 30;
+        suggestions.push(`✓ Đã ghi nhận lưới thực tế: ${actualVerts} vertices, ${actualQuads} quads.`);
+      } else {
+        suggestions.push('⚠️ Lưới quá thưa (< 8 vertices), hãy dựng thêm chi tiết.');
+      }
+    } else if (actualVerts >= targetVerts * 0.85 && actualVerts <= targetVerts * 1.3) {
       score += 30;
-      suggestions.push(`✓ Mật độ đỉnh tối ưu: Đạt ${actualVerts} vertices (kỳ vọng ~${expectedVertices}).`);
+      suggestions.push(`✓ Mật độ đỉnh tối ưu: Đạt ${actualVerts} vertices (kỳ vọng ~${targetVerts}).`);
     } else {
       score += 15;
-      suggestions.push(`ℹ️ Mật độ đỉnh hiện tại: ${actualVerts} verts so với tiêu chuẩn ${expectedVertices}.`);
+      suggestions.push(`ℹ️ Mật độ đỉnh hiện tại: ${actualVerts} verts so với tiêu chuẩn ${targetVerts}.`);
     }
 
     if (hasBevel) {
@@ -175,9 +204,9 @@ export class BlenderBridgeService {
         ? `KIỂM ĐỊNH LƯỚI BLENDER 5.3 THÀNH CÔNG (${score}/100 điểm)! Lưới "${telemetry.object_name || 'Active Mesh'}" đạt chuẩn Quad Topology.`
         : `KIỂM ĐỊNH LƯỚI BLENDER 5.3 CHƯA ĐẠT (${score}/100 điểm): Cần chỉnh sửa thêm theo góp ý bên dưới.`,
       metrics: {
-        expectedVertices,
+        expectedVertices: targetVerts,
         actualVertices: actualVerts,
-        expectedQuads: expectedFaces,
+        expectedQuads: targetFaces,
         actualQuads,
         ngons,
       },
@@ -192,8 +221,8 @@ export class BlenderBridgeService {
     taskId: string,
     completedSteps: number,
     totalSteps: number,
-    expectedVertices = 148,
-    expectedFaces = 136
+    expectedVertices?: number,
+    expectedFaces?: number
   ): Promise<VerificationResult> {
     const liveTelemetry = await this.fetchTelemetry();
 
@@ -208,9 +237,9 @@ export class BlenderBridgeService {
       isLiveBlender: false,
       message: 'CHƯA NHẬN ĐƯỢC DỮ LIỆU TỪ BLENDER 5.3! Vui lòng khởi chạy Blender và bấm "Sync Topology to App" trong Addon.',
       metrics: {
-        expectedVertices,
+        expectedVertices: expectedVertices || 0,
         actualVertices: 0,
-        expectedQuads: expectedFaces,
+        expectedQuads: expectedFaces || 0,
         actualQuads: 0,
         ngons: 0,
       },

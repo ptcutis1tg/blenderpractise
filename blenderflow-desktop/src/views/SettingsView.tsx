@@ -525,13 +525,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <div>
               <strong>Executable:</strong>{' '}
-              {bridgeStatus?.blenderPath || 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe'}
+              {bridgeStatus?.serverAvailable
+                ? bridgeStatus.blenderPath || 'Not configured'
+                : 'Chạy trên Desktop Local Windows để liên kết Blender 5.3'}
             </div>
             <div>
               <strong>Starter Asset:</strong>{' '}
               {bridgeStatus?.starterAssetExists
-                ? 'starter_assets/challenge_04_chair_starter.blend (Found)'
-                : 'Available in desktop repository'}
+                ? 'starter_assets/challenge_04_chair_starter.blend & challenge_05_scifi_crate.blend (Ready)'
+                : 'Khả dụng trên phiên bản Desktop Local'}
             </div>
             <div>
               <strong>Telemetry Sync:</strong>{' '}

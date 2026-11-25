@@ -8,6 +8,7 @@ import {
 import { PracticeTask, Roadmap } from '../types';
 import { ModelInspector3D } from '../components/3d/ModelInspector3D';
 import { PracticeRightPanel } from '../components/practice/PracticeRightPanel';
+import { BlenderBridgeService } from '../services/blenderBridge';
 
 interface SplitPracticeViewProps {
   task: PracticeTask;
@@ -39,6 +40,12 @@ export const SplitPracticeView: React.FC<SplitPracticeViewProps> = ({
   useEffect(() => {
     setElapsedSeconds(0);
     setTimerRunning(true);
+    BlenderBridgeService.setActiveTarget({
+      taskId: task.id,
+      title: task.title,
+      expectedVertices: task.expectedVertices,
+      expectedFaces: task.expectedFaces,
+    });
   }, [task.id]);
 
   useEffect(() => {
@@ -167,9 +174,9 @@ export const SplitPracticeView: React.FC<SplitPracticeViewProps> = ({
           <ModelInspector3D
             taskId={task.id}
             challengeTitle={task.title}
-            expectedVertices={task.expectedVertices || 148}
-            expectedFaces={task.expectedFaces || 136}
-            modifiers={task.modifiers || 'Mirror, Bevel'}
+            expectedVertices={task.expectedVertices}
+            expectedFaces={task.expectedFaces}
+            modifiers={task.modifiers || 'None'}
           />
         </div>
 

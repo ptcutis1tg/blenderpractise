@@ -12,6 +12,7 @@ interface MetricsHUDProps {
   expectedVertices: number;
   expectedFaces: number;
   expectedNgons?: number;
+  isPreviewStats?: boolean;
   modifiers: string;
   cameraDistance: number;
 }
@@ -21,6 +22,7 @@ export const MetricsHUD: React.FC<MetricsHUDProps> = ({
   expectedVertices,
   expectedFaces,
   expectedNgons = 0,
+  isPreviewStats = false,
   modifiers,
   cameraDistance,
 }) => {
@@ -45,7 +47,7 @@ export const MetricsHUD: React.FC<MetricsHUDProps> = ({
         <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#0F131D]/90 backdrop-blur-md border border-[#1F2637] shadow-2xl overflow-x-auto max-w-full">
           <div className="flex flex-col shrink-0">
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-              Vertices
+              {isPreviewStats ? 'Preview Verts' : 'Target Verts'}
             </span>
             <span className="text-[12px] sm:text-[13px] font-bold font-mono text-white">
               {expectedVertices}
@@ -56,7 +58,7 @@ export const MetricsHUD: React.FC<MetricsHUDProps> = ({
 
           <div className="flex flex-col shrink-0">
             <span className="text-[9px] sm:text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-              Quads
+              {isPreviewStats ? 'Preview Tris' : 'Quads'}
             </span>
             <span className="text-[12px] sm:text-[13px] font-bold font-mono text-emerald-400 flex items-center gap-1">
               <span>{expectedFaces}</span>

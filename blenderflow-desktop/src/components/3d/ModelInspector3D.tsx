@@ -13,10 +13,10 @@ interface ModelInspector3DProps {
 
 export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
   taskId = 'task-chair-01',
-  challengeTitle = 'Challenge 04: Low-Poly Stylized Chair',
-  expectedVertices = 148,
-  expectedFaces = 136,
-  modifiers = 'Mirror, Bevel (0.02m)',
+  challengeTitle = '3D Reference Model',
+  expectedVertices,
+  expectedFaces,
+  modifiers = 'None',
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [shadingMode, setShadingMode] = useState<ShadingMode>('wireframe');
@@ -24,6 +24,10 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const autoRotateRef = useRef<boolean>(true);
   const [cameraDistance, setCameraDistance] = useState<number>(4.5);
+  const [previewMeshStats, setPreviewMeshStats] = useState<{ vertices: number; faces: number }>({
+    vertices: 0,
+    faces: 0,
+  });
 
   // Keep autoRotateRef in sync without triggering full Three.js re-render
   useEffect(() => {
@@ -218,6 +222,22 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
     }
 
     scene.add(modelGroup);
+
+    // Compute actual Three.js mesh geometry vertices & faces for preview readout
+    let computedVerts = 0;
+    let computedTris = 0;
+    modelGroup.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && obj.geometry) {
+        const pos = obj.geometry.getAttribute('position');
+        if (pos) computedVerts += pos.count;
+        if (obj.geometry.index) {
+          computedTris += Math.round(obj.geometry.index.count / 3);
+        } else if (pos) {
+          computedTris += Math.round(pos.count / 3);
+        }
+      }
+    });
+    setPreviewMeshStats({ vertices: computedVerts, faces: computedTris });
 
     // 7. Mouse Orbit Handlers
     const onMouseDown = (e: MouseEvent) => {
@@ -438,8 +458,9 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       {/* Floating HUD Badges & Topology Spec Sheet */}
       <MetricsHUD
         challengeTitle={challengeTitle}
-        expectedVertices={expectedVertices}
-        expectedFaces={expectedFaces}
+        expectedVertices={expectedVertices ?? previewMeshStats.vertices}
+        expectedFaces={expectedFaces ?? previewMeshStats.faces}
+        isPreviewStats={expectedVertices === undefined}
         modifiers={modifiers}
         cameraDistance={cameraDistance}
       />

@@ -17,7 +17,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { KeycapBadge } from '../common/KeycapBadge';
-import { DETAILED_LESSONS, NotesService, DetailedLesson } from '../../data/lessonDetails';
+import { MarkdownArticleViewer } from '../curriculum/MarkdownArticleViewer';
+import { DETAILED_LESSONS, NotesService, DetailedLesson, getLinkedCurriculumLesson } from '../../data/lessonDetails';
 import { Lesson } from '../../types';
 
 interface SlideOverReaderProps {
@@ -67,29 +68,27 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
 
   if (!isOpen || !lesson) return null;
 
-  // Resolve detailed lesson content or build dynamic fallback
-  const detailed: DetailedLesson = DETAILED_LESSONS[lesson.id] || {
-    id: lesson.id,
-    moduleId: lesson.moduleId,
-    title: lesson.title,
-    readTime: lesson.readTime || '6 min read',
-    category: 'Blender 5.3 Core Concept',
-    blenderHotkeys: lesson.hotkeys || [],
-    summary: `Detailed learning unit covering essential workflow principles, shortcut memorization, and mesh topology standards for "${lesson.title}".`,
-    sections: [
-      {
-        title: 'Core Fundamentals & Viewport Workflow',
-        body: [
-          'In Blender 5.3, efficiency relies on keeping one hand on the keyboard and one on the mouse. Never look away from the viewport to search through top menus.',
-          'Focus on vertex, edge, and face selection modes to modify form without introducing non-manifold geometry.'
-        ],
-        callout: {
-          type: 'tip',
-          text: 'Practice using shortcut keys immediately after reading each technique to build lasting muscle memory.'
-        }
-      }
-    ]
-  };
+  // Resolve either curated detailed lesson or linked 26-lesson Encyclopedia article
+  const linkedCurriculum = getLinkedCurriculumLesson(lesson.id);
+  const structuredDetailed: DetailedLesson | undefined = DETAILED_LESSONS[lesson.id];
+
+  const categoryLabel = structuredDetailed?.category || linkedCurriculum?.category || 'Blender 5.3 Workflow';
+  const readTimeLabel = structuredDetailed?.readTime || linkedCurriculum?.readTime || lesson.readTime || '8 phút đọc';
+  const summaryText =
+    structuredDetailed?.summary ||
+    linkedCurriculum?.summary ||
+    `Hướng dẫn trọng tâm cho bài "${lesson.title}" thuộc học phần ${moduleTitle}.`;
+  const hotkeysList =
+    structuredDetailed?.blenderHotkeys ||
+    (linkedCurriculum?.keyShortcuts?.length ? linkedCurriculum.keyShortcuts : lesson.hotkeys) ||
+    [];
+
+  // Build concise Markdown guide for dynamically AI-generated lessons if not mapped statically
+  const dynamicLessonMarkdown = !structuredDetailed && !linkedCurriculum
+    ? `## Hướng dẫn Thực hành: ${lesson.title}\n\n- **Học phần:** ${moduleTitle}\n- **Phím tắt trọng tâm:** ${
+        hotkeysList.length > 0 ? hotkeysList.map((k) => `\`${k}\``).join(', ') : '`Tab`, `G`, `R`, `S`'
+      }\n\n### Quy trình thao tác chuẩn trong Blender 5.3\n1. Kiểm tra tỷ lệ đối tượng ở **Object Mode** và bấm \`Ctrl + A\` $\\rightarrow$ *Apply All Transforms* trước khi dựng chi tiết.\n2. Sử dụng phím \`Tab\` chuyển sang **Edit Mode**, ưu tiên lưới **Quads (4 đỉnh)** và tránh để lại N-gons.\n3. Khi áp dụng **Bevel** hoặc **Mirror Modifier**, bật *Clipping* để ghép mép đối xứng chuẩn xác.\n\n> 💡 Bạn có thể mở **Bách khoa toàn thư 26 bài** để xem thêm lý thuyết chuyên sâu hoặc hỏi **3D Topology Doctor** ở góc dưới bên phải.`
+    : null;
 
   const handleNoteChange = (text: string) => {
     setNoteContent(text);
@@ -201,29 +200,29 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
             <div className="flex flex-col gap-3 border-b border-[#1F2637] pb-6">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  {detailed.category}
+                  {categoryLabel}
                 </span>
                 <span className="text-[12px] text-gray-400 flex items-center gap-1 font-mono">
-                  <Clock className="w-3.5 h-3.5 text-indigo-400" /> {detailed.readTime}
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" /> {readTimeLabel}
                 </span>
               </div>
 
               <h1 className="font-['Space_Grotesk'] text-2xl md:text-3xl font-bold text-white tracking-tight">
-                {detailed.title}
+                {lesson.title}
               </h1>
 
               <p className="text-[14px] text-gray-300 leading-relaxed font-normal">
-                {detailed.summary}
+                {summaryText}
               </p>
 
               {/* Hotkeys Section */}
-              {detailed.blenderHotkeys.length > 0 && (
+              {hotkeysList.length > 0 && (
                 <div className="flex items-center gap-2 pt-2 flex-wrap">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
                     Key Shortcuts:
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {detailed.blenderHotkeys.map((hk, i) => (
+                    {hotkeysList.map((hk, i) => (
                       <KeycapBadge key={i} keys={hk} variant="orange" size="md" />
                     ))}
                   </div>
@@ -231,8 +230,8 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
               )}
             </div>
 
-            {/* Lesson Content Sections */}
-            {detailed.sections.map((section, idx) => (
+            {/* Structured Detailed Sections (if curated for this lesson) */}
+            {structuredDetailed?.sections.map((section, idx) => (
               <div key={idx} className="flex flex-col gap-4">
                 <h2 className="font-['Space_Grotesk'] text-lg md:text-xl font-bold text-white flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#F97316]" />
@@ -296,6 +295,15 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
                 )}
               </div>
             ))}
+
+            {/* Linked Full Vietnamese Encyclopedia Article or Dynamic Guide */}
+            {(linkedCurriculum?.contentMarkdown || dynamicLessonMarkdown) && (
+              <div className="pt-2 border-t border-[#1F2637]/70">
+                <MarkdownArticleViewer
+                  content={linkedCurriculum?.contentMarkdown || dynamicLessonMarkdown || ''}
+                />
+              </div>
+            )}
 
             {/* Student Personal Study Notes Area */}
             <div className="mt-6 p-5 rounded-2xl bg-[#141A28] border border-[#232D42] flex flex-col gap-3">

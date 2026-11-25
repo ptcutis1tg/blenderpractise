@@ -14,6 +14,16 @@ import os
 from pathlib import Path
 
 BRIDGE_FILE_PATH = os.path.join(str(Path.home()), ".blenderflow_telemetry.json")
+TARGET_FILE_PATH = os.path.join(str(Path.home()), ".blenderflow_target.json")
+
+def load_active_target():
+    if os.path.exists(TARGET_FILE_PATH):
+        try:
+            with open(TARGET_FILE_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    return None
 
 def inspect_active_mesh():
     obj = bpy.context.active_object
@@ -113,15 +123,28 @@ class BLENDERFLOW_PT_main_panel(bpy.types.Panel):
         else:
             col.label(text="0 N-Gons (Clean Quads)", icon='CHECKMARK')
 
-        # Challenge 04 Target Check
+        # Dynamic Active Challenge Target Check (from App or Generic Quad Standard)
         target_box = layout.box()
-        target_box.label(text="Challenge 04 Target: Chair", icon='TROPICAL')
-        row_target = target_box.row()
-        if data['vertices'] == 148 and data['quads'] == 136 and data['ngons'] == 0:
-            row_target.alert = False
-            row_target.label(text="Topology Matches Target 100%!", icon='SOLO_ON')
+        active_target = load_active_target()
+        if active_target and active_target.get("title"):
+            target_box.label(text=f"Active: {active_target.get('title')}", icon='TROPICAL')
+            exp_v = active_target.get("expectedVertices")
+            exp_f = active_target.get("expectedFaces")
+            row_target = target_box.row()
+            if exp_v and exp_f:
+                if data['vertices'] == exp_v and data['quads'] == exp_f and data['ngons'] == 0:
+                    row_target.label(text="Topology Matches Target 100%!", icon='SOLO_ON')
+                else:
+                    row_target.label(text=f"Target: {exp_v} Verts / {exp_f} Quads", icon='INFO')
+            else:
+                row_target.label(text="Rule: Clean Quads (0 N-Gons)", icon='CHECKMARK' if data['ngons'] == 0 else 'ERROR')
         else:
-            row_target.label(text=f"Target: 148 Verts / 136 Quads", icon='INFO')
+            target_box.label(text="Standard: Clean Quad Topology", icon='MESH_GRID')
+            row_target = target_box.row()
+            row_target.label(
+                text="Ready to Sync Active Mesh" if data['ngons'] == 0 else "Convert N-Gons to Quads",
+                icon='CHECKMARK' if data['ngons'] == 0 else 'ERROR'
+            )
 
         # Sync Button
         layout.separator()

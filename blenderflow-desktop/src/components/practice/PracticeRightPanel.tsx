@@ -49,8 +49,8 @@ export const PracticeRightPanel: React.FC<PracticeRightPanelProps> = ({
       task.id,
       completedSteps,
       totalSteps,
-      task.expectedVertices || 148,
-      task.expectedFaces || 136
+      task.expectedVertices,
+      task.expectedFaces
     );
     setIsValidating(false);
     setValidationResult(res);

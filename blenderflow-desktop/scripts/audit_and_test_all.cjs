@@ -37,6 +37,7 @@ const filesToCheck = [
   'start_blenderflow_desktop.bat',
   'open_starter_in_blender.bat',
   'starter_assets/challenge_04_chair_starter.blend',
+  'starter_assets/challenge_05_scifi_crate.blend',
   'blender_addon/blenderflow_bridge.py',
   'dist/index.html',
   'src/App.tsx',
@@ -137,8 +138,18 @@ if (fs.existsSync(splitViewPath)) {
   const sContent = fs.readFileSync(splitViewPath, 'utf8');
   const noDynamicMdPrefix = !sContent.includes('md:${');
   const hasLiveTimer = sContent.includes('elapsedSeconds');
+  const noHardcoded148Fallback = !sContent.includes('|| 148');
   recordTest('SplitPracticeView: Static Tailwind Classes', noDynamicMdPrefix, 'No broken md:${...} dynamic interpolation; JIT classes preserved');
   recordTest('SplitPracticeView: Live Practice Timer', hasLiveTimer, 'Session timer ticks dynamically per second');
+  recordTest('No Hardcoded 148 Fallback in SplitView', noHardcoded148Fallback, 'Uses explicit task targets or computed Three.js mesh stats');
+}
+
+// Lesson Encyclopedia Mapping Check
+const detailsPath = path.join(ROOT_DIR, 'src/data/lessonDetails.ts');
+if (fs.existsSync(detailsPath)) {
+  const dContent = fs.readFileSync(detailsPath, 'utf8');
+  const hasCurriculumMap = dContent.includes('CURRICULUM_LESSON_LINK_MAP');
+  recordTest('SlideOverReader: Linked Encyclopedia Content', hasCurriculumMap, 'Maps roadmap lessons directly to 26-lesson Vietnamese Encyclopedia');
 }
 
 // Check Strict Telemetry in PracticeRightPanel

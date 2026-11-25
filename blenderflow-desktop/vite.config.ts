@@ -21,8 +21,33 @@ function blenderBridgePlugin(): Plugin {
   const blenderExe = 'C:\\Program Files\\Blender Foundation\\Blender 5.3\\blender.exe';
   const defaultBlend = path.resolve(__dirname, 'starter_assets/challenge_04_chair_starter.blend');
   const telemetryPath = path.join(os.homedir(), '.blenderflow_telemetry.json');
+  const targetPath = path.join(os.homedir(), '.blenderflow_target.json');
 
   const registerMiddlewares = (server: any) => {
+    // Active Challenge Target sync endpoint for Blender Addon N-Panel
+    server.middlewares.use('/api/active-challenge', (req: any, res: any) => {
+      if (req.method === 'POST') {
+        let body = '';
+        req.on('data', (chunk: any) => (body += chunk));
+        req.on('end', () => {
+          try {
+            const payload = JSON.parse(body || '{}');
+            fs.writeFileSync(targetPath, JSON.stringify(payload, null, 2), 'utf8');
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true }));
+          } catch (err: any) {
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: false, error: err.message }));
+          }
+        });
+      } else {
+        res.statusCode = 405;
+        res.end('Method Not Allowed');
+      }
+    });
+
     // 0. Healthcheck endpoint to verify local bridge & Blender availability
     server.middlewares.use('/api/bridge-status', (req: any, res: any) => {
       if (req.method === 'GET') {

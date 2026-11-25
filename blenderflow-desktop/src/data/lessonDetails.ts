@@ -1,3 +1,5 @@
+import { CurriculumService, CurriculumLesson } from './curriculumDatabase';
+
 export interface LessonSection {
   title: string;
   body: string[];
@@ -139,6 +141,29 @@ export const DETAILED_LESSONS: Record<string, DetailedLesson> = {
     ]
   }
 };
+
+/**
+ * Maps Roadmap Lesson IDs directly to the comprehensive 26-lesson Curriculum Encyclopedia
+ */
+export const CURRICULUM_LESSON_LINK_MAP: Record<string, string> = {
+  'les-1-1': 'les-cur-mod-01-01',
+  'les-1-2': 'les-cur-mod-01-02',
+  'les-1-3': 'les-cur-mod-01-03',
+  'les-2-1': 'les-cur-mod-02-01',
+  'les-2-2': 'les-cur-mod-02-02',
+  'les-2-3': 'les-cur-mod-02-04',
+  'les-3-1': 'les-cur-mod-02-03',
+  'les-3-2': 'les-cur-mod-02-04',
+  'les-shade-01': 'les-cur-mod-04-02',
+  'les-shade-02': 'les-cur-mod-04-03',
+  'les-light-01': 'les-cur-mod-05-01',
+};
+
+export function getLinkedCurriculumLesson(lessonId: string): CurriculumLesson | null {
+  const mappedId = CURRICULUM_LESSON_LINK_MAP[lessonId];
+  if (!mappedId) return null;
+  return CurriculumService.findLessonById(mappedId);
+}
 
 const UNIFIED_NOTES_KEY = 'blenderflow_curriculum_notes_v1';
 const LEGACY_NOTES_PREFIX = 'blenderflow_notes_';
