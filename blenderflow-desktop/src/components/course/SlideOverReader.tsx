@@ -309,21 +309,21 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
             <div className="mt-6 p-5 rounded-2xl bg-[#141A28] border border-[#232D42] flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-bold text-white flex items-center gap-2">
-                  <Save className="w-4 h-4 text-indigo-400" />
-                  Your Study Notes for this Lesson
+                  <Save className="w-4 h-4 text-[#F97316]" />
+                  Ghi chú cá nhân cho bài học này
                 </span>
                 {isSaved && (
                   <span className="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Auto-saved
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Đã lưu tự động
                   </span>
                 )}
               </div>
               <textarea
                 value={noteContent}
                 onChange={(e) => handleNoteChange(e.target.value)}
-                placeholder="Write your personal observations, custom shortcut reminders, or questions here. Saved locally..."
+                placeholder="Ghi lại các phím tắt cần nhớ hoặc nhận xét cá nhân..."
                 rows={4}
-                className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-[#1F2637] text-white text-[13px] leading-relaxed focus:outline-none focus:border-indigo-500 placeholder-gray-500 resize-none font-sans"
+                className="w-full p-3.5 rounded-xl bg-[#0B0F19] border border-[#1F2637] text-white text-[13px] leading-relaxed focus:outline-none focus:border-[#F97316] placeholder-gray-500 resize-none font-sans"
               />
             </div>
           </div>
@@ -332,14 +332,14 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
         {/* Bottom Floating Action Bar */}
         <div className="h-16 px-6 border-t border-[#1F2637] bg-[#121622] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-gray-400">Lesson Status:</span>
+            <span className="text-[12px] text-gray-400">Trạng thái:</span>
             {lesson.isCompleted ? (
               <span className="text-[12px] font-bold text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> Completed
+                <CheckCircle2 className="w-4 h-4" /> Đã hoàn thành
               </span>
             ) : (
               <span className="text-[12px] font-bold text-gray-400 flex items-center gap-1">
-                <Circle className="w-4 h-4" /> In Progress
+                <Circle className="w-4 h-4" /> Đang học
               </span>
             )}
           </div>
@@ -352,24 +352,24 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
                   onClose();
                   onOpenChallenge(practiceTaskId);
                 }}
-                className="px-4 py-2 rounded-xl bg-[#1E2538] hover:bg-[#252E45] text-indigo-300 border border-indigo-500/30 text-[12px] font-bold transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#1E2538] hover:bg-[#252E45] text-gray-200 border border-[#2D3852] text-[12px] font-semibold transition-colors flex items-center gap-2 cursor-pointer"
               >
-                <Box className="w-4 h-4 text-indigo-400" />
-                <span>Open 50:50 Practice</span>
+                <Box className="w-4 h-4 text-[#F97316]" />
+                <span>Thực hành 3D (50:50)</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={() => onToggleComplete(lesson.id)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-[13px] transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+              className={`px-5 py-2 rounded-xl font-semibold text-[13px] transition-colors flex items-center gap-2 cursor-pointer ${
                 lesson.isCompleted
                   ? 'bg-[#182030] text-gray-300 hover:text-white border border-[#2B354D]'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
+                  : 'bg-[#F97316] hover:bg-[#EA580C] text-white'
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>{lesson.isCompleted ? 'Mark as Incomplete' : 'Mark Lesson as Completed'}</span>
+              <span>{lesson.isCompleted ? 'Bỏ đánh dấu hoàn thành' : 'Đánh dấu hoàn thành'}</span>
             </button>
           </div>
         </div>

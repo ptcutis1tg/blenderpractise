@@ -96,11 +96,11 @@ if (fs.existsSync(appPath)) {
   const hasCurriculumTab = appContent.includes("'curriculum'");
   const hasCurriculumView = appContent.includes('<CurriculumExplorerView');
   const toastAtTopRight = appContent.includes('top-14 right-5');
-  const hasLiveSyncTelemetry = appContent.includes('fetchTelemetry');
+  const hasZenMode = appContent.includes("const isZenMode = viewMode === 'practice'");
 
   recordTest('Route: Curriculum Explorer', hasCurriculumView && hasCurriculumTab, 'Unified Curriculum & Roadmaps tab active');
   recordTest('BUG-03 Fixed: Toast Position', toastAtTopRight, 'Toast moved to top-14 right-5; NO OVERLAP with bottom-right AI FAB button');
-  recordTest('Titlebar Sync: Live Telemetry Call', hasLiveSyncTelemetry, 'onSyncBlender calls fetchTelemetry()');
+  recordTest('UI Redesign: Zen Mode 3D Practice', hasZenMode, 'Hides Sidebar & Titlebar when in 3D Practice view');
 }
 
 // 4. Code Inspection for WebGL & Preview Server fixes
@@ -150,6 +150,18 @@ if (fs.existsSync(detailsPath)) {
   const dContent = fs.readFileSync(detailsPath, 'utf8');
   const hasCurriculumMap = dContent.includes('CURRICULUM_LESSON_LINK_MAP');
   recordTest('SlideOverReader: Linked Encyclopedia Content', hasCurriculumMap, 'Maps roadmap lessons directly to 26-lesson Vietnamese Encyclopedia');
+}
+
+// Scientific UI Redesign Verifications
+const curViewPath = path.join(ROOT_DIR, 'src/views/CurriculumExplorerView.tsx');
+const settingsPath = path.join(ROOT_DIR, 'src/views/SettingsView.tsx');
+if (fs.existsSync(curViewPath) && fs.existsSync(settingsPath)) {
+  const curViewContent = fs.readFileSync(curViewPath, 'utf8');
+  const settingsContent = fs.readFileSync(settingsPath, 'utf8');
+  const hasSelectDropdown = curViewContent.includes('<select') && curViewContent.includes('notesExpanded');
+  const hasThreeTabs = settingsContent.includes("activeTab === 'account'") && settingsContent.includes("activeTab === 'blender'") && settingsContent.includes("activeTab === 'ai'");
+  recordTest('UI Redesign: Curriculum Single-Bar & Collapsible Notes', hasSelectDropdown, 'Level dropdown & inline collapsible notes eliminate 4-column crowding');
+  recordTest('UI Redesign: Settings 3-Tab Architecture', hasThreeTabs, 'Settings organized cleanly into Account, Blender & Mobile, and AI tabs');
 }
 
 // Check Strict Telemetry in PracticeRightPanel

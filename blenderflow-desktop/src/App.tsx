@@ -241,70 +241,56 @@ export function App() {
   const bridgeConnected = Boolean(bridgeStatus?.serverAvailable && bridgeStatus?.blenderInstalled);
   const isWebMode = Boolean(bridgeStatus?.isWebMode);
 
-  // Compute breadcrumbs
+  // Compute Vietnamese breadcrumbs
   const getBreadcrumbs = () => {
     if (viewMode === 'practice' && practiceContext) {
       return [practiceContext.roadmap.title, practiceContext.module.title, practiceContext.task.title];
     }
     if (viewMode === 'curriculum') {
-      return ['Curriculum 3D', 'Blender 3D Encyclopedia'];
+      return ['Giáo trình 3D', 'Thư viện 26 Bài'];
     }
     if (viewMode === 'course') {
-      return ['Roadmaps', currentRoadmap.title];
+      return ['Lộ trình học', currentRoadmap.title];
     }
     if (viewMode === 'hotkeys') {
-      return ['Hotkey Drills', 'Blender 5.3 Speed Training'];
+      return ['Phím tắt Blender 5.3'];
     }
     if (viewMode === 'settings') {
-      return ['Settings', 'Preferences & AI Configuration'];
+      return ['Cài đặt Hệ thống'];
     }
-    return ['Dashboard', 'Home'];
+    return ['Tổng quan'];
   };
+
+  const isZenMode = viewMode === 'practice';
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-[#0B0F19] text-[#dfe2f1]">
-      {/* 1. Navigation Sidebar (Desktop Sidebar + Mobile Bottom Bar) */}
-      <NavigatorSidebar
-        currentTab={currentTab}
-        onSelectTab={handleSelectTab}
-        userStats={userStats}
-        userProfile={userProfile}
-        bridgeConnected={bridgeConnected}
-        isWebMode={isWebMode}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onOpenPracticeChallenge={() => handleOpenPracticeChallenge('task-chair-01')}
-      />
+      {/* 1. Navigation Sidebar (Hidden in Zen Mode 3D Practice for 100% focus) */}
+      {!isZenMode && (
+        <NavigatorSidebar
+          currentTab={currentTab}
+          onSelectTab={handleSelectTab}
+          userStats={userStats}
+          bridgeConnected={bridgeConnected}
+          isWebMode={isWebMode}
+          onOpenPracticeChallenge={() => handleOpenPracticeChallenge('task-chair-01')}
+        />
+      )}
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden pb-14 md:pb-0">
-        {/* Top Desktop Titlebar */}
-        <DesktopTitlebar
-          breadcrumbs={getBreadcrumbs()}
-          userProfile={userProfile}
-          onOpenSearch={() => setSearchOpen(true)}
-          onOpenAuthModal={() => setIsAuthModalOpen(true)}
-          onSignOut={handleSignOut}
-          onManualCloudSync={handleManualCloudSync}
-          isCloudSyncing={isCloudSyncing}
-          onSyncBlender={async () => {
-            showToast('⏳ Đang thăm dò telemetry từ Blender 5.3...');
-            const data = await BlenderBridgeService.fetchTelemetry();
-            if (data) {
-              const name = data.object_name || data.objectName || 'Active Mesh';
-              const quads = data.quads || 0;
-              const verts = data.vertices || 0;
-              const ngons = data.ngons || 0;
-              const status = data.is_all_quads || ngons === 0 ? '100% Quads' : `${ngons} N-gons`;
-              showToast(`🟢 Đã đồng bộ từ Blender: ${name} (${verts} Verts, ${quads} Quads, ${status})`);
-            } else {
-              showToast(
-                isWebMode
-                  ? 'ℹ️ Đang ở chế độ Web/Mobile. Hãy chạy app Local trên PC cùng Blender 5.3 để dùng Sync Mesh.'
-                  : '⚠️ Chưa thấy dữ liệu! Hãy mở Blender 5.3 và bấm "Sync Topology to App" trong tab N-Panel.'
-              );
-            }
-          }}
-        />
+      <div className={`flex-1 flex flex-col h-full overflow-hidden ${!isZenMode ? 'pb-14 md:pb-0' : ''}`}>
+        {/* Top Desktop Titlebar (Hidden in Zen Mode) */}
+        {!isZenMode && (
+          <DesktopTitlebar
+            breadcrumbs={getBreadcrumbs()}
+            userProfile={userProfile}
+            onOpenSearch={() => setSearchOpen(true)}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onSignOut={handleSignOut}
+            onManualCloudSync={handleManualCloudSync}
+            isCloudSyncing={isCloudSyncing}
+          />
+        )}
 
         {/* Dynamic Views */}
         <div className="flex-1 overflow-hidden relative">

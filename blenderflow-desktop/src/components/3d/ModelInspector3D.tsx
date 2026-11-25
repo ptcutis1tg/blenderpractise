@@ -442,8 +442,8 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       {/* 3D WebGL Canvas */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing touch-none select-none" />
 
-      {/* Top Controls: ViewportToolstrip (Below title badge on narrow mobile screens to avoid overlap) */}
-      <div className="absolute top-11 sm:top-3 right-2.5 sm:right-3 pointer-events-auto z-20 max-w-[calc(100%-20px)]">
+      {/* Floating Bottom Dock: ViewportToolstrip */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-auto z-20 max-w-[calc(100%-24px)]">
         <ViewportToolstrip
           shadingMode={shadingMode}
           onSelectShading={setShadingMode}
