@@ -315,6 +315,7 @@ export function App() {
 
           {viewMode === 'curriculum' && (
             <CurriculumExplorerView
+              key={userProfile?.id || 'guest'}
               onOpenPracticeChallenge={handleOpenPracticeChallenge}
               onNavigateHome={() => {
                 setCurrentTab('home');
@@ -323,6 +324,7 @@ export function App() {
               onProgressChanged={() => {
                 const updatedStats = DatabaseService.recordStudyActivity(5);
                 setUserStats(updatedStats);
+                setRoadmaps([...DatabaseService.getRoadmaps()]);
                 CloudSyncService.debouncedPush(userProfile?.id);
               }}
             />

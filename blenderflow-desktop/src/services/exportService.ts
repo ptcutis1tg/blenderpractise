@@ -27,7 +27,6 @@ export class ExportService {
     const curriculumNotes = CurriculumService.getAllNotes();
     const aiConfig = AIService.getConfig();
 
-    // Collect legacy individual notes if any remain
     const notes: Record<string, string> = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -71,18 +70,7 @@ export class ExportService {
     try {
       const data = JSON.parse(jsonString) as BackupData;
       if (!data.roadmaps || !Array.isArray(data.roadmaps)) {
-        return { success: false, message: 'Invalid backup file format: Missing roadmaps array.' };
-      }
-
-      DatabaseService.saveRoadmaps(data.roadmaps);
-      if (data.userStats) {
-        DatabaseService.saveUserStats(data.userStats);
-      }
-
-      if (data.notes) {
-        Object.entries(data.notes).forEach(([k, v]) => {
-          localStorage.setItem(k, v);
-        });
+        return { success: false, message: 'Định dạng file sao lưu không hợp lệ: Thiếu danh sách lộ trình.' };
       }
 
       if (Array.isArray(data.curriculumCompleted)) {
@@ -97,35 +85,55 @@ export class ExportService {
       if (data.aiConfig) {
         AIService.saveConfig(data.aiConfig);
       }
+      if (data.notes) {
+        Object.entries(data.notes).forEach(([k, v]) => {
+          localStorage.setItem(k, v);
+        });
+      }
+
+      DatabaseService.saveRoadmaps(data.roadmaps);
+      if (data.userStats) {
+        DatabaseService.saveUserStats(data.userStats);
+      }
 
       return {
         success: true,
-        message: `Successfully restored ${data.roadmaps.length} roadmaps, curriculum progress, and notes!`,
+        message: `Đã khôi phục thành công ${data.roadmaps.length} lộ trình, tiến độ giáo trình và ghi chú!`,
         roadmapCount: data.roadmaps.length,
       };
     } catch (err: any) {
-      return { success: false, message: `Failed to parse backup JSON: ${err.message}` };
+      return { success: false, message: `Lỗi đọc file JSON: ${err.message}` };
     }
   }
 
   /**
-   * Resets all local data to initial clean defaults
+   * Resets all v1 & v2 local data to clean 0% initial state
    */
   static resetToDefaults(): void {
-    localStorage.removeItem('blenderflow_roadmaps_v1');
-    localStorage.removeItem('blenderflow_stats_v1');
-    localStorage.removeItem('blenderflow_last_active_date_v1');
-    localStorage.removeItem('blenderflow_curriculum_completed_v1');
-    localStorage.removeItem('blenderflow_curriculum_notes_v1');
-    localStorage.removeItem('blenderflow_curriculum_bookmarks_v1');
+    const keys = [
+      'blenderflow_roadmaps_v1',
+      'blenderflow_stats_v1',
+      'blenderflow_checklists_v1',
+      'blenderflow_last_active_date_v1',
+      'blenderflow_curriculum_completed_v1',
+      'blenderflow_curriculum_notes_v1',
+      'blenderflow_curriculum_bookmarks_v1',
+      'blenderflow_roadmaps_v2',
+      'blenderflow_stats_v2',
+      'blenderflow_last_active_date_v2',
+      'blenderflow_curriculum_completed_v2',
+      'blenderflow_curriculum_notes_v2',
+      'blenderflow_curriculum_bookmarks_v2',
+    ];
+    keys.forEach((k) => localStorage.removeItem(k));
 
-    const keysToRemove: string[] = [];
+    const legacyNotes: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (k && k.startsWith('blenderflow_notes_')) {
-        keysToRemove.push(k);
+        legacyNotes.push(k);
       }
     }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    legacyNotes.forEach((k) => localStorage.removeItem(k));
   }
 }

@@ -465,9 +465,9 @@ export const BLENDER_CURRICULUM_MODULES: CurriculumModule[] = [
 export const TOTAL_CURRICULUM_LESSONS = 26;
 
 export class CurriculumService {
-  private static STORAGE_COMPLETED_KEY = 'blenderflow_curriculum_completed_v1';
-  private static STORAGE_NOTES_KEY = 'blenderflow_curriculum_notes_v1';
-  private static STORAGE_BOOKMARKS_KEY = 'blenderflow_curriculum_bookmarks_v1';
+  private static STORAGE_COMPLETED_KEY = 'blenderflow_curriculum_completed_v2';
+  private static STORAGE_NOTES_KEY = 'blenderflow_curriculum_notes_v2';
+  private static STORAGE_BOOKMARKS_KEY = 'blenderflow_curriculum_bookmarks_v2';
 
   static getCompletedLessonIds(): string[] {
     try {
@@ -484,6 +484,17 @@ export class CurriculumService {
       localStorage.setItem(this.STORAGE_COMPLETED_KEY, JSON.stringify(uniqueIds));
     } catch (e) {
       console.error('Failed to set completed lessons', e);
+    }
+  }
+
+  static setLessonCompleted(lessonId: string, completed: boolean): void {
+    const list = this.getCompletedLessonIds();
+    const exists = list.includes(lessonId);
+    if (completed && !exists) {
+      list.push(lessonId);
+      this.setCompletedLessonIds(list);
+    } else if (!completed && exists) {
+      this.setCompletedLessonIds(list.filter((id) => id !== lessonId));
     }
   }
 

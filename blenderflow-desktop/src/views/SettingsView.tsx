@@ -18,6 +18,7 @@ import {
 import { AIService, AIConfig } from '../services/aiService';
 import { ExportService } from '../services/exportService';
 import { DatabaseService } from '../services/db';
+import { CloudSyncService } from '../services/cloudSyncService';
 import { BridgeStatus } from '../services/blenderBridge';
 import { UserProfile } from '../services/supabaseClient';
 
@@ -115,11 +116,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     reader.readAsText(file);
   };
 
-  const handleResetDefaults = () => {
-    if (window.confirm('Bạn có chắc muốn xóa toàn bộ tiến độ, ghi chú và đưa dữ liệu về mặc định?')) {
+  const handleResetDefaults = async () => {
+    if (window.confirm('Bạn có chắc muốn xóa toàn bộ tiến độ (kể cả trên Cloud nếu đang đăng nhập), ghi chú và đưa dữ liệu về 0%?')) {
       ExportService.resetToDefaults();
+      if (userProfile?.id) {
+        await CloudSyncService.resetCloudData(userProfile.id);
+      }
       onRoadmapsUpdated();
-      showToast('Đã khôi phục dữ liệu về mặc định.');
+      showToast('Đã khôi phục toàn bộ dữ liệu về 0%.');
     }
   };
 

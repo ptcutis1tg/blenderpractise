@@ -1,10 +1,27 @@
-import { Roadmap, HotkeyItem, UserStats, PracticeTask, CourseModule } from '../types';
+import { Roadmap, HotkeyItem, UserStats, PracticeTask, CourseModule, Lesson } from '../types';
+import { BLENDER_CURRICULUM_MODULES, CurriculumService } from '../data/curriculumDatabase';
 
 const STORAGE_KEYS = {
-  ROADMAPS: 'blenderflow_roadmaps_v1',
-  USER_STATS: 'blenderflow_stats_v1',
-  LAST_ACTIVE_DATE: 'blenderflow_last_active_date_v1',
+  ROADMAPS: 'blenderflow_roadmaps_v2',
+  USER_STATS: 'blenderflow_stats_v2',
+  LAST_ACTIVE_DATE: 'blenderflow_last_active_date_v2',
 };
+
+// Wipe legacy v1 mock seeds so upgraded browsers start clean at 0%
+function purgeLegacyV1StorageOnce() {
+  try {
+    if (!localStorage.getItem(STORAGE_KEYS.ROADMAPS)) {
+      localStorage.removeItem('blenderflow_roadmaps_v1');
+      localStorage.removeItem('blenderflow_stats_v1');
+      localStorage.removeItem('blenderflow_checklists_v1');
+      localStorage.removeItem('blenderflow_last_active_date_v1');
+      localStorage.removeItem('blenderflow_curriculum_completed_v1');
+      localStorage.removeItem('blenderflow_curriculum_bookmarks_v1');
+    }
+  } catch {
+    // Ignore storage access errors
+  }
+}
 
 export const INITIAL_USER_STATS: UserStats = {
   streakDays: 0,
@@ -14,60 +31,80 @@ export const INITIAL_USER_STATS: UserStats = {
 };
 
 export const INITIAL_HOTKEYS: HotkeyItem[] = [
-  { id: 'hk-1', keyCombination: 'Tab', description: 'Toggle Edit Mode / Object Mode', mode: 'Object Mode', category: 'Navigation' },
-  { id: 'hk-2', keyCombination: 'G', description: 'Grab / Move selected element', mode: 'Object Mode', category: 'Transform' },
-  { id: 'hk-3', keyCombination: 'R', description: 'Rotate selected element', mode: 'Object Mode', category: 'Transform' },
-  { id: 'hk-4', keyCombination: 'S', description: 'Scale selected element', mode: 'Object Mode', category: 'Transform' },
-  { id: 'hk-5', keyCombination: 'E', description: 'Extrude region along normal', mode: 'Edit Mode', category: 'Modeling' },
-  { id: 'hk-6', keyCombination: 'I', description: 'Inset faces', mode: 'Edit Mode', category: 'Modeling' },
-  { id: 'hk-7', keyCombination: 'Ctrl + B', description: 'Bevel selected edges/vertices', mode: 'Edit Mode', category: 'Modeling' },
-  { id: 'hk-8', keyCombination: 'Ctrl + R', description: 'Loop Cut and Slide', mode: 'Edit Mode', category: 'Modeling' },
-  { id: 'hk-9', keyCombination: 'Alt + Z', description: 'Toggle X-Ray view mode', mode: 'Object Mode', category: 'Viewport' },
-  { id: 'hk-10', keyCombination: 'Shift + A', description: 'Add new Object / Node menu', mode: 'Object Mode', category: 'Creation' },
-  { id: 'hk-11', keyCombination: 'Z', description: 'Shading pie menu (Wireframe, Solid, Rendered)', mode: 'Object Mode', category: 'Viewport' },
-  { id: 'hk-12', keyCombination: 'M', description: 'Move to New/Existing Collection', mode: 'Object Mode', category: 'Organization' },
+  { id: 'hk-1', keyCombination: 'Tab', description: 'Chuyển đổi Edit Mode / Object Mode', mode: 'Object Mode', category: 'Điều hướng' },
+  { id: 'hk-2', keyCombination: 'G', description: 'Di chuyển đối tượng hoặc đỉnh (Grab)', mode: 'Object Mode', category: 'Transform' },
+  { id: 'hk-3', keyCombination: 'R', description: 'Xoay đối tượng quanh trục (Rotate)', mode: 'Object Mode', category: 'Transform' },
+  { id: 'hk-4', keyCombination: 'S', description: 'Thu phóng kích thước (Scale)', mode: 'Object Mode', category: 'Transform' },
+  { id: 'hk-5', keyCombination: 'E', description: 'Đùn mặt hoặc cạnh theo pháp tuyến (Extrude)', mode: 'Edit Mode', category: 'Modeling' },
+  { id: 'hk-6', keyCombination: 'I', description: 'Tạo mặt lồng viền giữ cạnh (Inset Faces)', mode: 'Edit Mode', category: 'Modeling' },
+  { id: 'hk-7', keyCombination: 'Ctrl + B', description: 'Vát cạnh hoặc đỉnh (Bevel)', mode: 'Edit Mode', category: 'Modeling' },
+  { id: 'hk-8', keyCombination: 'Ctrl + R', description: 'Cắt vòng lưới liên tục (Loop Cut)', mode: 'Edit Mode', category: 'Modeling' },
+  { id: 'hk-9', keyCombination: 'Alt + Z', description: 'Bật/tắt chế độ nhìn xuyên thấu X-Ray', mode: 'Object Mode', category: 'Viewport' },
+  { id: 'hk-10', keyCombination: 'Shift + A', description: 'Mở menu thêm Mesh / Light / Node mới', mode: 'Object Mode', category: 'Tạo khối' },
+  { id: 'hk-11', keyCombination: 'Z', description: 'Menu chọn chế độ hiển thị Shading', mode: 'Object Mode', category: 'Viewport' },
+  { id: 'hk-12', keyCombination: 'M', description: 'Di chuyển đối tượng vào Collection', mode: 'Object Mode', category: 'Organization' },
 ];
+
+/**
+ * Helper to derive Roadmap Lessons directly from the 26-lesson Curriculum Encyclopedia (Single Source of Truth)
+ */
+function pickCurriculumLessons(curriculumModuleIds: string[], targetModuleId: string): Lesson[] {
+  const lessons: Lesson[] = [];
+  let order = 1;
+  for (const cModId of curriculumModuleIds) {
+    const cMod = BLENDER_CURRICULUM_MODULES.find((m) => m.id === cModId);
+    if (!cMod) continue;
+    for (const cLes of cMod.lessons) {
+      lessons.push({
+        id: cLes.id,
+        moduleId: targetModuleId,
+        title: cLes.title,
+        orderIndex: order++,
+        readTime: cLes.readTime,
+        hotkeys: cLes.keyShortcuts,
+        isCompleted: false,
+      });
+    }
+  }
+  return lessons;
+}
 
 export const INITIAL_ROADMAPS: Roadmap[] = [
   {
     id: 'roadmap-hard-surface',
-    title: 'Hard-Surface & Low-Poly 3D Modeling',
+    title: 'Dựng hình Hard-Surface & Điêu khắc 3D',
     category: 'Modeling',
-    description: 'Master non-destructive quad modeling workflows, mesh topology rules, and bevel techniques in Blender 5.3.',
-    totalLessons: 11,
+    description: 'Làm chủ giao diện 3D, phím tắt G-R-S, nguyên lý Quads Topology, Modifiers phi phá hủy và điêu khắc cơ bản.',
+    totalLessons: 14,
     completedLessons: 0,
     progressPercent: 0,
-    lastStudied: 'Not started',
+    lastStudied: 'Chưa bắt đầu',
     currentLessonId: 'task-chair-01',
-    currentLessonTitle: 'Challenge 04: Low-Poly Stylized Wooden Chair',
+    currentLessonTitle: 'Thử thách 04: Ghế Gỗ Low-Poly Chuẩn Quads',
     modules: [
       {
         id: 'mod-1',
         roadmapId: 'roadmap-hard-surface',
-        title: 'Module 1: Viewport Navigation & Transform Mastery',
+        title: 'Học phần 1: Lộ trình 24 Tuần & Nhập môn Viewport 3D',
         orderIndex: 1,
-        description: 'Blender 5.3 3D navigation, origin points, 3D Cursor, and precision snapping.',
+        description: 'Chiến lược học đúng đắn, điều hướng không gian 3D, 3D Cursor và phím tắt G-R-S.',
         progressPercent: 0,
         isCompleted: false,
         isLocked: false,
-        lessons: [
-          { id: 'les-1-1', moduleId: 'mod-1', title: '1.1 Viewport Orbit, Pan, and Orthographic Projections', orderIndex: 1, readTime: '5 min', hotkeys: ['Middle Click', 'Shift + MMB', 'Numpad 1,3,7'], isCompleted: false },
-          { id: 'les-1-2', moduleId: 'mod-1', title: '1.2 The Power of 3D Cursor and Transform Orientations', orderIndex: 2, readTime: '7 min', hotkeys: ['Shift + S', '.'], isCompleted: false },
-          { id: 'les-1-3', moduleId: 'mod-1', title: '1.3 Precision Snapping to Vertices, Edges, and Grid', orderIndex: 3, readTime: '6 min', hotkeys: ['Shift + Tab', 'Ctrl'], isCompleted: false },
-        ],
+        lessons: pickCurriculumLessons(['cur-mod-00', 'cur-mod-01'], 'mod-1'),
         practiceTasks: [
           {
             id: 'task-vp-01',
             moduleId: 'mod-1',
-            title: 'Precision Align Drill',
+            title: 'Bài tập 01: Căn chỉnh 3D Cursor & Snapping',
             type: 'hotkey_drill',
             expectedVertices: 32,
             expectedFaces: 24,
-            modifiers: 'None (Origin & Cursor)',
+            modifiers: 'Không dùng (Origin & Cursor)',
             isCompleted: false,
             checklist: [
-              { id: 'c-1', stepNumber: 1, title: 'Align 4 cubes symmetrically around 3D Cursor', hotkeyHint: 'Shift + S -> Selection to Cursor', isDone: false },
-              { id: 'c-2', stepNumber: 2, title: 'Snap vertices cleanly to grid bounds', hotkeyHint: 'Shift + Tab', isDone: false }
+              { id: 'c-1', stepNumber: 1, title: 'Đặt 4 khối Cube đối xứng quanh tâm 3D Cursor', hotkeyHint: 'Shift + S -> Selection to Cursor', isDone: false },
+              { id: 'c-2', stepNumber: 2, title: 'Bắt dính các đỉnh chuẩn theo lưới tọa độ', hotkeyHint: 'Shift + Tab', isDone: false }
             ]
           }
         ]
@@ -75,22 +112,18 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
       {
         id: 'mod-2',
         roadmapId: 'roadmap-hard-surface',
-        title: 'Module 2: Mesh Topology & Hard-Surface Tools',
+        title: 'Học phần 2: Quad Topology & Công cụ Edit Mode',
         orderIndex: 2,
-        description: 'Quad topology fundamentals, avoiding N-gons, loop cuts, and beveling.',
+        description: 'Hiểu bản chất lưới 4 đỉnh (Quads), tránh N-gons, cắt Loop Cut và đùn khối chuẩn.',
         progressPercent: 0,
         isCompleted: false,
         isLocked: false,
-        lessons: [
-          { id: 'les-2-1', moduleId: 'mod-2', title: '2.1 Edit Mode Selections: Vertex (1), Edge (2), Face (3)', orderIndex: 1, readTime: '4 min', hotkeys: ['1', '2', '3', 'Alt + Click'], isCompleted: false },
-          { id: 'les-2-2', moduleId: 'mod-2', title: '2.2 Loop Cuts, Inset, and Extrude with Precision', orderIndex: 2, readTime: '8 min', hotkeys: ['Ctrl + R', 'I', 'E'], isCompleted: false },
-          { id: 'les-2-3', moduleId: 'mod-2', title: '2.3 Bevel Modifier vs Destructive Bevel Weights', orderIndex: 3, readTime: '10 min', hotkeys: ['Ctrl + B', 'Ctrl + E'], isCompleted: false, isActive: true },
-        ],
+        lessons: pickCurriculumLessons(['cur-mod-02'], 'mod-2').slice(0, 2),
         practiceTasks: [
           {
             id: 'task-chair-01',
             moduleId: 'mod-2',
-            title: 'Challenge 04: Low-Poly Stylized Wooden Chair',
+            title: 'Thử thách 04: Ghế Gỗ Low-Poly Chuẩn Quads',
             type: '3d_challenge',
             blendFileName: 'challenge_04_chair_starter.blend',
             expectedVertices: 148,
@@ -98,12 +131,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
             modifiers: 'Mirror, Subdivision Surface, Bevel',
             isCompleted: false,
             checklist: [
-              { id: 'step-1', stepNumber: 1, title: 'Add a Cube and scale down along Z-axis for Chair Seat', hotkeyHint: 'Shift + A -> Mesh -> Cube, S then Z', isDone: false },
-              { id: 'step-2', stepNumber: 2, title: 'Enter Edit Mode, select bottom face and Inset with I', hotkeyHint: 'Tab, Face Mode (3), I', isDone: false },
-              { id: 'step-3', stepNumber: 3, title: 'Add 2 Loop Cuts along X & Y to carve 4 equal corner leg roots', hotkeyHint: 'Ctrl + R -> Scroll Wheel 2', isDone: false },
-              { id: 'step-4', stepNumber: 4, title: 'Extrude 4 corner faces downwards to create chair legs', hotkeyHint: 'E then -1.8 Z', isDone: false },
-              { id: 'step-5', stepNumber: 5, title: 'Extrude rear top faces upward and bridge edges for Backrest', hotkeyHint: 'E, Ctrl + E -> Bridge Edge Loops', isDone: false },
-              { id: 'step-6', stepNumber: 6, title: 'Apply Bevel modifier with 2 segments to soften wooden edges', hotkeyHint: 'Modifier Tab -> Add Bevel (0.02m)', isDone: false },
+              { id: 'step-1', stepNumber: 1, title: 'Thêm Cube và nén theo trục Z tạo mặt đệm ghế', hotkeyHint: 'Shift + A -> Mesh -> Cube, S rồi Z', isDone: false },
+              { id: 'step-2', stepNumber: 2, title: 'Vào Edit Mode, chọn mặt đáy và Inset tạo viền giữ cạnh', hotkeyHint: 'Tab, Phím 3 (Face), I', isDone: false },
+              { id: 'step-3', stepNumber: 3, title: 'Cắt 2 Loop Cut theo trục X & Y để chia 4 gốc chân ghế đều nhau', hotkeyHint: 'Ctrl + R -> Lăn chuột 2', isDone: false },
+              { id: 'step-4', stepNumber: 4, title: 'Đùn 4 ô góc mặt dưới xuống để tạo 4 chân ghế', hotkeyHint: 'E rồi -1.8 Z', isDone: false },
+              { id: 'step-5', stepNumber: 5, title: 'Đùn 2 trụ tựa lưng phía sau lên trên và nối thanh ngang', hotkeyHint: 'E, Ctrl + E -> Bridge Edge Loops', isDone: false },
+              { id: 'step-6', stepNumber: 6, title: 'Thêm Bevel Modifier (2 segments) để bo mềm cạnh gỗ', hotkeyHint: 'Modifier Tab -> Add Bevel (0.02m)', isDone: false },
             ]
           }
         ]
@@ -111,21 +144,18 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
       {
         id: 'mod-3',
         roadmapId: 'roadmap-hard-surface',
-        title: 'Module 3: Modifiers & Non-Destructive Workflow',
+        title: 'Học phần 3: Modifiers Phi Phá Hủy & Hard-Surface',
         orderIndex: 3,
-        description: 'Harness Mirror, Array, Solidify, and Boolean modifiers for complex props.',
+        description: 'Làm chủ Mirror, Array, Solidify, Boolean Exact và Weighted Normal.',
         progressPercent: 0,
         isCompleted: false,
         isLocked: false,
-        lessons: [
-          { id: 'les-3-1', moduleId: 'mod-3', title: '3.1 Mirror Modifier Mastery with Clipping & Merge', orderIndex: 1, readTime: '8 min', hotkeys: ['Ctrl + A -> Apply All Transforms'], isCompleted: false },
-          { id: 'les-3-2', moduleId: 'mod-3', title: '3.2 Non-destructive Booleans without mesh artifacts', orderIndex: 2, readTime: '12 min', hotkeys: ['Fast / Exact Solver'], isCompleted: false },
-        ],
+        lessons: pickCurriculumLessons(['cur-mod-02'], 'mod-3').slice(2, 4),
         practiceTasks: [
           {
             id: 'task-sci-fi-crate',
             moduleId: 'mod-3',
-            title: 'Challenge 05: Sci-Fi Military Storage Crate',
+            title: 'Thử thách 05: Hòm Quân Sự Sci-Fi',
             type: '3d_challenge',
             blendFileName: 'challenge_05_scifi_crate.blend',
             expectedVertices: 420,
@@ -133,69 +163,100 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
             modifiers: 'Mirror, Bevel, Weighted Normal',
             isCompleted: false,
             checklist: [
-              { id: 'crate-1', stepNumber: 1, title: 'Bisect crate base and add X+Y Mirror Modifier with Clipping', hotkeyHint: 'Ctrl + R, Modifier -> Mirror', isDone: false },
-              { id: 'crate-2', stepNumber: 2, title: 'Inset side panels and extrude recessed armor ribs', hotkeyHint: 'I then E', isDone: false },
-              { id: 'crate-3', stepNumber: 3, title: 'Cut corner latches using Boolean Exact Solver', hotkeyHint: 'Modifier -> Boolean (Exact)', isDone: false },
-              { id: 'crate-4', stepNumber: 4, title: 'Add Bevel (Angle 30°) + Weighted Normal (Keep Sharp)', hotkeyHint: 'Modifier -> Bevel + Weighted Normal', isDone: false },
+              { id: 'crate-1', stepNumber: 1, title: 'Chia đôi thân hòm và bật Mirror Modifier X+Y có Clipping', hotkeyHint: 'Ctrl + R, Modifier -> Mirror', isDone: false },
+              { id: 'crate-2', stepNumber: 2, title: 'Dùng Inset và Extrude tạo các rãnh sườn bọc thép', hotkeyHint: 'I rồi E', isDone: false },
+              { id: 'crate-3', stepNumber: 3, title: 'Cắt khóa chốt góc bằng Boolean Solver Exact', hotkeyHint: 'Modifier -> Boolean (Exact)', isDone: false },
+              { id: 'crate-4', stepNumber: 4, title: 'Thêm Bevel (Angle 30°) + Weighted Normal (Keep Sharp)', hotkeyHint: 'Modifier -> Bevel + Weighted Normal', isDone: false },
             ]
           }
         ]
+      },
+      {
+        id: 'mod-4',
+        roadmapId: 'roadmap-hard-surface',
+        title: 'Học phần 4: Điêu khắc Hữu cơ & Retopology',
+        orderIndex: 4,
+        description: 'Sculpt Mode, Dyntopo vs Voxel Remesh và làm lại lưới nhẹ chuẩn hoạt họa.',
+        progressPercent: 0,
+        isCompleted: false,
+        isLocked: false,
+        lessons: pickCurriculumLessons(['cur-mod-03'], 'mod-4'),
+        practiceTasks: []
       }
     ]
   },
   {
     id: 'roadmap-shading',
-    title: 'Procedural Shading & Material Nodes',
+    title: 'Trải UV, Vật liệu PBR & Ánh sáng Điện ảnh',
     category: 'Shading',
-    description: 'Learn shader math, PBR materials, procedural grunge maps, and displacement with Principled BSDF in Blender 5.3.',
-    totalLessons: 2,
+    description: 'Mở lưới UV chuẩn, vật liệu Principled BSDF, Shader Nodes thủ tục và thiết lập ánh sáng Cycles / EEVEE Next.',
+    totalLessons: 8,
     completedLessons: 0,
     progressPercent: 0,
-    lastStudied: 'Not started',
-    currentLessonId: 'les-shade-01',
-    currentLessonTitle: '1.1 Principled BSDF v2 Deep Dive',
+    lastStudied: 'Chưa bắt đầu',
+    currentLessonId: 'les-cur-mod-04-01',
+    currentLessonTitle: 'Bài 4.1: Nguyên lý trải lưới UV Unwrapping',
     modules: [
       {
         id: 'mod-shade-1',
         roadmapId: 'roadmap-shading',
-        title: 'Module 1: PBR Fundamentals & Node Wrangler',
+        title: 'Học phần 1: Trải UV, PBR Shading & Texture Baking',
         orderIndex: 1,
-        description: 'Understand roughness, metallic, IOR, and speed up work with Node Wrangler.',
+        description: 'Đặt Seam, kiểm soát Texel Density, Node Wrangler và nướng map PBR.',
         progressPercent: 0,
         isCompleted: false,
         isLocked: false,
-        lessons: [
-          { id: 'les-shade-01', moduleId: 'mod-shade-1', title: '1.1 Principled BSDF v2 Deep Dive', orderIndex: 1, readTime: '10 min', hotkeys: ['Ctrl + T', 'Ctrl + Shift + Click'], isCompleted: false },
-          { id: 'les-shade-02', moduleId: 'mod-shade-1', title: '1.2 Procedural Wood Grain & Bump Mapping', orderIndex: 2, readTime: '14 min', hotkeys: ['Wave Texture', 'ColorRamp', 'Bump Node'], isCompleted: false, isActive: true },
-        ],
+        lessons: pickCurriculumLessons(['cur-mod-04'], 'mod-shade-1'),
+        practiceTasks: []
+      },
+      {
+        id: 'mod-shade-2',
+        roadmapId: 'roadmap-shading',
+        title: 'Học phần 2: Ánh sáng Studio, Render & Compositor',
+        orderIndex: 2,
+        description: 'Ánh sáng 3 điểm, so sánh Cycles vs EEVEE Next, bố cục Camera và hậu kỳ.',
+        progressPercent: 0,
+        isCompleted: false,
+        isLocked: false,
+        lessons: pickCurriculumLessons(['cur-mod-05'], 'mod-shade-2'),
         practiceTasks: []
       }
     ]
   },
   {
     id: 'roadmap-lighting',
-    title: 'Cinematic 3-Point Lighting & Cycles Rendering',
-    category: 'Lighting',
-    description: 'Master photographic light balance, HDRI studio rigs, light linking, and real-time Cycles viewport rendering.',
-    totalLessons: 1,
+    title: 'Rigging, Geometry Nodes & Game Pipeline',
+    category: 'Animation',
+    description: 'Hoạt họa 12 nguyên tắc, hệ thống xương IK/FK, dựng hình thủ tục Geometry Nodes và xuất asset sang Unreal/Unity.',
+    totalLessons: 7,
     completedLessons: 0,
     progressPercent: 0,
-    lastStudied: 'Not started',
-    currentLessonId: 'les-light-01',
-    currentLessonTitle: '1.1 Key, Fill, and Rim Light Ratios',
+    lastStudied: 'Chưa bắt đầu',
+    currentLessonId: 'les-cur-mod-06-01',
+    currentLessonTitle: 'Bài 6.1: Nền tảng Hoạt họa & 12 Nguyên tắc',
     modules: [
       {
-        id: 'mod-light-1',
+        id: 'mod-rig-1',
         roadmapId: 'roadmap-lighting',
-        title: 'Module 1: Studio Lighting Setups',
+        title: 'Học phần 1: Gắn xương Armatures & Hoạt họa',
         orderIndex: 1,
-        description: 'Classic product and character lighting with area lights and softboxes.',
+        description: 'Keyframing, hệ thống xương cha-con, ràng buộc IK/FK và Weight Painting.',
         progressPercent: 0,
         isCompleted: false,
         isLocked: false,
-        lessons: [
-          { id: 'les-light-01', moduleId: 'mod-light-1', title: '1.1 Key, Fill, and Rim Light Ratios', orderIndex: 1, readTime: '9 min', hotkeys: ['Shift + A -> Light -> Area'], isCompleted: false },
-        ],
+        lessons: pickCurriculumLessons(['cur-mod-06'], 'mod-rig-1'),
+        practiceTasks: []
+      },
+      {
+        id: 'mod-geo-2',
+        roadmapId: 'roadmap-lighting',
+        title: 'Học phần 2: Geometry Nodes, Vật lý & Game Export',
+        orderIndex: 2,
+        description: 'Tạo cảnh quan thủ tục, mô phỏng va chạm/vải, tối ưu Game Asset & kho tài nguyên.',
+        progressPercent: 0,
+        isCompleted: false,
+        isLocked: false,
+        lessons: pickCurriculumLessons(['cur-mod-07', 'cur-mod-08', 'cur-mod-09'], 'mod-geo-2'),
         practiceTasks: []
       }
     ]
@@ -204,27 +265,38 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
 
 export class DatabaseService {
   /**
-   * Recomputes module and roadmap completion metrics from actual lessons and tasks
+   * Synchronizes lesson completions from CurriculumService (Single Source of Truth)
+   * and computes exact module/roadmap progress percentages.
    */
   static recalculateRoadmapMetrics(roadmaps: Roadmap[]): Roadmap[] {
+    const completedCurriculumIds = CurriculumService.getCompletedLessonIds();
+
     return roadmaps.map((rm) => {
       const updatedModules = rm.modules.map((mod, mIdx) => {
-        const totalItems = mod.lessons.length + mod.practiceTasks.length;
+        const syncedLessons = mod.lessons.map((l) => {
+          const isCurriculumId = l.id.startsWith('les-cur-mod-');
+          return {
+            ...l,
+            isCompleted: isCurriculumId ? completedCurriculumIds.includes(l.id) : l.isCompleted,
+          };
+        });
+
+        const totalItems = syncedLessons.length + mod.practiceTasks.length;
         const completedItems =
-          mod.lessons.filter((l) => l.isCompleted).length +
+          syncedLessons.filter((l) => l.isCompleted).length +
           mod.practiceTasks.filter((t) => t.isCompleted).length;
         const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
         const isCompleted = totalItems > 0 && progressPercent === 100;
 
         return {
           ...mod,
+          lessons: syncedLessons,
           progressPercent,
           isCompleted,
           isLocked: mIdx === 0 ? false : mod.isLocked,
         };
       });
 
-      // Unlock next module whenever previous module is completed
       for (let i = 0; i < updatedModules.length - 1; i++) {
         if (updatedModules[i].isCompleted) {
           updatedModules[i + 1].isLocked = false;
@@ -251,6 +323,7 @@ export class DatabaseService {
   }
 
   static getRoadmaps(): Roadmap[] {
+    purgeLegacyV1StorageOnce();
     const raw = localStorage.getItem(STORAGE_KEYS.ROADMAPS);
     if (!raw) {
       const seeded = this.recalculateRoadmapMetrics(INITIAL_ROADMAPS);
@@ -279,6 +352,7 @@ export class DatabaseService {
   }
 
   static getUserStats(): UserStats {
+    purgeLegacyV1StorageOnce();
     const raw = localStorage.getItem(STORAGE_KEYS.USER_STATS);
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(INITIAL_USER_STATS));
@@ -342,8 +416,6 @@ export class DatabaseService {
             const compositeKey = `${task.id}:${step.id}`;
             if (typeof stateMap[compositeKey] === 'boolean') {
               step.isDone = step.isDone || stateMap[compositeKey];
-            } else if (typeof stateMap[step.id] === 'boolean') {
-              step.isDone = step.isDone || stateMap[step.id];
             }
           }
           if (task.checklist.length > 0 && task.checklist.every((s) => s.isDone)) {
@@ -368,7 +440,7 @@ export class DatabaseService {
               step.isDone = isDone;
             }
             task.isCompleted = task.checklist.length > 0 && task.checklist.every((s) => s.isDone);
-            rm.lastStudied = 'Just now';
+            rm.lastStudied = 'Vừa xong';
           }
         }
       }
@@ -391,7 +463,7 @@ export class DatabaseService {
           task.checklist.forEach((s) => {
             s.isDone = true;
           });
-          rm.lastStudied = 'Just now';
+          rm.lastStudied = 'Vừa xong';
         }
       }
     }
@@ -402,15 +474,24 @@ export class DatabaseService {
   }
 
   static toggleLessonCompleted(lessonId: string): Roadmap[] {
+    // Update Single Source of Truth in CurriculumService when toggling a curriculum lesson
+    let isNowCompleted = false;
+    if (lessonId.startsWith('les-cur-mod-')) {
+      isNowCompleted = CurriculumService.toggleLessonCompleted(lessonId);
+    }
+
     const roadmaps = this.getRoadmaps();
-    let markedCompleted = false;
     for (const rm of roadmaps) {
       for (const mod of rm.modules) {
         const lesson = mod.lessons.find((l) => l.id === lessonId);
         if (lesson) {
-          lesson.isCompleted = !lesson.isCompleted;
-          markedCompleted = lesson.isCompleted;
-          rm.lastStudied = 'Just now';
+          if (!lessonId.startsWith('les-cur-mod-')) {
+            lesson.isCompleted = !lesson.isCompleted;
+            isNowCompleted = lesson.isCompleted;
+          } else {
+            lesson.isCompleted = isNowCompleted;
+          }
+          rm.lastStudied = 'Vừa xong';
           rm.currentLessonId = lesson.id;
           rm.currentLessonTitle = lesson.title;
         }
@@ -418,7 +499,7 @@ export class DatabaseService {
     }
     const updated = this.recalculateRoadmapMetrics(roadmaps);
     localStorage.setItem(STORAGE_KEYS.ROADMAPS, JSON.stringify(updated));
-    if (markedCompleted) {
+    if (isNowCompleted) {
       this.recordStudyActivity(10);
     }
     return updated;

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Roadmap, UserStats } from '../types';
 import { KeycapBadge } from '../components/common/KeycapBadge';
+import { CurriculumService, TOTAL_CURRICULUM_LESSONS } from '../data/curriculumDatabase';
 
 interface HomeDashboardViewProps {
   roadmaps: Roadmap[];
@@ -35,11 +36,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const activeTasks = activeRoadmap?.modules.flatMap((m) => m.practiceTasks) || [];
   const nextPracticeTask = activeTasks.find((t) => !t.isCompleted) || activeTasks[0];
   const fallbackTaskId = nextPracticeTask?.id || 'task-chair-01';
-  const nextChallengeTitle = nextPracticeTask?.title || activeRoadmap?.currentLessonTitle || 'Challenge 04: Low-Poly Stylized Wooden Chair';
+  const nextChallengeTitle = nextPracticeTask?.title || activeRoadmap?.currentLessonTitle || 'Thử thách 04: Ghế Gỗ Low-Poly Chuẩn Quads';
 
-  const totalCompletedLessons = roadmaps.reduce((acc, r) => acc + r.completedLessons, 0);
-  const totalLessons = roadmaps.reduce((acc, r) => acc + r.totalLessons, 0);
-  const overallPercentage = totalLessons > 0 ? Math.round((totalCompletedLessons / totalLessons) * 100) : 0;
+  // Sync total reading progress directly with CurriculumService (Single Source of Truth)
+  const completedCurriculumCount = CurriculumService.getCompletedLessonIds().length;
+  const curriculumPercent = Math.min(100, Math.round((completedCurriculumCount / TOTAL_CURRICULUM_LESSONS) * 100));
 
   const filteredRoadmaps = roadmaps.filter((rm) => {
     if (statusFilter === 'in_progress') return rm.progressPercent > 0 && rm.progressPercent < 100;
@@ -61,7 +62,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </p>
           </div>
           <div className="text-[12px] text-gray-400 font-mono">
-            Tiến độ tổng: <span className="text-white font-semibold">{overallPercentage}%</span> • Chuỗi học:{' '}
+            Giáo trình: <span className="text-white font-semibold">{completedCurriculumCount}/{TOTAL_CURRICULUM_LESSONS} bài ({curriculumPercent}%)</span> • Chuỗi học:{' '}
             <span className="text-[#F97316] font-semibold">{userStats.streakDays} ngày</span>
           </div>
         </div>

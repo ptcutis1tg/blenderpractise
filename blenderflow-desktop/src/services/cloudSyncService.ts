@@ -10,6 +10,7 @@ export interface SyncStatus {
 }
 
 interface CloudChecklistsPayload {
+  schemaVersion?: number;
   steps?: Record<string, boolean>;
   curriculumCompleted?: string[];
   curriculumBookmarks?: string[];
@@ -45,48 +46,48 @@ export class CloudSyncService {
   }
 
   /**
-   * Pull progress, curriculum state, stats, and custom roadmaps from Supabase into LocalStorage
+   * Pull progress, curriculum state, stats, and custom roadmaps from Supabase into LocalStorage (v2)
    */
   static async pullCloudData(userId: string): Promise<boolean> {
     this.setStatus({ isSyncing: true, error: null });
     try {
-      // 1. Fetch user_progress
       const { data: progressData } = await supabase
         .from('user_progress')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 
-      // 2. Fetch profile stats
       const { data: profileData } = await supabase
         .from('profiles')
         .select('streak_days, total_hours_studied')
         .eq('id', userId)
         .maybeSingle();
 
-      // 3. Fetch custom roadmaps
       const { data: customRoadmapsData } = await supabase
         .from('custom_roadmaps')
         .select('roadmap_data')
         .eq('user_id', userId);
 
+      const rawChecklistsState = progressData?.checklists_state || {};
+      const payload: CloudChecklistsPayload =
+        rawChecklistsState && typeof rawChecklistsState === 'object'
+          ? (rawChecklistsState as CloudChecklistsPayload)
+          : {};
+
+      // Guard against legacy v1 mock-seeded cloud data: upgrade cleanly instead of reviving 36%
+      if (progressData && payload.schemaVersion !== 2) {
+        await this.pushLocalDataToCloud(userId);
+        return true;
+      }
+
       let roadmaps = DatabaseService.getRoadmaps();
       const completedLessons: string[] = progressData?.completed_lessons || [];
       const completedTasks: string[] = progressData?.completed_tasks || [];
-      const rawChecklistsState = progressData?.checklists_state || {};
 
-      // Normalize structured payload vs flat legacy checklist state
-      const payload: CloudChecklistsPayload =
-        rawChecklistsState && typeof rawChecklistsState === 'object' && ('steps' in rawChecklistsState || 'curriculumCompleted' in rawChecklistsState)
-          ? (rawChecklistsState as CloudChecklistsPayload)
-          : { steps: rawChecklistsState as Record<string, boolean> };
-
-      // Apply checklist step states
       if (payload.steps && Object.keys(payload.steps).length > 0) {
         roadmaps = DatabaseService.applyChecklistStateMap(payload.steps);
       }
 
-      // Merge Curriculum 26 lessons completion, bookmarks, and notes
       if (payload.curriculumCompleted && payload.curriculumCompleted.length > 0) {
         const localCur = CurriculumService.getCompletedLessonIds();
         CurriculumService.setCompletedLessonIds([...localCur, ...payload.curriculumCompleted]);
@@ -100,7 +101,6 @@ export class CloudSyncService {
         CurriculumService.setAllNotes({ ...payload.curriculumNotes, ...localNotes });
       }
 
-      // Merge custom roadmaps regardless of completedLessons length
       if (customRoadmapsData && customRoadmapsData.length > 0) {
         customRoadmapsData.forEach((item) => {
           const rm: Roadmap = item.roadmap_data;
@@ -110,7 +110,6 @@ export class CloudSyncService {
         });
       }
 
-      // Apply completed lessons & tasks to roadmaps
       if (completedLessons.length > 0 || completedTasks.length > 0) {
         roadmaps = roadmaps.map((rm) => ({
           ...rm,
@@ -130,8 +129,7 @@ export class CloudSyncService {
 
       DatabaseService.saveRoadmaps(roadmaps);
 
-      // Update User Stats
-      if (profileData) {
+      if (profileData && payload.schemaVersion === 2) {
         const localStats = DatabaseService.getUserStats();
         const mergedStats: UserStats = {
           ...localStats,
@@ -179,13 +177,13 @@ export class CloudSyncService {
       });
 
       const structuredPayload: CloudChecklistsPayload = {
+        schemaVersion: 2,
         steps: checklistStepsMap,
         curriculumCompleted: CurriculumService.getCompletedLessonIds(),
         curriculumBookmarks: CurriculumService.getBookmarks(),
         curriculumNotes: CurriculumService.getAllNotes(),
       };
 
-      // 1. Update Profile Stats
       await supabase
         .from('profiles')
         .update({
@@ -195,7 +193,6 @@ export class CloudSyncService {
         })
         .eq('id', userId);
 
-      // 2. Upsert user_progress
       await supabase
         .from('user_progress')
         .upsert(
@@ -209,7 +206,6 @@ export class CloudSyncService {
           { onConflict: 'user_id' }
         );
 
-      // 3. Upsert Custom Roadmaps
       for (const crm of customRoadmaps) {
         await supabase
           .from('custom_roadmaps')
@@ -228,6 +224,51 @@ export class CloudSyncService {
     } catch (e: any) {
       console.error('[CloudSync] Push error:', e);
       this.setStatus({ isSyncing: false, error: e?.message || 'Sync failed' });
+      return false;
+    }
+  }
+
+  /**
+   * Resets both Supabase cloud progress & profile stats to clean 0% defaults
+   */
+  static async resetCloudData(userId: string): Promise<boolean> {
+    this.setStatus({ isSyncing: true, error: null });
+    try {
+      await supabase
+        .from('profiles')
+        .update({
+          streak_days: 0,
+          total_hours_studied: 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+
+      await supabase
+        .from('user_progress')
+        .upsert(
+          {
+            user_id: userId,
+            completed_lessons: [],
+            completed_tasks: [],
+            checklists_state: {
+              schemaVersion: 2,
+              steps: {},
+              curriculumCompleted: [],
+              curriculumBookmarks: [],
+              curriculumNotes: {},
+            },
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+      await supabase.from('custom_roadmaps').delete().eq('user_id', userId);
+
+      this.setStatus({ isSyncing: false, lastSyncedAt: new Date(), error: null });
+      return true;
+    } catch (e: any) {
+      console.error('[CloudSync] Reset cloud error:', e);
+      this.setStatus({ isSyncing: false, error: e?.message || 'Reset failed' });
       return false;
     }
   }

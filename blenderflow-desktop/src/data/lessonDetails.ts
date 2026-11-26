@@ -160,12 +160,14 @@ export const CURRICULUM_LESSON_LINK_MAP: Record<string, string> = {
 };
 
 export function getLinkedCurriculumLesson(lessonId: string): CurriculumLesson | null {
+  const directMatch = CurriculumService.findLessonById(lessonId);
+  if (directMatch) return directMatch;
   const mappedId = CURRICULUM_LESSON_LINK_MAP[lessonId];
   if (!mappedId) return null;
   return CurriculumService.findLessonById(mappedId);
 }
 
-const UNIFIED_NOTES_KEY = 'blenderflow_curriculum_notes_v1';
+const UNIFIED_NOTES_KEY = 'blenderflow_curriculum_notes_v2';
 const LEGACY_NOTES_PREFIX = 'blenderflow_notes_';
 
 export class NotesService {

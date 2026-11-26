@@ -190,8 +190,17 @@ if (fs.existsSync(syncPath)) {
   const hasMerge = syncContent.includes('mergeGuestDataOnLogin');
   const hasDebounce = syncContent.includes('debouncedPush');
   const syncsCurriculum = syncContent.includes('curriculumCompleted') && syncContent.includes("'roadmap-shading'");
+  const hasV2AndReset = syncContent.includes('schemaVersion: 2') && syncContent.includes('resetCloudData');
   recordTest('Cloud Sync: Offline-First Hybrid Sync', hasMerge && hasDebounce, 'Supports debounced progress push and guest progress merge on login');
   recordTest('Cloud Sync: Unified Curriculum & Roadmap IDs', syncsCurriculum, 'Syncs 26 curriculum lessons/notes/bookmarks and uses accurate standard IDs');
+  recordTest('Cloud Sync: v2 Schema & Cloud Reset', hasV2AndReset, 'Prevents stale v1 36% progress resurrection and resets Supabase on factory reset');
+}
+
+const dbPath = path.join(ROOT_DIR, 'src/services/db.ts');
+if (fs.existsSync(dbPath)) {
+  const dbContent = fs.readFileSync(dbPath, 'utf8');
+  const usesSingleSource = dbContent.includes('pickCurriculumLessons') && dbContent.includes('blenderflow_roadmaps_v2');
+  recordTest('Single Source of Truth: Unified 26 Lessons & v2 Storage', usesSingleSource, 'Roadmaps pull all 26 lessons from CurriculumDatabase & purge v1 stale caches');
 }
 
 const aiPath = path.join(ROOT_DIR, 'src/services/aiService.ts');
