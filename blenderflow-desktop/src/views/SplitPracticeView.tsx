@@ -162,7 +162,7 @@ export const SplitPracticeView: React.FC<SplitPracticeViewProps> = ({
             bridgeConnected={bridgeConnected}
             isWebMode={isWebMode}
             onToggleStep={onToggleStep}
-            onLaunchBlender={() => onLaunchBlender(task.blendFileName)}
+            onLaunchBlender={() => onLaunchBlender(task.blendFileName || 'new_scene')}
             onSubmitChallenge={onSubmitChallenge}
           />
         </div>

@@ -200,7 +200,17 @@ const dbPath = path.join(ROOT_DIR, 'src/services/db.ts');
 if (fs.existsSync(dbPath)) {
   const dbContent = fs.readFileSync(dbPath, 'utf8');
   const usesSingleSource = dbContent.includes('pickCurriculumLessons') && dbContent.includes('blenderflow_roadmaps_v2');
+  const practiceTaskCount = (dbContent.match(/id:\s*'task-[a-z0-9-]+'/g) || []).length;
+  const hasMergeChallenges = dbContent.includes('mergeStandardChallenges');
   recordTest('Single Source of Truth: Unified 26 Lessons & v2 Storage', usesSingleSource, 'Roadmaps pull all 26 lessons from CurriculumDatabase & purge v1 stale caches');
+  recordTest('High 3D Practice Density: >= 10 Studio Challenges', practiceTaskCount >= 10 && hasMergeChallenges, `Found ${practiceTaskCount} 3D practice tasks with cache auto-merge across all 8 modules`);
+}
+
+const curriculumLinkDbPath = path.join(ROOT_DIR, 'src/data/curriculumDatabase.ts');
+if (fs.existsSync(curriculumLinkDbPath)) {
+  const curriculumLinkContent = fs.readFileSync(curriculumLinkDbPath, 'utf8');
+  const challengeRefCount = (curriculumLinkContent.match(/["']?challengeRef["']?:\s*["']task-[a-z0-9-]+["']/g) || []).length;
+  recordTest('Curriculum Practice Links: >= 25/26 Lessons Linked', challengeRefCount >= 25, `Found ${challengeRefCount} lessons linked directly to 3D Studio challenges`);
 }
 
 const aiPath = path.join(ROOT_DIR, 'src/services/aiService.ts');

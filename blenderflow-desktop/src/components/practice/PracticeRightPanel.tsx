@@ -74,25 +74,21 @@ export const PracticeRightPanel: React.FC<PracticeRightPanelProps> = ({
           )}
         </div>
 
-        {task.blendFileName ? (
-          <button
-            onClick={onLaunchBlender}
-            type="button"
-            disabled={isWebMode}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] flex items-center justify-center gap-2 transition-colors cursor-pointer"
-          >
-            <Play className="w-4 h-4 fill-white" />
-            <span>
-              {isWebMode
-                ? 'Chỉ mở file .blend trên máy tính Local'
-                : 'Mở bài tập trong Blender 5.3'}
-            </span>
-          </button>
-        ) : (
-          <div className="text-[12px] text-gray-400">
-            Thực hành phím tắt và hoàn thành từng bước hướng dẫn bên dưới.
-          </div>
-        )}
+        <button
+          onClick={onLaunchBlender}
+          type="button"
+          disabled={isWebMode}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#F97316] hover:bg-[#EA580C] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13px] flex items-center justify-center gap-2 transition-colors cursor-pointer"
+        >
+          <Play className="w-4 h-4 fill-white" />
+          <span>
+            {isWebMode
+              ? 'Chỉ mở trực tiếp Blender trên máy tính Local'
+              : task.blendFileName
+              ? `Mở file mẫu (${task.blendFileName}) trong Blender 5.3`
+              : 'Mở Blender 5.3 (Scene mới) để dựng bài'}
+          </span>
+        </button>
       </div>
 
       {/* Checklist Section */}

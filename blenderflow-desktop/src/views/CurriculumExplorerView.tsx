@@ -271,7 +271,12 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
                                 >
                                   {les.title}
                                 </span>
-                                <span className="text-[10px] text-gray-500 mt-1">{les.readTime}</span>
+                                <span className="text-[10px] text-gray-500 mt-1 flex items-center gap-1.5">
+                                  <span>{les.readTime}</span>
+                                  {les.challengeRef && (
+                                    <span className="text-[#F97316] font-medium">• Thực hành 3D</span>
+                                  )}
+                                </span>
                               </div>
                             </div>
 

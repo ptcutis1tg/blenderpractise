@@ -75,7 +75,7 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Dựng hình Hard-Surface & Điêu khắc 3D',
     category: 'Modeling',
     description: 'Làm chủ giao diện 3D, phím tắt G-R-S, nguyên lý Quads Topology, Modifiers phi phá hủy và điêu khắc cơ bản.',
-    totalLessons: 14,
+    totalLessons: 17,
     completedLessons: 0,
     progressPercent: 0,
     lastStudied: 'Chưa bắt đầu',
@@ -96,15 +96,31 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
           {
             id: 'task-vp-01',
             moduleId: 'mod-1',
-            title: 'Bài tập 01: Căn chỉnh 3D Cursor & Snapping',
-            type: 'hotkey_drill',
+            title: 'Thử thách 01: Căn chỉnh 4 Khối & 3D Cursor',
+            type: '3d_challenge',
             expectedVertices: 32,
             expectedFaces: 24,
             modifiers: 'Không dùng (Origin & Cursor)',
             isCompleted: false,
             checklist: [
               { id: 'c-1', stepNumber: 1, title: 'Đặt 4 khối Cube đối xứng quanh tâm 3D Cursor', hotkeyHint: 'Shift + S -> Selection to Cursor', isDone: false },
-              { id: 'c-2', stepNumber: 2, title: 'Bắt dính các đỉnh chuẩn theo lưới tọa độ', hotkeyHint: 'Shift + Tab', isDone: false }
+              { id: 'c-2', stepNumber: 2, title: 'Bắt dính các đỉnh chuẩn theo lưới tọa độ', hotkeyHint: 'Shift + Tab', isDone: false },
+              { id: 'c-3', stepNumber: 3, title: 'Đưa vật thể vào chung một Collection "Scene_01"', hotkeyHint: 'M -> New Collection', isDone: false }
+            ]
+          },
+          {
+            id: 'task-table-02',
+            moduleId: 'mod-1',
+            title: 'Thử thách 02: Bàn Học Isometric Tối Giản',
+            type: '3d_challenge',
+            expectedVertices: 104,
+            expectedFaces: 96,
+            modifiers: 'Apply Scale (Ctrl+A)',
+            isCompleted: false,
+            checklist: [
+              { id: 'tbl-1', stepNumber: 1, title: 'Tạo Cube mặt bàn tỷ lệ 1.6m x 0.8m x 0.08m và Apply Scale', hotkeyHint: 'S rồi Ctrl + A -> Scale', isDone: false },
+              { id: 'tbl-2', stepNumber: 2, title: 'Nhân bản liên kết 4 chân bàn đối xứng ở 4 góc', hotkeyHint: 'Alt + D rồi G -> X/Y', isDone: false },
+              { id: 'tbl-3', stepNumber: 3, title: 'Đặt thêm kệ màn hình và khối màn hình phẳng trên mặt bàn', hotkeyHint: 'Shift + A -> Cube', isDone: false }
             ]
           }
         ]
@@ -120,6 +136,22 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-02'], 'mod-2').slice(0, 2),
         practiceTasks: [
+          {
+            id: 'task-mug-03',
+            moduleId: 'mod-2',
+            title: 'Thử thách 03: Cốc Cà Phê Quai Cầm Chuẩn Quads',
+            type: '3d_challenge',
+            expectedVertices: 192,
+            expectedFaces: 184,
+            modifiers: 'Subdivision Surface, Solidify',
+            isCompleted: false,
+            checklist: [
+              { id: 'mug-1', stepNumber: 1, title: 'Tạo Cylinder 16 cạnh, xóa mặt nắp trên và làm rỗng lòng cốc', hotkeyHint: 'Shift + A -> Cylinder (16), X -> Faces', isDone: false },
+              { id: 'mug-2', stepNumber: 2, title: 'Cắt 2 Loop Cut ngang trên thân cốc để định vị 2 đầu quai', hotkeyHint: 'Ctrl + R -> Lăn chuột 2', isDone: false },
+              { id: 'mug-3', stepNumber: 3, title: 'Chọn 2 mặt bên hông, Extrude ra và dùng Bridge Edge Loops nối quai', hotkeyHint: 'E rồi Ctrl + E -> Bridge Edge Loops', isDone: false },
+              { id: 'mug-4', stepNumber: 4, title: 'Thêm Solidify + Subdivision Surface Level 2 mượt mà', hotkeyHint: 'Ctrl + 2', isDone: false }
+            ]
+          },
           {
             id: 'task-chair-01',
             moduleId: 'mod-2',
@@ -181,7 +213,23 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isCompleted: false,
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-03'], 'mod-4'),
-        practiceTasks: []
+        practiceTasks: [
+          {
+            id: 'task-sculpt-totem',
+            moduleId: 'mod-4',
+            title: 'Thử thách 06: Tượng Đá Monolith & Retopology Quads',
+            type: '3d_challenge',
+            expectedVertices: 260,
+            expectedFaces: 248,
+            modifiers: 'Remesh, Shrinkwrap, Mirror',
+            isCompleted: false,
+            checklist: [
+              { id: 'scp-1', stepNumber: 1, title: 'Khởi tạo khối đầu cơ bản và chạy Voxel Remesh (0.03m)', hotkeyHint: 'Ctrl + R (Sculpt Mode)', isDone: false },
+              { id: 'scp-2', stepNumber: 2, title: 'Dùng cọ Clay Strips và Crease tạo hốc mắt, sống mũi, hàm', hotkeyHint: 'Bấm C / Shift + C', isDone: false },
+              { id: 'scp-3', stepNumber: 3, title: 'Tạo Plane mới + bật Snap Face Project + Shrinkwrap đi vòng lưới mắt', hotkeyHint: 'Shift + Tab (Face Project)', isDone: false }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -190,12 +238,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Trải UV, Vật liệu PBR & Ánh sáng Điện ảnh',
     category: 'Shading',
     description: 'Mở lưới UV chuẩn, vật liệu Principled BSDF, Shader Nodes thủ tục và thiết lập ánh sáng Cycles / EEVEE Next.',
-    totalLessons: 8,
+    totalLessons: 10,
     completedLessons: 0,
     progressPercent: 0,
     lastStudied: 'Chưa bắt đầu',
-    currentLessonId: 'les-cur-mod-04-01',
-    currentLessonTitle: 'Bài 4.1: Nguyên lý trải lưới UV Unwrapping',
+    currentLessonId: 'task-uv-chest',
+    currentLessonTitle: 'Thử thách 07: Trải UV & PBR Rương Báu Gỗ-Kim Loại',
     modules: [
       {
         id: 'mod-shade-1',
@@ -207,7 +255,23 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isCompleted: false,
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-04'], 'mod-shade-1'),
-        practiceTasks: []
+        practiceTasks: [
+          {
+            id: 'task-uv-chest',
+            moduleId: 'mod-shade-1',
+            title: 'Thử thách 07: Trải UV & PBR Rương Báu Gỗ-Kim Loại',
+            type: '3d_challenge',
+            expectedVertices: 280,
+            expectedFaces: 264,
+            modifiers: 'Bevel, UV Unwrap',
+            isCompleted: false,
+            checklist: [
+              { id: 'uv-1', stepNumber: 1, title: 'Dựng hộp rương nắp vòm và chọn các cạnh góc cứng để Mark Seam', hotkeyHint: 'Ctrl + E -> Mark Seam', isDone: false },
+              { id: 'uv-2', stepNumber: 2, title: 'Trải lưới UV bằng U -> Unwrap và xếp gọn không chồng đè', hotkeyHint: 'U -> Unwrap', isDone: false },
+              { id: 'uv-3', stepNumber: 3, title: 'Gán vật liệu Gỗ (Metallic = 0) và Đai Sắt (Metallic = 1) qua Principled BSDF', hotkeyHint: 'Ctrl + T (Node Wrangler)', isDone: false }
+            ]
+          }
+        ]
       },
       {
         id: 'mod-shade-2',
@@ -219,7 +283,23 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isCompleted: false,
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-05'], 'mod-shade-2'),
-        practiceTasks: []
+        practiceTasks: [
+          {
+            id: 'task-studio-lamp',
+            moduleId: 'mod-shade-2',
+            title: 'Thử thách 08: Dựng Bục Trưng Bày & Ánh Sáng 3 Điểm',
+            type: '3d_challenge',
+            expectedVertices: 224,
+            expectedFaces: 210,
+            modifiers: 'Subdivision Surface, Glare Compositor',
+            isCompleted: false,
+            checklist: [
+              { id: 'lgt-1', stepNumber: 1, title: 'Dựng bệ trưng bày + khối cầu Shader Ball + backdrop cong vô cực', hotkeyHint: 'Shift + A -> Mesh', isDone: false },
+              { id: 'lgt-2', stepNumber: 2, title: 'Đặt 3 Area Light: Key (ấm 3500K), Fill (lạnh), Rim tách viền lưng', hotkeyHint: 'Shift + A -> Light -> Area', isDone: false },
+              { id: 'lgt-3', stepNumber: 3, title: 'Đặt Camera tiêu cự 85mm và bật Glare Fog Glow trong Compositor', hotkeyHint: 'Numpad 0, F12 Render', isDone: false }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -228,12 +308,12 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
     title: 'Rigging, Geometry Nodes & Game Pipeline',
     category: 'Animation',
     description: 'Hoạt họa 12 nguyên tắc, hệ thống xương IK/FK, dựng hình thủ tục Geometry Nodes và xuất asset sang Unreal/Unity.',
-    totalLessons: 7,
+    totalLessons: 9,
     completedLessons: 0,
     progressPercent: 0,
     lastStudied: 'Chưa bắt đầu',
-    currentLessonId: 'les-cur-mod-06-01',
-    currentLessonTitle: 'Bài 6.1: Nền tảng Hoạt họa & 12 Nguyên tắc',
+    currentLessonId: 'task-robo-arm',
+    currentLessonTitle: 'Thử thách 09: Cánh Tay Robot Khớp IK/FK',
     modules: [
       {
         id: 'mod-rig-1',
@@ -245,7 +325,23 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isCompleted: false,
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-06'], 'mod-rig-1'),
-        practiceTasks: []
+        practiceTasks: [
+          {
+            id: 'task-robo-arm',
+            moduleId: 'mod-rig-1',
+            title: 'Thử thách 09: Cánh Tay Robot Khớp IK/FK',
+            type: '3d_challenge',
+            expectedVertices: 312,
+            expectedFaces: 296,
+            modifiers: 'Armature (IK Constraint)',
+            isCompleted: false,
+            checklist: [
+              { id: 'rig-1', stepNumber: 1, title: 'Dựng bệ xoay, 2 đốt tay robot và kẹp gắp đối xứng', hotkeyHint: 'Shift + A -> Cylinder / Cube', isDone: false },
+              { id: 'rig-2', stepNumber: 2, title: 'Thêm Armature gồm 3 xương nối tiếp và gắn từng đốt vào xương', hotkeyHint: 'Shift + A -> Armature, Ctrl + P -> Bone', isDone: false },
+              { id: 'rig-3', stepNumber: 3, title: 'Thêm Inverse Kinematics Constraint (Chain Length = 2) và đặt Keyframe I', hotkeyHint: 'Pose Mode -> Shift + I', isDone: false }
+            ]
+          }
+        ]
       },
       {
         id: 'mod-geo-2',
@@ -257,7 +353,23 @@ export const INITIAL_ROADMAPS: Roadmap[] = [
         isCompleted: false,
         isLocked: false,
         lessons: pickCurriculumLessons(['cur-mod-07', 'cur-mod-08', 'cur-mod-09'], 'mod-geo-2'),
-        practiceTasks: []
+        practiceTasks: [
+          {
+            id: 'task-geo-island',
+            moduleId: 'mod-geo-2',
+            title: 'Thử thách 10: Đảo Nổi Geometry Nodes & Xuất Game .GLTF',
+            type: '3d_challenge',
+            expectedVertices: 340,
+            expectedFaces: 320,
+            modifiers: 'Geometry Nodes, Triangulate',
+            isCompleted: false,
+            checklist: [
+              { id: 'geo-1', stepNumber: 1, title: 'Dựng bệ đảo Low-Poly và khối tinh thể / cây cối mẫu để rải', hotkeyHint: 'Shift + A -> Icosphere', isDone: false },
+              { id: 'geo-2', stepNumber: 2, title: 'Mở Geometry Nodes: dùng Distribute Points on Faces + Instance on Points', hotkeyHint: 'Geometry Nodes Editor', isDone: false },
+              { id: 'geo-3', stepNumber: 3, title: 'Realize Instances, Apply Scale và xuất ra chuẩn .glb / .fbx', hotkeyHint: 'File -> Export -> glTF 2.0', isDone: false }
+            ]
+          }
+        ]
       }
     ]
   }
@@ -322,6 +434,32 @@ export class DatabaseService {
     });
   }
 
+  /**
+   * Ensures newly added standard modules or 3D practice challenges from INITIAL_ROADMAPS
+   * are seamlessly merged into existing stored user roadmaps without losing user progress.
+   */
+  private static mergeStandardChallenges(loaded: Roadmap[]): Roadmap[] {
+    return loaded.map((rm) => {
+      const seedRm = INITIAL_ROADMAPS.find((s) => s.id === rm.id);
+      if (!seedRm) return rm;
+
+      const updatedModules = rm.modules.map((mod) => {
+        const seedMod = seedRm.modules.find((sm) => sm.id === mod.id);
+        if (!seedMod) return mod;
+
+        const mergedTasks = [...mod.practiceTasks];
+        for (const seedTask of seedMod.practiceTasks) {
+          if (!mergedTasks.some((t) => t.id === seedTask.id)) {
+            mergedTasks.push(seedTask);
+          }
+        }
+        return { ...mod, practiceTasks: mergedTasks };
+      });
+
+      return { ...rm, modules: updatedModules };
+    });
+  }
+
   static getRoadmaps(): Roadmap[] {
     purgeLegacyV1StorageOnce();
     const raw = localStorage.getItem(STORAGE_KEYS.ROADMAPS);
@@ -331,8 +469,8 @@ export class DatabaseService {
       return seeded;
     }
     try {
-      const parsed = JSON.parse(raw);
-      return this.recalculateRoadmapMetrics(parsed);
+      const parsed: Roadmap[] = JSON.parse(raw);
+      return this.recalculateRoadmapMetrics(this.mergeStandardChallenges(parsed));
     } catch {
       return this.recalculateRoadmapMetrics(INITIAL_ROADMAPS);
     }

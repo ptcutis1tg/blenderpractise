@@ -77,22 +77,24 @@ function blenderBridgePlugin(): Plugin {
         let body = '';
         req.on('data', (chunk: any) => (body += chunk));
         req.on('end', () => {
-          let targetFile = defaultBlend;
+          let spawnArgs: string[] = [];
+          let launchedLabel = 'Scene trống mới';
           try {
             if (body) {
               const parsed = JSON.parse(body);
-              if (parsed.filePath) {
+              if (parsed.filePath && parsed.filePath !== 'new_scene') {
                 const candidate = path.isAbsolute(parsed.filePath)
                   ? parsed.filePath
                   : path.resolve(__dirname, 'starter_assets', path.basename(parsed.filePath));
                 if (fs.existsSync(candidate)) {
-                  targetFile = candidate;
+                  spawnArgs = [candidate];
+                  launchedLabel = path.basename(candidate);
                 }
               }
             }
           } catch (e) {}
 
-          console.log(`[BlenderBridge] Request to launch: "${blenderExe}" "${targetFile}"`);
+          console.log(`[BlenderBridge] Request to launch: "${blenderExe}" ${spawnArgs.join(' ')}`);
 
           if (!fs.existsSync(blenderExe)) {
             res.statusCode = 404;
@@ -107,7 +109,7 @@ function blenderBridgePlugin(): Plugin {
           }
 
           try {
-            const child = spawn(blenderExe, [targetFile], {
+            const child = spawn(blenderExe, spawnArgs, {
               detached: true,
               stdio: 'ignore',
             });
@@ -118,9 +120,9 @@ function blenderBridgePlugin(): Plugin {
             res.end(
               JSON.stringify({
                 success: true,
-                message: `Blender 5.3 launched successfully with ${path.basename(targetFile)}!`,
+                message: `Đã mở Blender 5.3 (${launchedLabel})!`,
                 pid: child.pid,
-                filePath: targetFile,
+                filePath: launchedLabel,
               })
             );
           } catch (err: any) {

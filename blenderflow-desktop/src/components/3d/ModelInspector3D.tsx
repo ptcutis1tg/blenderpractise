@@ -178,26 +178,74 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
     };
 
     if (taskId === 'task-vp-01') {
-      // Precision Align Drill: 4 symmetrical cubes around center 3D Cursor marker
-      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, -0.75, 0.275, -0.75);
-      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, 0.75, 0.275, -0.75);
-      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, -0.75, 0.275, 0.75);
-      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, 0.75, 0.275, 0.75);
+      // 01: Precision Align Cubes & 3D Cursor
+      const corners = [[-0.75, -0.75], [0.75, -0.75], [-0.75, 0.75], [0.75, 0.75]];
+      corners.forEach(([cx, cz]) => addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.55, 0.55), accentMat, cx, 0.275, cz));
       addMeshWithEdges(new THREE.OctahedronGeometry(0.22, 0), woodMat, 0, 0.55, 0);
+    } else if (taskId === 'task-table-02') {
+      // 02: Isometric Study Desk & Monitor
+      addMeshWithEdges(new THREE.BoxGeometry(1.9, 0.1, 1.05), woodMat, 0, 0.88, 0);
+      const legGeo = new THREE.BoxGeometry(0.08, 0.85, 0.08);
+      [[-0.82, -0.4], [0.82, -0.4], [-0.82, 0.4], [0.82, 0.4]].forEach(([lx, lz]) =>
+        addMeshWithEdges(legGeo, metalMat, lx, 0.425, lz)
+      );
+      addMeshWithEdges(new THREE.BoxGeometry(0.14, 0.24, 0.14), metalMat, 0, 1.05, -0.25);
+      addMeshWithEdges(new THREE.BoxGeometry(1.05, 0.62, 0.06), accentMat, 0, 1.42, -0.22);
+      addMeshWithEdges(new THREE.BoxGeometry(0.58, 0.03, 0.2), metalMat, 0, 0.945, 0.16);
+    } else if (taskId === 'task-mug-03') {
+      // 03: Coffee Mug with Bridge Edge Loop Handle
+      addMeshWithEdges(new THREE.CylinderGeometry(0.52, 0.48, 1.05, 16), accentMat, 0, 0.58, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.42, 0.4, 0.1, 16), woodMat, 0, 1.08, 0);
+      addMeshWithEdges(new THREE.TorusGeometry(0.32, 0.085, 8, 14, Math.PI), accentMat, 0.48, 0.6, 0, 0, 0, -Math.PI / 2);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.7, 0.72, 0.06, 16), woodMat, 0, 0.03, 0);
     } else if (taskId === 'task-sci-fi-crate') {
-      // Sci-Fi Military Storage Crate
+      // 05: Sci-Fi Military Storage Crate
       addMeshWithEdges(new THREE.BoxGeometry(1.5, 1.0, 1.1), metalMat, 0, 0.52, 0);
       addMeshWithEdges(new THREE.BoxGeometry(1.58, 0.14, 1.18), accentMat, 0, 1.02, 0);
       addMeshWithEdges(new THREE.BoxGeometry(1.58, 0.12, 1.18), accentMat, 0, 0.08, 0);
       addMeshWithEdges(new THREE.BoxGeometry(0.18, 0.76, 1.16), woodMat, -0.58, 0.54, 0);
       addMeshWithEdges(new THREE.BoxGeometry(0.18, 0.76, 1.16), woodMat, 0.58, 0.54, 0);
-    } else if (taskId !== 'task-chair-01') {
-      // Generic Procedural Hard-Surface Reference Prop for custom/AI tasks
-      addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.75, 1.2), metalMat, 0, 0.38, 0);
-      addMeshWithEdges(new THREE.CylinderGeometry(0.42, 0.5, 0.45, 8), accentMat, 0, 0.98, 0);
-      addMeshWithEdges(new THREE.TorusGeometry(0.32, 0.06, 8, 16), woodMat, 0, 1.25, 0, Math.PI / 2, 0, 0);
-    } else {
-      // Challenge 04: Low-Poly Stylized Wooden Chair
+    } else if (taskId === 'task-sculpt-totem') {
+      // 06: Sculpted Monolith Head & Retopology Base
+      addMeshWithEdges(new THREE.CylinderGeometry(0.65, 0.75, 0.25, 12), metalMat, 0, 0.125, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.45, 0.52, 1.35, 8), woodMat, 0, 0.92, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.95, 0.22, 0.35), accentMat, 0, 1.25, 0.36);
+      addMeshWithEdges(new THREE.BoxGeometry(0.22, 0.5, 0.28), woodMat, 0, 0.95, 0.42);
+      addMeshWithEdges(new THREE.BoxGeometry(0.68, 0.18, 0.26), metalMat, 0, 0.52, 0.36);
+    } else if (taskId === 'task-uv-chest') {
+      // 07: Treasure Chest (Wood Planks + Metallic Iron Bands)
+      addMeshWithEdges(new THREE.BoxGeometry(1.55, 0.65, 0.95), woodMat, 0, 0.34, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.47, 0.47, 1.55, 10, 1, false, 0, Math.PI), woodMat, 0, 0.67, 0, 0, 0, Math.PI / 2);
+      [-0.55, 0, 0.55].forEach((bx) =>
+        addMeshWithEdges(new THREE.BoxGeometry(0.12, 0.72, 1.02), metalMat, bx, 0.36, 0)
+      );
+      addMeshWithEdges(new THREE.BoxGeometry(0.26, 0.28, 0.1), accentMat, 0, 0.62, 0.5);
+    } else if (taskId === 'task-studio-lamp') {
+      // 08: 3-Point Studio Lighting Rig & Shader Ball
+      addMeshWithEdges(new THREE.CylinderGeometry(0.55, 0.65, 0.16, 16), metalMat, 0, 0.08, 0);
+      addMeshWithEdges(new THREE.IcosahedronGeometry(0.46, 2), accentMat, 0, 0.65, 0);
+      // Key, Fill, Rim Softboxes
+      addMeshWithEdges(new THREE.BoxGeometry(0.5, 0.35, 0.08), woodMat, 1.25, 1.35, 0.9, 0.35, -0.7, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.45, 0.3, 0.08), metalMat, -1.3, 1.05, 0.75, 0.25, 0.75, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.55, 0.22, 0.08), accentMat, 0, 1.45, -1.25, -0.45, 0, 0);
+    } else if (taskId === 'task-robo-arm') {
+      // 09: Articulated IK/FK Robotic Arm
+      addMeshWithEdges(new THREE.CylinderGeometry(0.55, 0.65, 0.22, 12), metalMat, 0, 0.11, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.24, 0.28, 0.35, 10), accentMat, 0, 0.38, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.22, 0.95, 0.22), woodMat, 0, 0.92, -0.1, -0.25, 0, 0);
+      addMeshWithEdges(new THREE.SphereGeometry(0.18, 10, 8), accentMat, 0, 1.36, -0.22);
+      addMeshWithEdges(new THREE.BoxGeometry(0.18, 0.8, 0.18), metalMat, 0, 1.56, 0.15, 0.95, 0, 0);
+      addMeshWithEdges(new THREE.BoxGeometry(0.1, 0.08, 0.32), woodMat, -0.12, 1.75, 0.56);
+      addMeshWithEdges(new THREE.BoxGeometry(0.1, 0.08, 0.32), woodMat, 0.12, 1.75, 0.56);
+    } else if (taskId === 'task-geo-island') {
+      // 10: Floating Geometry Nodes Island & Crystal Instances
+      addMeshWithEdges(new THREE.CylinderGeometry(1.25, 0.25, 0.85, 8), woodMat, 0, 0.5, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(1.3, 1.25, 0.16, 8), accentMat, 0, 0.98, 0);
+      addMeshWithEdges(new THREE.ConeGeometry(0.28, 0.72, 6), metalMat, -0.45, 1.4, -0.2);
+      addMeshWithEdges(new THREE.ConeGeometry(0.22, 0.55, 6), metalMat, 0.42, 1.32, 0.25);
+      addMeshWithEdges(new THREE.OctahedronGeometry(0.24, 0), woodMat, 0.1, 1.38, -0.35);
+    } else if (taskId === 'task-chair-01') {
+      // 04: Low-Poly Stylized Wooden Chair
       addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.12, 1.2), woodMat, 0, 0.85, 0);
       addMeshWithEdges(new THREE.BoxGeometry(1.08, 0.08, 1.08), accentMat, 0, 0.94, 0);
 
@@ -219,6 +267,11 @@ export const ModelInspector3D: React.FC<ModelInspector3DProps> = ({
       addMeshWithEdges(new THREE.BoxGeometry(0.98, 0.18, 0.06), woodMat, 0, 1.9, -legOffsetZ + 0.08, 0.05, 0, 0);
       addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.62, -legOffsetZ + 0.07, 0.05, 0, 0);
       addMeshWithEdges(new THREE.BoxGeometry(0.92, 0.1, 0.04), woodMat, 0, 1.38, -legOffsetZ + 0.06, 0.05, 0, 0);
+    } else {
+      // Custom / AI Roadmap Reference Prop
+      addMeshWithEdges(new THREE.BoxGeometry(1.2, 0.75, 1.2), metalMat, 0, 0.38, 0);
+      addMeshWithEdges(new THREE.CylinderGeometry(0.42, 0.5, 0.45, 8), accentMat, 0, 0.98, 0);
+      addMeshWithEdges(new THREE.TorusGeometry(0.32, 0.06, 8, 16), woodMat, 0, 1.25, 0, Math.PI / 2, 0, 0);
     }
 
     scene.add(modelGroup);
