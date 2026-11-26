@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ArrowLeft, 
   CheckCircle2, 
@@ -16,6 +16,7 @@ import { KeycapBadge } from '../components/common/KeycapBadge';
 
 interface CourseWorkspaceViewProps {
   roadmap: Roadmap;
+  isActive?: boolean;
   onBack: () => void;
   onOpenPracticeChallenge: (taskId: string) => void;
   onToggleLessonCompleted: (lessonId: string) => void;
@@ -23,42 +24,151 @@ interface CourseWorkspaceViewProps {
   onOpenStarterBlend?: (fileName: string) => void;
 }
 
+interface PersistedCourseState {
+  expandedModules?: Record<string, boolean>;
+  readingLessonId?: string | null;
+  activeModuleTitle?: string;
+  activePracticeTaskId?: string;
+  scrollTop?: number;
+}
+
+const COURSE_UI_STATE_KEY = 'blenderflow_course_ui_state';
+
+function readPersistedCourseState(roadmapId: string): PersistedCourseState | null {
+  try {
+    const raw = sessionStorage.getItem(COURSE_UI_STATE_KEY);
+    if (!raw) return null;
+    const all = JSON.parse(raw) as Record<string, PersistedCourseState>;
+    return all[roadmapId] || null;
+  } catch {
+    return null;
+  }
+}
+
+function writePersistedCourseState(roadmapId: string, patch: PersistedCourseState): void {
+  try {
+    const raw = sessionStorage.getItem(COURSE_UI_STATE_KEY);
+    const all: Record<string, PersistedCourseState> = raw ? JSON.parse(raw) : {};
+    all[roadmapId] = { ...(all[roadmapId] || {}), ...patch };
+    sessionStorage.setItem(COURSE_UI_STATE_KEY, JSON.stringify(all));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
 export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
   roadmap,
+  isActive = true,
   onBack,
   onOpenPracticeChallenge,
   onToggleLessonCompleted,
   onLaunchHotkeyDrill,
   onOpenStarterBlend,
 }) => {
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
-  const [readingLesson, setReadingLesson] = useState<Lesson | null>(null);
-  const [activeModuleTitle, setActiveModuleTitle] = useState<string>('');
-  const [activePracticeTaskId, setActivePracticeTaskId] = useState<string | undefined>(undefined);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
-    const firstActive =
-      roadmap.modules.find((m) => !m.isLocked && !m.isCompleted) || roadmap.modules[0];
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>(() => {
+    const persisted = readPersistedCourseState(roadmap.id);
+    if (persisted?.expandedModules) return persisted.expandedModules;
+    const firstActive = roadmap.modules.find((m) => !m.isLocked && !m.isCompleted) || roadmap.modules[0];
     const initialMap: Record<string, boolean> = {};
     roadmap.modules.forEach((m) => {
       initialMap[m.id] = firstActive ? m.id === firstActive.id : false;
     });
-    setExpandedModules(initialMap);
+    return initialMap;
+  });
+
+  const [readingLessonId, setReadingLessonId] = useState<string | null>(() => {
+    return readPersistedCourseState(roadmap.id)?.readingLessonId || null;
+  });
+  const [activeModuleTitle, setActiveModuleTitle] = useState<string>(() => {
+    return readPersistedCourseState(roadmap.id)?.activeModuleTitle || '';
+  });
+  const [activePracticeTaskId, setActivePracticeTaskId] = useState<string | undefined>(() => {
+    return readPersistedCourseState(roadmap.id)?.activePracticeTaskId;
+  });
+
+  // Load persisted state when switching to a different roadmap
+  useEffect(() => {
+    const persisted = readPersistedCourseState(roadmap.id);
+    if (persisted?.expandedModules) {
+      setExpandedModules(persisted.expandedModules);
+    } else {
+      const firstActive =
+        roadmap.modules.find((m) => !m.isLocked && !m.isCompleted) || roadmap.modules[0];
+      const initialMap: Record<string, boolean> = {};
+      roadmap.modules.forEach((m) => {
+        initialMap[m.id] = firstActive ? m.id === firstActive.id : false;
+      });
+      setExpandedModules(initialMap);
+    }
+
+    setReadingLessonId(persisted?.readingLessonId || null);
+    setActiveModuleTitle(persisted?.activeModuleTitle || '');
+    setActivePracticeTaskId(persisted?.activePracticeTaskId);
+
+    requestAnimationFrame(() => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = persisted?.scrollTop || 0;
+      }
+    });
   }, [roadmap.id]);
 
+  // Restore scroll position when returning to visible view
+  useEffect(() => {
+    if (!isActive) return;
+    const persisted = readPersistedCourseState(roadmap.id);
+    if (persisted?.scrollTop && scrollContainerRef.current && scrollContainerRef.current.scrollTop === 0) {
+      requestAnimationFrame(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = persisted.scrollTop || 0;
+        }
+      });
+    }
+  }, [isActive, roadmap.id]);
+
+  const readingLesson = useMemo<Lesson | null>(() => {
+    if (!readingLessonId) return null;
+    for (const mod of roadmap.modules) {
+      const found = mod.lessons.find((l) => l.id === readingLessonId);
+      if (found) return found;
+    }
+    return null;
+  }, [readingLessonId, roadmap]);
+
   const toggleModule = (modId: string) => {
-    setExpandedModules((prev) => ({ ...prev, [modId]: !prev[modId] }));
+    setExpandedModules((prev) => {
+      const next = { ...prev, [modId]: !prev[modId] };
+      writePersistedCourseState(roadmap.id, { expandedModules: next });
+      return next;
+    });
   };
 
   const handleOpenReader = (lesson: Lesson, mod: CourseModule) => {
-    setReadingLesson(lesson);
-    setActiveModuleTitle(mod.title);
     const challenge = mod.practiceTasks.find((t) => t.type === '3d_challenge') || mod.practiceTasks[0];
+    setReadingLessonId(lesson.id);
+    setActiveModuleTitle(mod.title);
     setActivePracticeTaskId(challenge?.id);
+    writePersistedCourseState(roadmap.id, {
+      readingLessonId: lesson.id,
+      activeModuleTitle: mod.title,
+      activePracticeTaskId: challenge?.id,
+    });
+  };
+
+  const handleCloseReader = () => {
+    setReadingLessonId(null);
+    writePersistedCourseState(roadmap.id, { readingLessonId: null });
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto bg-[#0B0F19] text-[#dfe2f1] p-6 lg:p-8 select-none relative">
+    <div
+      ref={scrollContainerRef}
+      onScroll={(e) => {
+        writePersistedCourseState(roadmap.id, { scrollTop: e.currentTarget.scrollTop });
+      }}
+      className="flex-1 h-full overflow-y-auto bg-[#0B0F19] text-[#dfe2f1] p-6 lg:p-8 select-none relative"
+    >
       <div className="max-w-4xl mx-auto flex flex-col gap-6 pb-12">
         {/* Navigation & Header */}
         <div className="flex items-center gap-3">
@@ -237,12 +347,9 @@ export const CourseWorkspaceView: React.FC<CourseWorkspaceViewProps> = ({
         moduleTitle={activeModuleTitle}
         practiceTaskId={activePracticeTaskId}
         isOpen={Boolean(readingLesson)}
-        onClose={() => setReadingLesson(null)}
+        onClose={handleCloseReader}
         onToggleComplete={(lessonId) => {
           onToggleLessonCompleted(lessonId);
-          if (readingLesson && readingLesson.id === lessonId) {
-            setReadingLesson({ ...readingLesson, isCompleted: !readingLesson.isCompleted });
-          }
         }}
         onOpenChallenge={onOpenPracticeChallenge}
       />

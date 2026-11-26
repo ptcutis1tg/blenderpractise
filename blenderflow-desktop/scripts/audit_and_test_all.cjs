@@ -159,8 +159,10 @@ if (fs.existsSync(curViewPath) && fs.existsSync(settingsPath)) {
   const curViewContent = fs.readFileSync(curViewPath, 'utf8');
   const settingsContent = fs.readFileSync(settingsPath, 'utf8');
   const hasSelectDropdown = curViewContent.includes('<select') && curViewContent.includes('notesExpanded');
+  const hasPersistedCurriculum = curViewContent.includes('blenderflow_curriculum_ui_state');
   const hasThreeTabs = settingsContent.includes("activeTab === 'account'") && settingsContent.includes("activeTab === 'blender'") && settingsContent.includes("activeTab === 'ai'");
   recordTest('UI Redesign: Curriculum Single-Bar & Collapsible Notes', hasSelectDropdown, 'Level dropdown & inline collapsible notes eliminate 4-column crowding');
+  recordTest('Navigation State: Curriculum Explorer Preserved on Back', hasPersistedCurriculum, 'Selected module, lesson, filters & scroll offsets persist across 3D practice');
   recordTest('UI Redesign: Settings 3-Tab Architecture', hasThreeTabs, 'Settings organized cleanly into Account, Blender & Mobile, and AI tabs');
 }
 

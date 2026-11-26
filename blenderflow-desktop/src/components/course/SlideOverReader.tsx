@@ -47,13 +47,13 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
   const [noteContent, setNoteContent] = useState('');
   const [isSaved, setIsSaved] = useState(false);
 
-  // Load existing note when lesson changes
+  // Load existing note when lesson ID changes
   useEffect(() => {
     if (lesson) {
       setNoteContent(NotesService.getNote(lesson.id));
       setIsSaved(false);
     }
-  }, [lesson]);
+  }, [lesson?.id]);
 
   // Handle ESC key to close
   useEffect(() => {

@@ -25,10 +25,17 @@ export function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const [currentTab, setCurrentTab] = useState<NavigationTab>('home');
-  const [activeRoadmapId, setActiveRoadmapId] = useState<string>('roadmap-hard-surface');
+  const [activeRoadmapId, setActiveRoadmapId] = useState<string>(() => {
+    return sessionStorage.getItem('blenderflow_active_roadmap_id') || 'roadmap-hard-surface';
+  });
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'home' | 'course' | 'curriculum' | 'practice' | 'hotkeys' | 'settings'>('home');
-  const [previousViewMode, setPreviousViewMode] = useState<'home' | 'course' | 'curriculum'>('home');
+  const [previousViewMode, setPreviousViewMode] = useState<'home' | 'course' | 'curriculum' | 'hotkeys' | 'settings'>('home');
+  const [requestedCurriculumTarget, setRequestedCurriculumTarget] = useState<{
+    moduleId: string;
+    lessonId: string;
+    nonce: number;
+  } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -147,13 +154,14 @@ export function App() {
   // Selecting a Roadmap card opens its CourseWorkspaceView directly (works for standard & AI roadmaps)
   const handleSelectRoadmap = (roadmapId: string) => {
     setActiveRoadmapId(roadmapId);
+    sessionStorage.setItem('blenderflow_active_roadmap_id', roadmapId);
     setCurrentTab('my-roadmaps');
     setViewMode('course');
     setActiveTaskId(null);
   };
 
   const handleOpenPracticeChallenge = (taskId: string) => {
-    if (viewMode === 'home' || viewMode === 'course' || viewMode === 'curriculum') {
+    if (viewMode !== 'practice') {
       setPreviousViewMode(viewMode);
     }
     setActiveTaskId(taskId);
@@ -165,6 +173,8 @@ export function App() {
     setViewMode(previousViewMode);
     if (previousViewMode === 'home') setCurrentTab('home');
     else if (previousViewMode === 'curriculum') setCurrentTab('curriculum');
+    else if (previousViewMode === 'hotkeys') setCurrentTab('hotkeys');
+    else if (previousViewMode === 'settings') setCurrentTab('settings');
     else setCurrentTab('my-roadmaps');
   };
 
@@ -201,7 +211,7 @@ export function App() {
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const allLessons = BLENDER_CURRICULUM_MODULES.flatMap((m) =>
-      m.lessons.map((l) => ({ ...l, moduleTitle: m.vietnameseTitle }))
+      m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.vietnameseTitle }))
     );
     const hotkeys = DatabaseService.getHotkeys();
 
@@ -313,46 +323,53 @@ export function App() {
             />
           )}
 
-          {viewMode === 'curriculum' && (
-            <CurriculumExplorerView
-              key={userProfile?.id || 'guest'}
-              onOpenPracticeChallenge={handleOpenPracticeChallenge}
-              onNavigateHome={() => {
-                setCurrentTab('home');
-                setViewMode('home');
-              }}
-              onProgressChanged={() => {
-                const updatedStats = DatabaseService.recordStudyActivity(5);
-                setUserStats(updatedStats);
-                setRoadmaps([...DatabaseService.getRoadmaps()]);
-                CloudSyncService.debouncedPush(userProfile?.id);
-              }}
-            />
+          {(viewMode === 'curriculum' || (viewMode === 'practice' && previousViewMode === 'curriculum')) && (
+            <div className={viewMode === 'curriculum' ? 'h-full w-full flex' : 'hidden'}>
+              <CurriculumExplorerView
+                key={userProfile?.id || 'guest'}
+                isActive={viewMode === 'curriculum'}
+                requestedTarget={requestedCurriculumTarget}
+                onOpenPracticeChallenge={handleOpenPracticeChallenge}
+                onNavigateHome={() => {
+                  setCurrentTab('home');
+                  setViewMode('home');
+                }}
+                onProgressChanged={() => {
+                  const updatedStats = DatabaseService.recordStudyActivity(5);
+                  setUserStats(updatedStats);
+                  setRoadmaps([...DatabaseService.getRoadmaps()]);
+                  CloudSyncService.debouncedPush(userProfile?.id);
+                }}
+              />
+            </div>
           )}
 
-          {viewMode === 'course' && (
-            <CourseWorkspaceView
-              roadmap={currentRoadmap}
-              onBack={() => {
-                setCurrentTab('home');
-                setViewMode('home');
-              }}
-              onOpenPracticeChallenge={handleOpenPracticeChallenge}
-              onToggleLessonCompleted={(lessonId) => {
-                const updated = DatabaseService.toggleLessonCompleted(lessonId);
-                setRoadmaps([...updated]);
-                setUserStats(DatabaseService.getUserStats());
-                CloudSyncService.debouncedPush(userProfile?.id);
-                showToast('Đã cập nhật tiến độ bài học!');
-              }}
-              onLaunchHotkeyDrill={() => {
-                setCurrentTab('hotkeys');
-                setViewMode('hotkeys');
-              }}
-              onOpenStarterBlend={(fileName) => {
-                handleLaunchBlender(fileName);
-              }}
-            />
+          {(viewMode === 'course' || (viewMode === 'practice' && previousViewMode === 'course')) && (
+            <div className={viewMode === 'course' ? 'h-full w-full flex' : 'hidden'}>
+              <CourseWorkspaceView
+                roadmap={currentRoadmap}
+                isActive={viewMode === 'course'}
+                onBack={() => {
+                  setCurrentTab('home');
+                  setViewMode('home');
+                }}
+                onOpenPracticeChallenge={handleOpenPracticeChallenge}
+                onToggleLessonCompleted={(lessonId) => {
+                  const updated = DatabaseService.toggleLessonCompleted(lessonId);
+                  setRoadmaps([...updated]);
+                  setUserStats(DatabaseService.getUserStats());
+                  CloudSyncService.debouncedPush(userProfile?.id);
+                  showToast('Đã cập nhật tiến độ bài học!');
+                }}
+                onLaunchHotkeyDrill={() => {
+                  setCurrentTab('hotkeys');
+                  setViewMode('hotkeys');
+                }}
+                onOpenStarterBlend={(fileName) => {
+                  handleLaunchBlender(fileName);
+                }}
+              />
+            </div>
           )}
 
           {viewMode === 'practice' && practiceContext && (
@@ -479,6 +496,11 @@ export function App() {
                 <div
                   key={les.id}
                   onClick={() => {
+                    setRequestedCurriculumTarget({
+                      moduleId: les.moduleId,
+                      lessonId: les.id,
+                      nonce: Date.now(),
+                    });
                     setCurrentTab('curriculum');
                     setViewMode('curriculum');
                     setSearchOpen(false);

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   BLENDER_CURRICULUM_MODULES, 
   CurriculumLesson, 
@@ -25,37 +25,146 @@ import {
 } from 'lucide-react';
 
 interface CurriculumExplorerViewProps {
+  isActive?: boolean;
+  requestedTarget?: { moduleId: string; lessonId: string; nonce: number } | null;
   onOpenPracticeChallenge?: (taskId: string) => void;
   onNavigateHome?: () => void;
   onProgressChanged?: () => void;
 }
 
+interface PersistedCurriculumState {
+  selectedModuleId?: string;
+  activeLessonId?: string | null;
+  selectedLevelFilter?: number | 'all' | 'resources';
+  searchQuery?: string;
+  onlyBookmarks?: boolean;
+  notesExpanded?: boolean;
+  leftScrollTop?: number;
+  rightScrollTop?: number;
+  handledSearchNonce?: number;
+}
+
+const CURRICULUM_UI_STATE_KEY = 'blenderflow_curriculum_ui_state';
+
+function readPersistedCurriculumState(): PersistedCurriculumState {
+  try {
+    const raw = sessionStorage.getItem(CURRICULUM_UI_STATE_KEY);
+    return raw ? (JSON.parse(raw) as PersistedCurriculumState) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writePersistedCurriculumState(patch: PersistedCurriculumState): void {
+  try {
+    const current = readPersistedCurriculumState();
+    sessionStorage.setItem(CURRICULUM_UI_STATE_KEY, JSON.stringify({ ...current, ...patch }));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+function findLessonById(lessonId: string | null | undefined): CurriculumLesson | null {
+  if (!lessonId) return null;
+  for (const mod of BLENDER_CURRICULUM_MODULES) {
+    const found = mod.lessons.find((l) => l.id === lessonId);
+    if (found) return found;
+  }
+  return null;
+}
+
 export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
+  isActive = true,
+  requestedTarget,
   onOpenPracticeChallenge,
   onProgressChanged,
 }) => {
-  const [selectedModuleId, setSelectedModuleId] = useState<string>('cur-mod-00');
+  const initialPersisted = useMemo(() => readPersistedCurriculumState(), []);
+  const leftListRef = useRef<HTMLDivElement | null>(null);
+  const rightReaderRef = useRef<HTMLDivElement | null>(null);
+
+  const [selectedModuleId, setSelectedModuleId] = useState<string>(
+    () => initialPersisted.selectedModuleId ?? 'cur-mod-00'
+  );
   const [activeLesson, setActiveLesson] = useState<CurriculumLesson | null>(() => {
+    if (initialPersisted.activeLessonId === null) return null;
+    if (initialPersisted.activeLessonId) {
+      return findLessonById(initialPersisted.activeLessonId) || BLENDER_CURRICULUM_MODULES[0]?.lessons[0] || null;
+    }
     return BLENDER_CURRICULUM_MODULES[0]?.lessons[0] || null;
   });
-  const [selectedLevelFilter, setSelectedLevelFilter] = useState<number | 'all' | 'resources'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevelFilter, setSelectedLevelFilter] = useState<number | 'all' | 'resources'>(
+    () => initialPersisted.selectedLevelFilter ?? 'all'
+  );
+  const [searchQuery, setSearchQuery] = useState(() => initialPersisted.searchQuery ?? '');
   const [completedIds, setCompletedIds] = useState<string[]>(() => CurriculumService.getCompletedLessonIds());
   const [bookmarks, setBookmarks] = useState<string[]>(() => CurriculumService.getBookmarks());
-  const [onlyBookmarks, setOnlyBookmarks] = useState(false);
+  const [onlyBookmarks, setOnlyBookmarks] = useState(() => initialPersisted.onlyBookmarks ?? false);
 
   // Inline collapsible personal notes state (no 4th column squeezing the reader)
   const [noteContent, setNoteContent] = useState('');
   const [isNoteSaved, setIsNoteSaved] = useState(false);
-  const [notesExpanded, setNotesExpanded] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(() => initialPersisted.notesExpanded ?? false);
 
-  React.useEffect(() => {
+  // Persist core navigation & filter state whenever it changes
+  useEffect(() => {
+    writePersistedCurriculumState({
+      selectedModuleId,
+      activeLessonId: activeLesson ? activeLesson.id : null,
+      selectedLevelFilter,
+      searchQuery,
+      onlyBookmarks,
+      notesExpanded,
+    });
+  }, [selectedModuleId, activeLesson?.id, selectedLevelFilter, searchQuery, onlyBookmarks, notesExpanded]);
+
+  // Refresh completion/bookmarks and restore scroll positions when view becomes active
+  useEffect(() => {
+    if (!isActive) return;
+    setCompletedIds(CurriculumService.getCompletedLessonIds());
+    setBookmarks(CurriculumService.getBookmarks());
+
+    const persisted = readPersistedCurriculumState();
+    requestAnimationFrame(() => {
+      if (leftListRef.current && persisted.leftScrollTop && leftListRef.current.scrollTop === 0) {
+        leftListRef.current.scrollTop = persisted.leftScrollTop;
+      }
+      if (rightReaderRef.current && persisted.rightScrollTop && rightReaderRef.current.scrollTop === 0) {
+        rightReaderRef.current.scrollTop = persisted.rightScrollTop;
+      }
+    });
+  }, [isActive]);
+
+  // Handle direct jump requests (e.g. from Ctrl+K Global Search)
+  useEffect(() => {
+    if (!requestedTarget) return;
+    const persisted = readPersistedCurriculumState();
+    if (persisted.handledSearchNonce === requestedTarget.nonce) return;
+
+    const found = findLessonById(requestedTarget.lessonId);
+    if (found) {
+      setSelectedModuleId(requestedTarget.moduleId);
+      setActiveLesson(found);
+      setSelectedLevelFilter('all');
+      setOnlyBookmarks(false);
+      setSearchQuery('');
+      writePersistedCurriculumState({
+        rightScrollTop: 0,
+        handledSearchNonce: requestedTarget.nonce,
+      });
+      requestAnimationFrame(() => {
+        if (rightReaderRef.current) rightReaderRef.current.scrollTop = 0;
+      });
+    }
+  }, [requestedTarget?.nonce]);
+
+  useEffect(() => {
     if (activeLesson) {
       const saved = CurriculumService.getLessonNote(activeLesson.id);
       setNoteContent(saved);
       setIsNoteSaved(false);
     }
-  }, [activeLesson]);
+  }, [activeLesson?.id]);
 
   const handleToggleComplete = (lessonId: string) => {
     CurriculumService.toggleLessonCompleted(lessonId);
@@ -186,7 +295,13 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
       {/* 2. Clean Two-Pane Workspace: Module Directory + Wide Reader Canvas */}
       <div className="flex-1 flex overflow-hidden pb-14 md:pb-0">
         {/* Left Directory Tree */}
-        <div className={`${activeLesson ? 'hidden md:flex' : 'flex'} w-full md:w-[300px] border-r border-[#1C2333] bg-[#0C1019] overflow-y-auto shrink-0 flex-col`}>
+        <div
+          ref={leftListRef}
+          onScroll={(e) => {
+            writePersistedCurriculumState({ leftScrollTop: e.currentTarget.scrollTop });
+          }}
+          className={`${activeLesson ? 'hidden md:flex' : 'flex'} w-full md:w-[300px] border-r border-[#1C2333] bg-[#0C1019] overflow-y-auto shrink-0 flex-col`}
+        >
           <div className="flex-1 p-2.5 space-y-1.5">
             {filteredModules.map((mod) => {
               const isSelected = selectedModuleId === mod.id;
@@ -352,7 +467,13 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
               </div>
 
               {/* Wide Scrollable Article Content + Collapsible Inline Notes */}
-              <div className="flex-1 overflow-y-auto p-6 lg:p-10 select-text">
+              <div
+                ref={rightReaderRef}
+                onScroll={(e) => {
+                  writePersistedCurriculumState({ rightScrollTop: e.currentTarget.scrollTop });
+                }}
+                className="flex-1 overflow-y-auto p-6 lg:p-10 select-text"
+              >
                 <div className="max-w-3xl mx-auto space-y-6 pb-10">
                   {/* Minimal Metadata Line */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#1C2333] text-[12px] text-gray-400">
