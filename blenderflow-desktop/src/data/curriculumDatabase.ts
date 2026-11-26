@@ -1,3 +1,8 @@
+import { InteractiveLabId } from '../components/curriculum/PrincipleLabWidget';
+import { ConceptCheckItem } from '../components/curriculum/ConceptCheckDeck';
+import { VideoResourceItem } from '../components/curriculum/VideoIllustrationCard';
+import { applyCurriculumEnrichment } from './curriculumEnrichment';
+
 // Auto-generated from c:\Users\Admin\Desktop\CODE\blender_curriculum_database\
 // Comprehensive Blender 3D Curriculum Database
 
@@ -12,6 +17,9 @@ export interface CurriculumLesson {
   category: string;
   level: number;
   challengeRef?: string;
+  interactiveLabId?: InteractiveLabId;
+  conceptChecks?: ConceptCheckItem[];
+  videoResources?: VideoResourceItem[];
 }
 
 export interface CurriculumModule {
@@ -25,7 +33,7 @@ export interface CurriculumModule {
   lessons: CurriculumLesson[];
 }
 
-export const BLENDER_CURRICULUM_MODULES: CurriculumModule[] = [
+const RAW_BLENDER_CURRICULUM_MODULES: CurriculumModule[] = [
   {
     "id": "cur-mod-00",
     "title": "Master Roadmap & Strategy",
@@ -484,12 +492,48 @@ export const BLENDER_CURRICULUM_MODULES: CurriculumModule[] = [
   }
 ];
 
-export const TOTAL_CURRICULUM_LESSONS = 26;
+export const BLENDER_CURRICULUM_MODULES: CurriculumModule[] = applyCurriculumEnrichment(
+  RAW_BLENDER_CURRICULUM_MODULES
+);
+
+export const TOTAL_CURRICULUM_LESSONS = BLENDER_CURRICULUM_MODULES.reduce(
+  (acc, mod) => acc + mod.lessons.length,
+  0
+);
 
 export class CurriculumService {
   private static STORAGE_COMPLETED_KEY = 'blenderflow_curriculum_completed_v2';
   private static STORAGE_NOTES_KEY = 'blenderflow_curriculum_notes_v2';
+  private static STORAGE_MASTERED_KEY = 'blenderflow_curriculum_mastered_v2';
   private static STORAGE_BOOKMARKS_KEY = 'blenderflow_curriculum_bookmarks_v2';
+
+  static getMasteredLessonIds(): string[] {
+    try {
+      const data = localStorage.getItem(this.STORAGE_MASTERED_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  static setMasteredLessonIds(ids: string[]): void {
+    try {
+      const uniqueIds = Array.from(new Set(ids));
+      localStorage.setItem(this.STORAGE_MASTERED_KEY, JSON.stringify(uniqueIds));
+    } catch (e) {
+      console.error('Failed to save mastered lessons', e);
+    }
+  }
+
+  static markLessonMastered(lessonId: string): string[] {
+    const current = this.getMasteredLessonIds();
+    if (!current.includes(lessonId)) {
+      const next = [...current, lessonId];
+      this.setMasteredLessonIds(next);
+      return next;
+    }
+    return current;
+  }
 
   static getCompletedLessonIds(): string[] {
     try {

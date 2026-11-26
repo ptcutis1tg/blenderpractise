@@ -10,6 +10,7 @@ export interface BackupData {
   userStats: UserStats;
   notes: Record<string, string>;
   curriculumCompleted?: string[];
+  curriculumMastered?: string[];
   curriculumBookmarks?: string[];
   curriculumNotes?: Record<string, string>;
   aiConfig?: AIConfig;
@@ -23,6 +24,7 @@ export class ExportService {
     const roadmaps = DatabaseService.getRoadmaps();
     const userStats = DatabaseService.getUserStats();
     const curriculumCompleted = CurriculumService.getCompletedLessonIds();
+    const curriculumMastered = CurriculumService.getMasteredLessonIds();
     const curriculumBookmarks = CurriculumService.getBookmarks();
     const curriculumNotes = CurriculumService.getAllNotes();
     const aiConfig = AIService.getConfig();
@@ -42,6 +44,7 @@ export class ExportService {
       userStats,
       notes,
       curriculumCompleted,
+      curriculumMastered,
       curriculumBookmarks,
       curriculumNotes,
       aiConfig,
@@ -75,6 +78,9 @@ export class ExportService {
 
       if (Array.isArray(data.curriculumCompleted)) {
         CurriculumService.setCompletedLessonIds(data.curriculumCompleted);
+      }
+      if (Array.isArray(data.curriculumMastered)) {
+        CurriculumService.setMasteredLessonIds(data.curriculumMastered);
       }
       if (Array.isArray(data.curriculumBookmarks)) {
         CurriculumService.setBookmarks(data.curriculumBookmarks);
@@ -122,10 +128,19 @@ export class ExportService {
       'blenderflow_stats_v2',
       'blenderflow_last_active_date_v2',
       'blenderflow_curriculum_completed_v2',
+      'blenderflow_curriculum_mastered_v2',
       'blenderflow_curriculum_notes_v2',
       'blenderflow_curriculum_bookmarks_v2',
     ];
     keys.forEach((k) => localStorage.removeItem(k));
+
+    try {
+      sessionStorage.removeItem('blenderflow_curriculum_ui_state');
+      sessionStorage.removeItem('blenderflow_course_ui_state');
+      sessionStorage.removeItem('blenderflow_active_roadmap_id');
+    } catch {
+      // Ignore storage access errors
+    }
 
     const legacyNotes: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {

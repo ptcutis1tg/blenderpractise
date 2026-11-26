@@ -13,6 +13,7 @@ interface CloudChecklistsPayload {
   schemaVersion?: number;
   steps?: Record<string, boolean>;
   curriculumCompleted?: string[];
+  curriculumMastered?: string[];
   curriculumBookmarks?: string[];
   curriculumNotes?: Record<string, string>;
 }
@@ -91,6 +92,10 @@ export class CloudSyncService {
       if (payload.curriculumCompleted && payload.curriculumCompleted.length > 0) {
         const localCur = CurriculumService.getCompletedLessonIds();
         CurriculumService.setCompletedLessonIds([...localCur, ...payload.curriculumCompleted]);
+      }
+      if (payload.curriculumMastered && payload.curriculumMastered.length > 0) {
+        const localMastered = CurriculumService.getMasteredLessonIds();
+        CurriculumService.setMasteredLessonIds([...localMastered, ...payload.curriculumMastered]);
       }
       if (payload.curriculumBookmarks && payload.curriculumBookmarks.length > 0) {
         const localBm = CurriculumService.getBookmarks();
@@ -180,6 +185,7 @@ export class CloudSyncService {
         schemaVersion: 2,
         steps: checklistStepsMap,
         curriculumCompleted: CurriculumService.getCompletedLessonIds(),
+        curriculumMastered: CurriculumService.getMasteredLessonIds(),
         curriculumBookmarks: CurriculumService.getBookmarks(),
         curriculumNotes: CurriculumService.getAllNotes(),
       };
@@ -254,6 +260,7 @@ export class CloudSyncService {
               schemaVersion: 2,
               steps: {},
               curriculumCompleted: [],
+              curriculumMastered: [],
               curriculumBookmarks: [],
               curriculumNotes: {},
             },

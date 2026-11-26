@@ -198,6 +198,12 @@ export default defineConfig({
           three: ['three'],
           lucide: ['lucide-react'],
           supabase: ['@supabase/supabase-js'],
+          curriculum: [
+            './src/data/curriculumDatabase.ts',
+            './src/data/curriculumEnrichment.ts',
+            './src/data/curriculumEnrichmentPart1.ts',
+            './src/data/curriculumEnrichmentPart2.ts',
+          ],
         },
       },
     },

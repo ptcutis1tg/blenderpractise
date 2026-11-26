@@ -3,7 +3,7 @@ import { DatabaseService } from './services/db';
 import { BlenderBridgeService, BridgeStatus } from './services/blenderBridge';
 import { AuthService, UserProfile } from './services/supabaseClient';
 import { CloudSyncService } from './services/cloudSyncService';
-import { BLENDER_CURRICULUM_MODULES } from './data/curriculumDatabase';
+import { BLENDER_CURRICULUM_MODULES, TOTAL_CURRICULUM_LESSONS } from './data/curriculumDatabase';
 import { NavigationTab, Roadmap, UserStats } from './types';
 import { NavigatorSidebar } from './components/layout/NavigatorSidebar';
 import { DesktopTitlebar } from './components/layout/DesktopTitlebar';
@@ -257,7 +257,7 @@ export function App() {
       return [practiceContext.roadmap.title, practiceContext.module.title, practiceContext.task.title];
     }
     if (viewMode === 'curriculum') {
-      return ['Giáo trình 3D', 'Thư viện 26 Bài'];
+      return ['Giáo trình 3D', `Thư viện ${TOTAL_CURRICULUM_LESSONS} Bài`];
     }
     if (viewMode === 'course') {
       return ['Lộ trình học', currentRoadmap.title];

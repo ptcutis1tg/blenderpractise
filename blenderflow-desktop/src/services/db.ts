@@ -435,10 +435,10 @@ export class DatabaseService {
   }
 
   /**
-   * Ensures newly added standard modules or 3D practice challenges from INITIAL_ROADMAPS
+   * Ensures newly added standard lessons & 3D practice challenges from INITIAL_ROADMAPS
    * are seamlessly merged into existing stored user roadmaps without losing user progress.
    */
-  private static mergeStandardChallenges(loaded: Roadmap[]): Roadmap[] {
+  private static mergeStandardCurriculumAndChallenges(loaded: Roadmap[]): Roadmap[] {
     return loaded.map((rm) => {
       const seedRm = INITIAL_ROADMAPS.find((s) => s.id === rm.id);
       if (!seedRm) return rm;
@@ -447,13 +447,22 @@ export class DatabaseService {
         const seedMod = seedRm.modules.find((sm) => sm.id === mod.id);
         if (!seedMod) return mod;
 
+        // Sync lessons cleanly from INITIAL_ROADMAPS while preserving completed state
+        const mergedLessons: Lesson[] = seedMod.lessons.map((seedLes) => {
+          const existing = mod.lessons.find((l) => l.id === seedLes.id);
+          return {
+            ...seedLes,
+            isCompleted: Boolean(existing?.isCompleted || CurriculumService.isLessonCompleted(seedLes.id)),
+          };
+        });
+
         const mergedTasks = [...mod.practiceTasks];
         for (const seedTask of seedMod.practiceTasks) {
           if (!mergedTasks.some((t) => t.id === seedTask.id)) {
             mergedTasks.push(seedTask);
           }
         }
-        return { ...mod, practiceTasks: mergedTasks };
+        return { ...mod, lessons: mergedLessons, practiceTasks: mergedTasks };
       });
 
       return { ...rm, modules: updatedModules };
@@ -470,7 +479,7 @@ export class DatabaseService {
     }
     try {
       const parsed: Roadmap[] = JSON.parse(raw);
-      return this.recalculateRoadmapMetrics(this.mergeStandardChallenges(parsed));
+      return this.recalculateRoadmapMetrics(this.mergeStandardCurriculumAndChallenges(parsed));
     } catch {
       return this.recalculateRoadmapMetrics(INITIAL_ROADMAPS);
     }

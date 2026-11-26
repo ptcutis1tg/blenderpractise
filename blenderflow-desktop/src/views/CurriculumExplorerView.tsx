@@ -5,7 +5,7 @@ import {
   CurriculumService,
   TOTAL_CURRICULUM_LESSONS 
 } from '../data/curriculumDatabase';
-import { MarkdownArticleViewer } from '../components/curriculum/MarkdownArticleViewer';
+import { RichLessonBody } from '../components/curriculum/RichLessonBody';
 import { KeycapBadge } from '../components/common/KeycapBadge';
 import { 
   BookOpen, 
@@ -98,6 +98,7 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
   );
   const [searchQuery, setSearchQuery] = useState(() => initialPersisted.searchQuery ?? '');
   const [completedIds, setCompletedIds] = useState<string[]>(() => CurriculumService.getCompletedLessonIds());
+  const [masteredIds, setMasteredIds] = useState<string[]>(() => CurriculumService.getMasteredLessonIds());
   const [bookmarks, setBookmarks] = useState<string[]>(() => CurriculumService.getBookmarks());
   const [onlyBookmarks, setOnlyBookmarks] = useState(() => initialPersisted.onlyBookmarks ?? false);
 
@@ -118,10 +119,11 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
     });
   }, [selectedModuleId, activeLesson?.id, selectedLevelFilter, searchQuery, onlyBookmarks, notesExpanded]);
 
-  // Refresh completion/bookmarks and restore scroll positions when view becomes active
+  // Refresh completion/bookmarks/mastered and restore scroll positions when view becomes active
   useEffect(() => {
     if (!isActive) return;
     setCompletedIds(CurriculumService.getCompletedLessonIds());
+    setMasteredIds(CurriculumService.getMasteredLessonIds());
     setBookmarks(CurriculumService.getBookmarks());
 
     const persisted = readPersistedCurriculumState();
@@ -169,6 +171,12 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
   const handleToggleComplete = (lessonId: string) => {
     CurriculumService.toggleLessonCompleted(lessonId);
     setCompletedIds(CurriculumService.getCompletedLessonIds());
+    onProgressChanged?.();
+  };
+
+  const handleLessonMastered = (lessonId: string) => {
+    const next = CurriculumService.markLessonMastered(lessonId);
+    setMasteredIds(next);
     onProgressChanged?.();
   };
 
@@ -348,59 +356,80 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
 
                   {isSelected && (
                     <div className="px-2 pb-2 pt-1 border-t border-[#1C2333]/60 space-y-1">
-                      {mod.lessons.map((les) => {
-                        const isCurrentActive = activeLesson?.id === les.id;
-                        const isDone = completedIds.includes(les.id);
-                        const isBookmarked = bookmarks.includes(les.id);
+                      {mod.lessons
+                        .filter((les) => {
+                          if (onlyBookmarks && !bookmarks.includes(les.id)) return false;
+                          if (searchQuery.trim()) {
+                            const q = searchQuery.toLowerCase();
+                            const modMatchesTitle =
+                              mod.title.toLowerCase().includes(q) ||
+                              mod.vietnameseTitle.toLowerCase().includes(q);
+                            if (modMatchesTitle) return true;
+                            return (
+                              les.title.toLowerCase().includes(q) ||
+                              les.summary.toLowerCase().includes(q) ||
+                              les.keyShortcuts.some((s) => s.toLowerCase().includes(q))
+                            );
+                          }
+                          return true;
+                        })
+                        .map((les) => {
+                          const isCurrentActive = activeLesson?.id === les.id;
+                          const isDone = completedIds.includes(les.id);
+                          const isMastered = masteredIds.includes(les.id);
+                          const isBookmarked = bookmarks.includes(les.id);
 
-                        return (
-                          <div
-                            key={les.id}
-                            onClick={() => setActiveLesson(les)}
-                            className={`p-2 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
-                              isCurrentActive
-                                ? 'bg-[#1E2638] text-white'
-                                : 'hover:bg-[#161D2C] text-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-start gap-2 min-w-0">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleComplete(les.id);
-                                }}
-                                className="mt-0.5 text-gray-500 hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
-                              >
-                                {isDone ? (
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                                ) : (
-                                  <Circle className="w-4 h-4 text-gray-500" />
-                                )}
-                              </button>
-                              <div className="flex flex-col min-w-0">
-                                <span
-                                  className={`text-[12px] leading-tight ${
-                                    isCurrentActive ? 'text-white font-semibold' : 'text-gray-300'
-                                  }`}
+                          return (
+                            <div
+                              key={les.id}
+                              onClick={() => setActiveLesson(les)}
+                              className={`p-2 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
+                                isCurrentActive
+                                  ? 'bg-[#1E2638] text-white'
+                                  : 'hover:bg-[#161D2C] text-gray-300'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2 min-w-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleComplete(les.id);
+                                  }}
+                                  className="mt-0.5 text-gray-500 hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
                                 >
-                                  {les.title}
-                                </span>
-                                <span className="text-[10px] text-gray-500 mt-1 flex items-center gap-1.5">
-                                  <span>{les.readTime}</span>
-                                  {les.challengeRef && (
-                                    <span className="text-[#F97316] font-medium">• Thực hành 3D</span>
+                                  {isDone ? (
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-gray-500" />
                                   )}
-                                </span>
+                                </button>
+                                <div className="flex flex-col min-w-0">
+                                  <span
+                                    className={`text-[12px] leading-tight ${
+                                      isCurrentActive ? 'text-white font-semibold' : 'text-gray-300'
+                                    }`}
+                                  >
+                                    {les.title}
+                                  </span>
+                                  <span className="text-[10px] text-gray-500 mt-1 flex flex-wrap items-center gap-1.5">
+                                    <span>{les.readTime}</span>
+                                    {les.challengeRef && (
+                                      <span className="text-[#F97316] font-medium">• Thực hành 3D</span>
+                                    )}
+                                    {isMastered && (
+                                      <span className="text-emerald-400 font-medium">• Nguyên lý ✓</span>
+                                    )}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
 
-                            {isBookmarked && (
-                              <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0 mt-0.5" />
-                            )}
-                          </div>
-                        );
-                      })}
+                              {isBookmarked && (
+                                <Bookmark className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0 mt-0.5" />
+                              )}
+                            </div>
+                          );
+                        })}
                     </div>
                   )}
                 </div>
@@ -494,8 +523,12 @@ export const CurriculumExplorerView: React.FC<CurriculumExplorerViewProps> = ({
                     )}
                   </div>
 
-                  {/* Markdown Body */}
-                  <MarkdownArticleViewer content={activeLesson.contentMarkdown} />
+                  {/* Rich Interactive Body: Labs + Markdown + Concept Checks + Videos */}
+                  <RichLessonBody
+                    lesson={activeLesson}
+                    isMastered={masteredIds.includes(activeLesson.id)}
+                    onLessonMastered={handleLessonMastered}
+                  />
 
                   {/* Collapsible Personal Notes Block (Inline, no 4th column clutter) */}
                   <div className="mt-8 rounded-xl bg-[#111623] border border-[#1E2638] overflow-hidden">

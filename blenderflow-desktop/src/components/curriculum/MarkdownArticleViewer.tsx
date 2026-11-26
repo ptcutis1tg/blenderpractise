@@ -4,10 +4,10 @@ import {
   Lightbulb, 
   AlertTriangle, 
   Info, 
-  CheckCircle2, 
   Copy, 
   Check, 
-  ExternalLink 
+  ExternalLink,
+  ArrowRight
 } from 'lucide-react';
 
 interface MarkdownArticleViewerProps {
@@ -23,10 +23,20 @@ export const MarkdownArticleViewer: React.FC<MarkdownArticleViewerProps> = ({ co
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  // Normalize simple inline LaTeX tokens ($X$, $\rightarrow$, $(0,0,0)$) cleanly into readable typography
+  const sanitizeMathTokens = (raw: string): string => {
+    return raw
+      .replace(/\$\s*\\rightarrow\s*\$/g, '→')
+      .replace(/\$\s*\\leftrightarrow\s*\$/g, '↔')
+      .replace(/\\rightarrow/g, '→')
+      .replace(/\\leftrightarrow/g, '↔')
+      .replace(/\$([^$]+)\$/g, (_, inner: string) => inner.trim());
+  };
+
   // Helper to parse inline styles (bold, code, links, keycaps)
   const renderInline = (text: string): React.ReactNode => {
-    // Split by markdown formatting
-    const tokens = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^\)]+\))/g);
+    const cleanText = sanitizeMathTokens(text);
+    const tokens = cleanText.split(/(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^\)]+\))/g);
 
     return tokens.map((token, i) => {
       if (!token) return null;
@@ -34,7 +44,7 @@ export const MarkdownArticleViewer: React.FC<MarkdownArticleViewerProps> = ({ co
       // Inline backtick code / keycap
       if (token.startsWith('`') && token.endsWith('`')) {
         const inner = token.slice(1, -1);
-        const isKeycap = inner.includes('+') || ['G', 'R', 'S', 'E', 'I', 'M', 'Z', 'Tab', 'Space', 'Shift', 'Ctrl', 'Alt', 'F', 'C'].includes(inner);
+        const isKeycap = inner.includes('+') || ['G', 'R', 'S', 'E', 'I', 'M', 'Z', 'K', 'J', 'F', 'A', 'X', 'H', 'Tab', 'Space', 'Shift', 'Ctrl', 'Alt', 'C'].includes(inner);
         if (isKeycap) {
           return <span key={i} className="inline-block mx-0.5"><KeycapBadge keys={inner} size="sm" /></span>;
         }
@@ -71,6 +81,45 @@ export const MarkdownArticleViewer: React.FC<MarkdownArticleViewerProps> = ({ co
     });
   };
 
+  // Render Mermaid flowchart text cleanly as visual connected cards instead of raw code
+  const renderMermaidFlow = (mermaidText: string, idx: number) => {
+    const nodeLabels: string[] = [];
+    const matches = [...mermaidText.matchAll(/[A-Za-z0-9_]+\["([^"]+)"\]/g)];
+    for (const m of matches) {
+      const cleanLabel = m[1].replace(/<br\s*\/?>/gi, ' — ');
+      if (!nodeLabels.includes(cleanLabel)) {
+        nodeLabels.push(cleanLabel);
+      }
+    }
+
+    if (nodeLabels.length > 0) {
+      return (
+        <div key={`mermaid-${idx}`} className="my-4 p-4 rounded-xl border border-[#232D42] bg-[#0E1320]">
+          <div className="text-[11px] font-mono uppercase tracking-wider text-indigo-300 mb-3">
+            Sơ đồ Quy trình (Workflow Diagram)
+          </div>
+          <div className="flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-2">
+            {nodeLabels.map((lbl, nIdx) => (
+              <React.Fragment key={nIdx}>
+                <div className="flex-1 min-w-[170px] p-3 rounded-xl bg-[#141B2D] border border-[#2A3652] text-[12px] text-gray-200 leading-snug">
+                  <span className="inline-block text-[10px] font-mono font-bold text-[#F97316] mr-1.5">
+                    0{nIdx + 1}
+                  </span>
+                  {lbl}
+                </div>
+                {nIdx < nodeLabels.length - 1 && (
+                  <ArrowRight className="w-4 h-4 text-gray-500 shrink-0 hidden md:block" />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   // Process blocks
   const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
@@ -95,6 +144,13 @@ export const MarkdownArticleViewer: React.FC<MarkdownArticleViewerProps> = ({ co
         inCodeBlock = false;
         const currentIdx = codeBlockCounter++;
         const fullCode = codeBlockContent.join('\n');
+        if (codeBlockLang.toLowerCase() === 'mermaid') {
+          const mermaidNode = renderMermaidFlow(fullCode, currentIdx);
+          if (mermaidNode) {
+            elements.push(mermaidNode);
+            continue;
+          }
+        }
         elements.push(
           <div key={`code-${currentIdx}`} className="my-4 rounded-xl overflow-hidden border border-[#232D42] bg-[#0A0D15]">
             <div className="flex items-center justify-between px-4 py-2 bg-[#121622] border-b border-[#232D42] text-[11px] text-gray-400">
@@ -238,6 +294,26 @@ export const MarkdownArticleViewer: React.FC<MarkdownArticleViewerProps> = ({ co
             <strong className="font-semibold block text-indigo-300 mb-0.5">Lưu ý then chốt:</strong>
             {renderInline(rest)}
           </div>
+        </div>
+      );
+    } else if (trimmed.startsWith('> ')) {
+      const rest = trimmed.slice(2).trim();
+      const isWarningQuote = rest.includes('⚠️') || rest.toLowerCase().includes('lỗi') || rest.toLowerCase().includes('chú ý');
+      elements.push(
+        <div
+          key={i}
+          className={`my-3 p-3.5 rounded-xl border flex items-start gap-3 ${
+            isWarningQuote
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-100'
+              : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-100'
+          }`}
+        >
+          {isWarningQuote ? (
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          ) : (
+            <Lightbulb className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          )}
+          <div className="text-[13px] leading-relaxed">{renderInline(rest)}</div>
         </div>
       );
     } else if (trimmed.startsWith('- [ ] ') || trimmed.startsWith('- [x] ')) {

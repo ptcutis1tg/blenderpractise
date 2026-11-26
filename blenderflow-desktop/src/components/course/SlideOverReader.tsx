@@ -17,8 +17,10 @@ import {
   Sparkles
 } from 'lucide-react';
 import { KeycapBadge } from '../common/KeycapBadge';
+import { RichLessonBody } from '../curriculum/RichLessonBody';
 import { MarkdownArticleViewer } from '../curriculum/MarkdownArticleViewer';
 import { DETAILED_LESSONS, NotesService, DetailedLesson, getLinkedCurriculumLesson } from '../../data/lessonDetails';
+import { CurriculumService } from '../../data/curriculumDatabase';
 import { Lesson } from '../../types';
 
 interface SlideOverReaderProps {
@@ -230,79 +232,36 @@ export const SlideOverReader: React.FC<SlideOverReaderProps> = ({
               )}
             </div>
 
-            {/* Structured Detailed Sections (if curated for this lesson) */}
-            {structuredDetailed?.sections.map((section, idx) => (
-              <div key={idx} className="flex flex-col gap-4">
-                <h2 className="font-['Space_Grotesk'] text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#F97316]" />
-                  {section.title}
-                </h2>
-
-                <div className={`flex flex-col gap-3 text-gray-300 ${getTextClass()}`}>
-                  {section.body.map((p, pIdx) => (
-                    <p key={pIdx}>{p}</p>
-                  ))}
-                </div>
-
-                {/* Callout Box (Tip, Warning, Important) */}
-                {section.callout && (
-                  <div
-                    className={`p-4 rounded-xl border flex items-start gap-3 my-2 ${
-                      section.callout.type === 'tip'
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
-                        : section.callout.type === 'warning'
-                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
-                        : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-200'
-                    }`}
-                  >
-                    <div className="shrink-0 mt-0.5">
-                      {section.callout.type === 'tip' && <Lightbulb className="w-5 h-5 text-emerald-400" />}
-                      {section.callout.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-400" />}
-                      {section.callout.type === 'important' && <Info className="w-5 h-5 text-indigo-400" />}
-                    </div>
-                    <p className="text-[13px] leading-relaxed font-medium">
-                      {section.callout.text}
-                    </p>
-                  </div>
-                )}
-
-                {/* Comparison Table */}
-                {section.comparisonTable && (
-                  <div className="my-3 overflow-hidden rounded-xl border border-[#263045] bg-[#121622]">
-                    <table className="w-full text-left text-[13px]">
-                      <thead className="bg-[#182030] text-white border-b border-[#263045]">
-                        <tr>
-                          <th className="p-3.5 font-bold font-['Space_Grotesk'] text-indigo-300 w-1/2">
-                            {section.comparisonTable.headers[0]}
-                          </th>
-                          <th className="p-3.5 font-bold font-['Space_Grotesk'] text-emerald-300 w-1/2 border-l border-[#263045]">
-                            {section.comparisonTable.headers[1]}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#1F2637] text-gray-300">
-                        {section.comparisonTable.rows.map((row, rIdx) => (
-                          <tr key={rIdx} className="hover:bg-[#161D2B] transition-colors">
-                            <td className="p-3.5 leading-relaxed">{row[0]}</td>
-                            <td className="p-3.5 leading-relaxed border-l border-[#1F2637] bg-emerald-500/5">
-                              {row[1]}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {/* Linked Full Vietnamese Encyclopedia Article or Dynamic Guide */}
-            {(linkedCurriculum?.contentMarkdown || dynamicLessonMarkdown) && (
+            {/* Unified Vietnamese Rich Lesson Content (Interactive Lab + Markdown + Concept Checks + Video) */}
+            {linkedCurriculum ? (
               <div className="pt-2 border-t border-[#1F2637]/70">
-                <MarkdownArticleViewer
-                  content={linkedCurriculum?.contentMarkdown || dynamicLessonMarkdown || ''}
+                <RichLessonBody
+                  lesson={linkedCurriculum}
+                  isMastered={CurriculumService.getMasteredLessonIds().includes(linkedCurriculum.id)}
+                  onLessonMastered={(id) => CurriculumService.markLessonMastered(id)}
                 />
               </div>
+            ) : (
+              <>
+                {structuredDetailed?.sections.map((section, idx) => (
+                  <div key={idx} className="flex flex-col gap-4">
+                    <h2 className="font-['Space_Grotesk'] text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#F97316]" />
+                      {section.title}
+                    </h2>
+                    <div className={`flex flex-col gap-3 text-gray-300 ${getTextClass()}`}>
+                      {section.body.map((p, pIdx) => (
+                        <p key={pIdx}>{p}</p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {dynamicLessonMarkdown && (
+                  <div className="pt-2 border-t border-[#1F2637]/70">
+                    <MarkdownArticleViewer content={dynamicLessonMarkdown} />
+                  </div>
+                )}
+              </>
             )}
 
             {/* Student Personal Study Notes Area */}

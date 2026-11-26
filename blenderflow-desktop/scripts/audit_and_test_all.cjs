@@ -82,10 +82,16 @@ console.log('\n--- 2. CURRICULUM DATABASE INTEGRITY ---');
 const curDbPath = path.join(ROOT_DIR, 'src/data/curriculumDatabase.ts');
 if (fs.existsSync(curDbPath)) {
   const curContent = fs.readFileSync(curDbPath, 'utf8');
+  const part1Path = path.join(ROOT_DIR, 'src/data/curriculumEnrichmentPart1.ts');
+  const part2Path = path.join(ROOT_DIR, 'src/data/curriculumEnrichmentPart2.ts');
+  const part1Content = fs.existsSync(part1Path) ? fs.readFileSync(part1Path, 'utf8') : '';
+  const part2Content = fs.existsSync(part2Path) ? fs.readFileSync(part2Path, 'utf8') : '';
   const modMatches = curContent.match(/"id":\s*"cur-mod-\d+"/g) || [];
-  const lesMatches = curContent.match(/"id":\s*"les-cur-mod-\d+-\d+"/g) || [];
+  const baseLesMatches = curContent.match(/"id":\s*"les-cur-mod-\d+-\d+"/g) || [];
+  const extraLesMatches = (part1Content + part2Content).match(/id:\s*'les-cur-mod-\d+-\d+'/g) || [];
+  const totalLessonsCount = baseLesMatches.length + extraLesMatches.length;
   recordTest('Curriculum Modules Count', modMatches.length === 10, `Found ${modMatches.length} / 10 expected modules`);
-  recordTest('Curriculum Lessons Count', lesMatches.length === 26, `Found ${lesMatches.length} / 26 expected lessons`);
+  recordTest('Curriculum Micro-Lessons Count (>= 36)', totalLessonsCount >= 36, `Found ${totalLessonsCount} micro-lessons (${baseLesMatches.length} base + ${extraLesMatches.length} enriched)`);
 }
 
 // 3. Check App.tsx view wiring & Toast position
@@ -201,11 +207,24 @@ if (fs.existsSync(syncPath)) {
 const dbPath = path.join(ROOT_DIR, 'src/services/db.ts');
 if (fs.existsSync(dbPath)) {
   const dbContent = fs.readFileSync(dbPath, 'utf8');
-  const usesSingleSource = dbContent.includes('pickCurriculumLessons') && dbContent.includes('blenderflow_roadmaps_v2');
+  const usesSingleSource = dbContent.includes('pickCurriculumLessons') && dbContent.includes('blenderflow_roadmaps_v2') && dbContent.includes('mergeStandardCurriculumAndChallenges');
   const practiceTaskCount = (dbContent.match(/id:\s*'task-[a-z0-9-]+'/g) || []).length;
-  const hasMergeChallenges = dbContent.includes('mergeStandardChallenges');
-  recordTest('Single Source of Truth: Unified 26 Lessons & v2 Storage', usesSingleSource, 'Roadmaps pull all 26 lessons from CurriculumDatabase & purge v1 stale caches');
+  const hasMergeChallenges = dbContent.includes('mergeStandardCurriculumAndChallenges');
+  recordTest('Single Source of Truth: Unified Lessons & v2 Storage', usesSingleSource, 'Roadmaps pull all lessons from CurriculumDatabase, merge updates & purge v1 stale caches');
   recordTest('High 3D Practice Density: >= 10 Studio Challenges', practiceTaskCount >= 10 && hasMergeChallenges, `Found ${practiceTaskCount} 3D practice tasks with cache auto-merge across all 8 modules`);
+
+  const mdViewerPath = path.join(ROOT_DIR, 'src/components/curriculum/MarkdownArticleViewer.tsx');
+  const labPath = path.join(ROOT_DIR, 'src/components/curriculum/PrincipleLabWidget.tsx');
+  const deckPath = path.join(ROOT_DIR, 'src/components/curriculum/ConceptCheckDeck.tsx');
+  const videoPath = path.join(ROOT_DIR, 'src/components/curriculum/VideoIllustrationCard.tsx');
+  const hasInteractiveCurriculum =
+    fs.existsSync(labPath) &&
+    fs.existsSync(deckPath) &&
+    fs.existsSync(videoPath) &&
+    fs.existsSync(mdViewerPath) &&
+    fs.readFileSync(mdViewerPath, 'utf8').includes('sanitizeMathTokens') &&
+    fs.readFileSync(mdViewerPath, 'utf8').includes('renderMermaidFlow');
+  recordTest('Interactive Brilliant-Style Labs, Quiz & Clean Renderer', hasInteractiveCurriculum, '8 SVG/Canvas Principle Labs, Concept Checks, Video Facade & Math/Mermaid fixes active');
 }
 
 const curriculumLinkDbPath = path.join(ROOT_DIR, 'src/data/curriculumDatabase.ts');
